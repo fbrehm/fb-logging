@@ -39,6 +39,29 @@ class TestFbLogging(FbLoggingTestcase):
 
         LOG.debug("Version of fb_logging: {!r}.".format(fb_logging.__version__))
 
+    # -------------------------------------------------------------------------
+    def test_use_unix_syslog_handler(self):
+
+        LOG.info("Testing fb_logging.use_unix_syslog_handler() ...")
+
+        os_name = os.uname()[0]
+        LOG.debug("Current OS kernel name: {!r}.".format(os_name))
+
+        from fb_logging import use_unix_syslog_handler
+
+        use_ux_handler = use_unix_syslog_handler()
+        LOG.debug("Return value of use_unix_syslog_handler(): {!r}.".format(use_ux_handler))
+
+        if os_name.lower() == 'sunos':
+            self.assertTrue(
+                    use_ux_handler,
+                    "On a {os!r} system {func}() must return {ret!r}.".format(
+                        os=os_name, func='use_unix_syslog_handler', ret=True))
+        else:
+            self.assertFalse(
+                    use_ux_handler,
+                    "On a {os!r} system {func}() must return {ret!r}.".format(
+                        os=os_name, func='use_unix_syslog_handler', ret=False))
 
 # =============================================================================
 if __name__ == '__main__':
@@ -54,6 +77,7 @@ if __name__ == '__main__':
     suite = unittest.TestSuite()
 
     suite.addTest(TestFbLogging('test_import_modules', verbose))
+    suite.addTest(TestFbLogging('test_use_unix_syslog_handler', verbose))
 
     runner = unittest.TextTestRunner(verbosity=verbose)
 
