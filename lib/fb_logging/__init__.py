@@ -86,15 +86,10 @@ def _init_valid_facilities():
     if use_unix_syslog_handler():
 
         VALID_SYSLOG_FACILITIES = {
-            'kern': syslog.LOG_KERN,
-            'user': syslog.LOG_USER,
-            'mail': syslog.LOG_MAIL,
-            'daemon': syslog.LOG_DAEMON,
             'auth': syslog.LOG_AUTH,
-            'lpr': syslog.LOG_LPR,
-            'news': syslog.LOG_NEWS,
-            'uucp': syslog.LOG_UUCP,
             'cron': syslog.LOG_CRON,
+            'daemon': syslog.LOG_DAEMON,
+            'kern': syslog.LOG_KERN,
             'local0': syslog.LOG_LOCAL0,
             'local1': syslog.LOG_LOCAL1,
             'local2': syslog.LOG_LOCAL2,
@@ -103,22 +98,21 @@ def _init_valid_facilities():
             'local5': syslog.LOG_LOCAL5,
             'local6': syslog.LOG_LOCAL6,
             'local7': syslog.LOG_LOCAL7,
+            'lpr': syslog.LOG_LPR,
+            'mail': syslog.LOG_MAIL,
+            'news': syslog.LOG_NEWS,
+            'user': syslog.LOG_USER,
+            'uucp': syslog.LOG_UUCP,
         }
 
     else:
 
         VALID_SYSLOG_FACILITIES = {
-            'kern': logging.handlers.SysLogHandler.LOG_KERN,
-            'user': logging.handlers.SysLogHandler.LOG_USER,
-            'mail': logging.handlers.SysLogHandler.LOG_MAIL,
-            'daemon': logging.handlers.SysLogHandler.LOG_DAEMON,
             'auth': logging.handlers.SysLogHandler.LOG_AUTH,
-            'syslog': logging.handlers.SysLogHandler.LOG_SYSLOG,
-            'lpr': logging.handlers.SysLogHandler.LOG_LPR,
-            'news': logging.handlers.SysLogHandler.LOG_NEWS,
-            'uucp': logging.handlers.SysLogHandler.LOG_UUCP,
-            'cron': logging.handlers.SysLogHandler.LOG_CRON,
             'authpriv': logging.handlers.SysLogHandler.LOG_AUTHPRIV,
+            'cron': logging.handlers.SysLogHandler.LOG_CRON,
+            'daemon': logging.handlers.SysLogHandler.LOG_DAEMON,
+            'kern': logging.handlers.SysLogHandler.LOG_KERN,
             'local0': logging.handlers.SysLogHandler.LOG_LOCAL0,
             'local1': logging.handlers.SysLogHandler.LOG_LOCAL1,
             'local2': logging.handlers.SysLogHandler.LOG_LOCAL2,
@@ -127,6 +121,12 @@ def _init_valid_facilities():
             'local5': logging.handlers.SysLogHandler.LOG_LOCAL5,
             'local6': logging.handlers.SysLogHandler.LOG_LOCAL6,
             'local7': logging.handlers.SysLogHandler.LOG_LOCAL7,
+            'lpr': logging.handlers.SysLogHandler.LOG_LPR,
+            'mail': logging.handlers.SysLogHandler.LOG_MAIL,
+            'news': logging.handlers.SysLogHandler.LOG_NEWS,
+            'syslog': logging.handlers.SysLogHandler.LOG_SYSLOG,
+            'user': logging.handlers.SysLogHandler.LOG_USER,
+            'uucp': logging.handlers.SysLogHandler.LOG_UUCP,
         }
 
     SYSLOG_FACILITY_NAMES = {}
