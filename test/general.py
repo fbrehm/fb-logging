@@ -14,6 +14,7 @@ import sys
 import logging
 from logging import Formatter
 import argparse
+import pprint
 
 try:
     import unittest2 as unittest
@@ -70,6 +71,20 @@ def init_root_logger(verbose=0):
     lh_console.setFormatter(formatter)
 
     root_log.addHandler(lh_console)
+
+
+# =============================================================================
+def pp(value, indent=4, width=99, depth=None):
+    """
+    Returns a pretty print string of the given value.
+
+    @return: pretty print string
+    @rtype: str
+    """
+
+    pretty_printer = pprint.PrettyPrinter(
+        indent=indent, width=width, depth=depth)
+    return pretty_printer.pformat(value)
 
 
 # =============================================================================
