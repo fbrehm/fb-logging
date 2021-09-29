@@ -78,6 +78,7 @@ class TestFbLogging(FbLoggingTestcase):
         LOG.info("Testing fb_logging.get_syslog_facility_name() ...")
 
         from fb_logging import use_unix_syslog_handler, get_syslog_facility_name
+        from fb_logging import SyslogFacitityError
 
         use_ux_handler = use_unix_syslog_handler()
 
@@ -87,8 +88,9 @@ class TestFbLogging(FbLoggingTestcase):
                 [syslog.LOG_DAEMON, 'syslog.LOG_DAEMON', 'daemon'],
                 [syslog.LOG_LOCAL2, 'syslog.LOG_LOCAL2', 'local2'],
                 [syslog.LOG_MAIL, 'syslog.LOG_MAIL', 'mail'],
+                [0.0, 'syslog.LOG_KERN', 'kern'],
             ]
-            invalid_test_data = [ 10, None, 'blah', 1024, -3, 0.4]
+            invalid_test_data = [ 10, None, 'blah', 1024, -3, 0.4, 99.4]
         else:
             valid_test_data = [
                 [
@@ -121,8 +123,13 @@ class TestFbLogging(FbLoggingTestcase):
                     'logging.handlers.SysLogHandler.LOG_SYSLOG',
                     'syslog',
                 ],
+                [
+                    0.0,
+                    'logging.handlers.SysLogHandler.LOG_KERN',
+                    'kern',
+                ],
             ]
-            invalid_test_data = [ None, 'blah', 1024, -3, 0.4]
+            invalid_test_data = [ None, 'blah', 1024, -3, 0.4, 99.4]
 
         for test_tuple in valid_test_data:
 
@@ -138,11 +145,13 @@ class TestFbLogging(FbLoggingTestcase):
 
         for test_id in invalid_test_data:
 
-            LOG.debug("Test get_syslog_facility_name({!r}) -> None.".format(test_id))
+            LOG.debug("Test exception on get_syslog_facility_name({!r}).".format(test_id))
 
-            result = get_syslog_facility_name(test_id)
-            LOG.debug("Got {!r}.".format(result))
-            self.assertIsNone(result)
+            with self.assertRaises(SyslogFacitityError) as cm:
+                result = get_syslog_facility_name(test_id)
+
+            e = cm.exception
+            LOG.debug("Got a {c}: {e}.".format(c=e.__class__.__name__, e=e))
 
 # =============================================================================
 if __name__ == '__main__':

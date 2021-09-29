@@ -10,7 +10,7 @@
 __author__ = 'Frank Brehm <frank@brehm-online.com>'
 __copyright__ = '(C) 2021 by Frank Brehm, Berlin'
 __contact__ = 'frank@brehm-online.com'
-__version__ = '0.2.0'
+__version__ = '0.2.1'
 __license__ = 'AGPL'
 
 # Standard modules
@@ -32,7 +32,16 @@ class FbLoggingError(Exception):
 
 
 # =============================================================================
-class WrongLogFacilityIdTypeError(FbLoggingError, TypeError):
+class SyslogFacitityError(FbLoggingError):
+    """
+    Base error class for exceptions in class FbSyslogFacilityInfo.
+    """
+
+    pass
+
+
+# =============================================================================
+class WrongLogFacilityIdTypeError(SyslogFacitityError, TypeError):
     """
     Special error class for the case, a wrong variable type (instead of Integer)
     was tried to use as a Syslog facility id.
@@ -47,12 +56,12 @@ class WrongLogFacilityIdTypeError(FbLoggingError, TypeError):
     def __str__(self):
 
         msg = "Wrong variable {v!r} ({t}) given as a syslog facility id.".format(
-                v=self.value, t=self.value,__class__.__name__)
+                v=self.value, t=self.value.__class__.__name__)
         return msg
 
 
 # =============================================================================
-class WrongLogFacilityIdValueError(FbLoggingError, ValueError):
+class WrongLogFacilityIdValueError(SyslogFacitityError, ValueError):
     """
     Special error class for the case, a wrong variable value was tried to use
     as a Syslog facility id.
@@ -71,7 +80,7 @@ class WrongLogFacilityIdValueError(FbLoggingError, ValueError):
 
 
 # =============================================================================
-class WrongLogFacilityNameTypeError(FbLoggingError, TypeError):
+class WrongLogFacilityNameTypeError(SyslogFacitityError, TypeError):
     """
     Special error class for the case, a wrong variable type (instead of String)
     was tried to use as a Syslog facility name.
@@ -86,12 +95,12 @@ class WrongLogFacilityNameTypeError(FbLoggingError, TypeError):
     def __str__(self):
 
         msg = "Wrong variable {v!r} ({t}) given as a syslog facility name.".format(
-                v=self.value, t=self.value,__class__.__name__)
+                v=self.value, t=self.value.__class__.__name__)
         return msg
 
 
 # =============================================================================
-class WrongLogFacilityNameValueError(FbLoggingError, ValueError):
+class WrongLogFacilityNameValueError(SyslogFacitityError, ValueError):
     """
     Special error class for the case, a wrong variable value was tried to use
     as a Syslog facility name.
@@ -239,6 +248,11 @@ class FbSyslogFacilityInfo(object):
             raise WrongLogFacilityIdTypeError(value)
 
         val = int(value)
+        if val != value:
+            if cls.raise_on_wrong_facility_name:
+                raise WrongLogFacilityIdValueError(value)
+            else:
+                return None
 
         if val not in cls.syslog_facility_names:
             if cls.raise_on_wrong_facility_name:
