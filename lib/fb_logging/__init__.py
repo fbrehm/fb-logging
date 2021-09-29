@@ -10,7 +10,7 @@
 __author__ = 'Frank Brehm <frank@brehm-online.com>'
 __copyright__ = '(C) 2021 by Frank Brehm, Berlin'
 __contact__ = 'frank@brehm-online.com'
-__version__ = '0.1.0'
+__version__ = '0.2.0'
 __license__ = 'AGPL'
 
 # Standard modules
@@ -20,38 +20,93 @@ import logging
 import logging.handlers
 import syslog
 
-# -----------------------------------------------------------------------------
-# Module variables
-
-VALID_SYSLOG_FACILITIES = {}
-"""
-a dictionary with all valid syslog facility names as keys and their
-integer value as values.
-@type: dict
-"""
-
-SYSLOG_FACILITY_NAMES = {}
-"""
-The reverse dictionary to VALID_SYSLOG_FACILITIES with all facility values
-as keys and their names as values.
-"""
+from numbers import Number
 
 # =============================================================================
-def valid_syslog_facilities():
+class FbLoggingError(Exception):
     """
-    Returns a copy of VALID_SYSLOG_FACILITIES.
+    Base error class for all other self defined exceptions.
     """
 
-    return copy.copy(VALID_SYSLOG_FACILITIES)
+    pass
 
 
 # =============================================================================
-def syslog_facility_names():
+class WrongLogFacilityIdTypeError(FbLoggingError, TypeError):
     """
-    Returns a copy of SYSLOG_FACILITY_NAMES.
+    Special error class for the case, a wrong variable type (instead of Integer)
+    was tried to use as a Syslog facility id.
     """
 
-    return copy.copy(SYSLOG_FACILITY_NAMES)
+    # -------------------------------------------------------------------------
+    def __init__(self, value):
+
+        self.value = value
+
+    # -------------------------------------------------------------------------
+    def __str__(self):
+
+        msg = "Wrong variable {v!r} ({t}) given as a syslog facility id.".format(
+                v=self.value, t=self.value,__class__.__name__)
+        return msg
+
+
+# =============================================================================
+class WrongLogFacilityIdValueError(FbLoggingError, ValueError):
+    """
+    Special error class for the case, a wrong variable value was tried to use
+    as a Syslog facility id.
+    """
+
+    # -------------------------------------------------------------------------
+    def __init__(self, value):
+
+        self.value = value
+
+    # -------------------------------------------------------------------------
+    def __str__(self):
+
+        msg = "Wrong variable {} given as a syslog facility id.".format(self.value)
+        return msg
+
+
+# =============================================================================
+class WrongLogFacilityNameTypeError(FbLoggingError, TypeError):
+    """
+    Special error class for the case, a wrong variable type (instead of String)
+    was tried to use as a Syslog facility name.
+    """
+
+    # -------------------------------------------------------------------------
+    def __init__(self, value):
+
+        self.value = value
+
+    # -------------------------------------------------------------------------
+    def __str__(self):
+
+        msg = "Wrong variable {v!r} ({t}) given as a syslog facility name.".format(
+                v=self.value, t=self.value,__class__.__name__)
+        return msg
+
+
+# =============================================================================
+class WrongLogFacilityNameValueError(FbLoggingError, ValueError):
+    """
+    Special error class for the case, a wrong variable value was tried to use
+    as a Syslog facility name.
+    """
+
+    # -------------------------------------------------------------------------
+    def __init__(self, value):
+
+        self.value = value
+
+    # -------------------------------------------------------------------------
+    def __str__(self):
+
+        msg = "Wrong variable {!r} given as a syslog facility name.".format(self.value)
+        return msg
 
 
 # =============================================================================
@@ -74,18 +129,20 @@ def use_unix_syslog_handler():
 
 
 # =============================================================================
-def _init_valid_facilities():
+class FbSyslogFacilityInfo(object):
     """
-    Initialise the module variables VALID_SYSLOG_FACILITY and
-    SYSLOG_FACILITY_NAME.
+    A pure information class about Syslog facilities, their names and their
+    numeric representation.
 
+    This class does not need an instantiation, because it consists only from
+    class members and class methods.
     """
 
-    global VALID_SYSLOG_FACILITIES, SYSLOG_FACILITY_NAMES
+    syslog_facilities = {}
+    syslog_facility_names = {}
 
     if use_unix_syslog_handler():
-
-        VALID_SYSLOG_FACILITIES = {
+        syslog_facilities = {
             'auth': syslog.LOG_AUTH,
             'cron': syslog.LOG_CRON,
             'daemon': syslog.LOG_DAEMON,
@@ -104,10 +161,8 @@ def _init_valid_facilities():
             'user': syslog.LOG_USER,
             'uucp': syslog.LOG_UUCP,
         }
-
     else:
-
-        VALID_SYSLOG_FACILITIES = {
+        syslog_facilities = {
             'auth': logging.handlers.SysLogHandler.LOG_AUTH,
             'authpriv': logging.handlers.SysLogHandler.LOG_AUTHPRIV,
             'cron': logging.handlers.SysLogHandler.LOG_CRON,
@@ -129,55 +184,123 @@ def _init_valid_facilities():
             'uucp': logging.handlers.SysLogHandler.LOG_UUCP,
         }
 
-    SYSLOG_FACILITY_NAMES = {}
-    for fac_name in VALID_SYSLOG_FACILITIES.keys():
-        fac_nr = VALID_SYSLOG_FACILITIES[fac_name]
-        SYSLOG_FACILITY_NAMES[fac_nr] = fac_name
+    for facility_name in syslog_facilities.keys():
+        facility_id = syslog_facilities[facility_name]
+        syslog_facility_names[facility_id] = facility_name
+
+    raise_on_wrong_facility_name = True
+
+    # -------------------------------------------------------------------------
+    @classmethod
+    def facility_id(cls, value):
+        """
+        This method is trying to get the numeric syslog facility Id
+        for the given facility name.
+
+        @raises WrongLogFacilityNameTypeError, if the given value
+                has the wrong variable type
+        @raises WrongLogFacilityNameValueError, if the given value
+                was not found.
+
+        @return: numeric syslog facility id
+        @rtype: int
+        """
+
+        if not isinstance(value, String):
+            raise WrongLogFacilityNameTypeError(value)
+
+        val = value.lower()
+
+        if val not in cls.syslog_facilities:
+            if cls.raise_on_wrong_facility_name:
+                raise WrongLogFacilityNameValueError(value)
+            else:
+                return None
+
+        return cls.syslog_facilities[val]
+
+    # -------------------------------------------------------------------------
+    @classmethod
+    def facility_name(cls, value):
+        """
+        This method is trying to get the syslog facility name
+        for the given facility Id.
+
+        @raises WrongLogFacilityIdTypeError, if the given value
+                has the wrong variable type
+        @raises WrongLogFacilityIdValueError, if the value
+                was not found.
+
+        @return: syslog facility name
+        @rtype: str
+        """
+
+        if not isinstance(value, Number):
+            raise WrongLogFacilityIdTypeError(value)
+
+        val = int(value)
+
+        if val not in cls.syslog_facility_names:
+            if cls.raise_on_wrong_facility_name:
+                raise WrongLogFacilityIdValueError(value)
+            else:
+                return None
+
+        return cls.syslog_facility_names[val]
+
+
+# =============================================================================
+def valid_syslog_facilities():
+    """
+    Returns a copy of FbSyslogFacilityInfo.syslog_facilities
+    """
+
+    return copy.copy(FbSyslogFacilityInfo.syslog_facilities)
+
+
+# =============================================================================
+def syslog_facility_names():
+    """
+    Returns a copy of FbSyslogFacilityInfo.syslog_facility_names
+    """
+
+    return copy.copy(FbSyslogFacilityInfo.syslog_facility_names)
 
 
 # =============================================================================
 def get_syslog_facility_name(syslog_facility):
     """
-    Returns the name of the given syslog facility.
-    Returns None, if not found.
-
-    @return: syslog facility name
-    @rtype: str
+    This is a wrapper for FbSyslogFacilityInfo.facility_name()
     """
 
-    global SYSLOG_FACILITY_NAMES
+    return FbSyslogFacilityInfo.facility_name(syslog_facility)
 
-    if syslog_facility in SYSLOG_FACILITY_NAMES:
-        return SYSLOG_FACILITY_NAMES[syslog_facility]
 
-    return None
+# =============================================================================
+def syslog_facility_name(syslog_facility):
+    """
+    This is a wrapper for FbSyslogFacilityInfo.facility_name()
+    """
+
+    return FbSyslogFacilityInfo.facility_name(syslog_facility)
 
 
 # =============================================================================
 def get_syslog_facility_of_name(facility_name):
     """
-    Returns the numeric value of the given syslog facility name.
-    Returns None, if not found.
-
-    @return: syslog facility value
-    @rtype: int
+    This is a wrapper for FbSyslogFacilityInfo.facility_id()
     """
 
-    global valid_syslog_facility, syslog_facility_name
-
-    if facility_name in SYSLOG_FACILITY_NAMES:
-        return facility_name
-
-    fname = facility_name.lower()
-    if facility_name in VALID_SYSLOG_FACILITIES:
-        return VALID_SYSLOG_FACILITIES[facility_name]
-
-    return None
+    return FbSyslogFacilityInfo.facility_id(facility_name)
 
 
 # =============================================================================
+def syslog_facility_id(facility_name):
+    """
+    This is a wrapper for FbSyslogFacilityInfo.facility_id()
+    """
 
-_init_valid_facilities()
+    return FbSyslogFacilityInfo.facility_id(facility_name)
 
 
 # =============================================================================
