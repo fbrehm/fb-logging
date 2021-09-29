@@ -10,7 +10,7 @@
 __author__ = 'Frank Brehm <frank@brehm-online.com>'
 __copyright__ = '(C) 2021 by Frank Brehm, Berlin'
 __contact__ = 'frank@brehm-online.com'
-__version__ = '0.2.1'
+__version__ = '0.2.2'
 __license__ = 'AGPL'
 
 # Standard modules
@@ -215,7 +215,7 @@ class FbSyslogFacilityInfo(object):
         @rtype: int
         """
 
-        if not isinstance(value, String):
+        if not isinstance(value, str):
             raise WrongLogFacilityNameTypeError(value)
 
         val = value.lower()

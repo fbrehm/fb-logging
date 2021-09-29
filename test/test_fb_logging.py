@@ -78,8 +78,10 @@ class TestFbLogging(FbLoggingTestcase):
         LOG.info("Testing fb_logging.get_syslog_facility_name() ...")
 
         from fb_logging import FbSyslogFacilityInfo
-        from fb_logging import use_unix_syslog_handler, get_syslog_facility_name
+        from fb_logging import use_unix_syslog_handler, syslog_facility_name
         from fb_logging import SyslogFacitityError
+
+        FbSyslogFacilityInfo.raise_on_wrong_facility_name = True
 
         use_ux_handler = use_unix_syslog_handler()
 
@@ -140,30 +142,108 @@ class TestFbLogging(FbLoggingTestcase):
             fac_origin = test_tuple[1]
             expected = test_tuple[2]
 
-            LOG.debug("Test get_syslog_facility_name({id}) -> {ex!r} ({origin}).".format(
+            LOG.debug("Test syslog_facility_name({id}) -> {ex!r} ({origin}).".format(
                 id=fac_id, ex=expected, origin=fac_origin))
-            result = get_syslog_facility_name(fac_id)
+            result = syslog_facility_name(fac_id)
             LOG.debug("Got {!r}.".format(result))
             self.assertEqual(expected, result)
 
         for test_id in invalid_test_data:
 
-            LOG.debug("Test exception on get_syslog_facility_name({!r}).".format(test_id))
+            LOG.debug("Test exception on syslog_facility_name({!r}).".format(test_id))
 
             with self.assertRaises(SyslogFacitityError) as cm:
-                result = get_syslog_facility_name(test_id)
+                result = syslog_facility_name(test_id)
 
             e = cm.exception
             LOG.debug("Got a {c}: {e}.".format(c=e.__class__.__name__, e=e))
 
-        LOG.info("Testing  fb_logging.get_syslog_facility_name() with wrong values without raising an exception ...")
+        LOG.info("Testing syslog_facility_name() with wrong values without raising an exception ...")
 
         FbSyslogFacilityInfo.raise_on_wrong_facility_name = False
 
         for test_id in invalid_test_values:
 
-            LOG.debug("Test returning None on get_syslog_facility_name({!r}).".format(test_id))
-            result = get_syslog_facility_name(test_id)
+            LOG.debug("Test returning None on syslog_facility_name({!r}).".format(test_id))
+            result = syslog_facility_name(test_id)
+            LOG.debug("Got {!r}.".format(result))
+            self.assertIsNone(result)
+
+    # -------------------------------------------------------------------------
+    def test_get_syslog_facility_id(self):
+
+        LOG.info("Testing fb_logging.syslog_facility_id() ...")
+
+        from fb_logging import FbSyslogFacilityInfo
+        from fb_logging import use_unix_syslog_handler, syslog_facility_id
+        from fb_logging import SyslogFacitityError
+
+        FbSyslogFacilityInfo.raise_on_wrong_facility_name = True
+
+        use_ux_handler = use_unix_syslog_handler()
+
+        if use_ux_handler:
+            valid_test_data = [
+                ['auth', syslog.LOG_AUTH, 'syslog.LOG_AUTH'],
+                ['Kern', syslog.LOG_KERN, 'syslog.LOG_KERN'],
+                ['LOCAL0', syslog.LOG_LOCAL0, 'syslog.LOG_LOCAL0'],
+                ['local6', syslog.LOG_LOCAL6, 'syslog.LOG_LOCAL6'],
+                ['uSer', syslog.LOG_USER, 'syslog.LOG_USER'],
+            ]
+            invalid_test_data = [
+                    0, 4.6, None, object, True, 'uhu', 'local 1', 'authpriv', 'syslog']
+            invalid_test_values = ['uhu', 'local 1', 'authpriv', 'syslog']
+        else:
+            valid_test_data = [
+                ['auth', logging.handlers.SysLogHandler.LOG_AUTH,
+                    'logging.handlers.SysLogHandler.LOG_AUTH'],
+                ['AuthPriv', logging.handlers.SysLogHandler.LOG_AUTHPRIV,
+                    'logging.handlers.SysLogHandler.LOG_AUTHPRIV'],
+                ['Kern', logging.handlers.SysLogHandler.LOG_KERN,
+                    'logging.handlers.SysLogHandler.LOG_KERN'],
+                ['LOCAL0', logging.handlers.SysLogHandler.LOG_LOCAL0,
+                    'logging.handlers.SysLogHandler.LOG_LOCAL0'],
+                ['local6', logging.handlers.SysLogHandler.LOG_LOCAL6,
+                    'logging.handlers.SysLogHandler.LOG_LOCAL6'],
+                ['Syslog', logging.handlers.SysLogHandler.LOG_SYSLOG,
+                    'logging.handlers.SysLogHandler.LOG_SYSLOG'],
+                ['uSer', logging.handlers.SysLogHandler.LOG_USER,
+                    'logging.handlers.SysLogHandler.LOG_USER'],
+            ]
+            invalid_test_data = [
+                    0, 4.6, None, object, True, 'uhu', 'local 1']
+            invalid_test_values = ['uhu', 'local 1']
+
+        for test_tuple in valid_test_data:
+
+            fac_name = test_tuple[0]
+            expected = test_tuple[1]
+            fac_origin = test_tuple[2]
+
+            LOG.debug("Test syslog_facility_id({name!r}) -> {ex} ({origin}).".format(
+                name=fac_name, ex=expected, origin=fac_origin))
+            result = syslog_facility_id(fac_name)
+            LOG.debug("Got {!r}.".format(result))
+            self.assertEqual(expected, result)
+
+        for test_name in invalid_test_data:
+
+            LOG.debug("Test exception on syslog_facility_id({!r}).".format(test_name))
+
+            with self.assertRaises(SyslogFacitityError) as cm:
+                result = syslog_facility_id(test_name)
+
+            e = cm.exception
+            LOG.debug("Got a {c}: {e}.".format(c=e.__class__.__name__, e=e))
+
+        LOG.info("Testing syslog_facility_id() with wrong values without raising an exception ...")
+
+        FbSyslogFacilityInfo.raise_on_wrong_facility_name = False
+
+        for test_name in invalid_test_values:
+
+            LOG.debug("Test returning None on syslog_facility_id({!r}).".format(test_name))
+            result = syslog_facility_id(test_name)
             LOG.debug("Got {!r}.".format(result))
             self.assertIsNone(result)
 
@@ -184,6 +264,7 @@ if __name__ == '__main__':
     suite.addTest(TestFbLogging('test_import_modules', verbose))
     suite.addTest(TestFbLogging('test_use_unix_syslog_handler', verbose))
     suite.addTest(TestFbLogging('test_get_syslog_facility_name', verbose))
+    suite.addTest(TestFbLogging('test_get_syslog_facility_id', verbose))
 
     runner = unittest.TextTestRunner(verbosity=verbose)
 
