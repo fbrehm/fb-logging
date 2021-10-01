@@ -1,3 +1,9 @@
+fb-logging (0.3.0) all; urgency=medium
+
+  * Creating Github workflow for building Debian and Ubuntu packages
+
+ -- Frank Brehm <frank@brehm-online.com>  Fri, 01 Oct 2021 12:45:32 +0200
+
 fb-logging (0.2.4) all; urgency=medium
 
   * Initial release
