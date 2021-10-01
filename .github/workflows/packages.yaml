@@ -105,12 +105,30 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - compat: '11'
-            container: 'debian:buster'
-            distributor: 'Debian'
+          - distributor: 'Debian'
             os_codename: 'buster'
             os_release: '10'
+            container: 'debian:buster'
             version_prefix: 'deb10'
+            compat: '11'
+          - distributor: 'Debian'
+            os_codename: 'bullseye'
+            os_release: '11'
+            container: 'debian:bullseye'
+            version_prefix: 'deb11'
+            compat: '12'
+          - distributor: 'Ubuntu'
+            os_codename: 'bionic'
+            os_release: '18.04'
+            container: 'ubuntu:bionic'
+            version_prefix: 'ubuntu18.04'
+            compat: '11'
+          - distributor: 'Ubuntu'
+            os_codename: 'focal'
+            os_release: '20.04'
+            container: 'ubuntu:focal'
+            version_prefix: 'ubuntu20.04'
+            compat: '12'
     env:
       COMPAT: ${{ matrix.compat }}
       DISTRIBUTOR: ${{ matrix.distributor }}
