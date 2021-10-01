@@ -76,12 +76,7 @@ jobs:
   build_debian_sources:
     runs-on: ubuntu-latest
     name: Building Debian Source Packages
-    if: >
-      ${{
-      contains(github.ref, '/tags/') ||
-      contains(github.ref, '/heads/main') ||
-      contains(github.ref, '/heads/test')
-      }}
+    if: ${{ github.ref == 'refs/heads/main' || github.ref == 'refs/heads/test' }}
     container: debian:bullseye
     needs:
       - linter
@@ -106,12 +101,7 @@ jobs:
   build_debian_bin:
     runs-on: ubuntu-latest
     name: Building Debian Binary Packages
-    if: >
-      ${{
-      contains(github.ref, '/tags/') ||
-      contains(github.ref, '/heads/main') ||
-      contains(github.ref, '/heads/test')
-      }}
+    if: ${{ github.ref == 'refs/heads/main' || github.ref == 'refs/heads/test' }}
     needs:
       - linter
     strategy:
