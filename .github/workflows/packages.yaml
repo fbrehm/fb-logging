@@ -13,19 +13,13 @@ env:
   DEBFULLNAME: 'Frank Brehm'
   DEBEMAIL: 'frank@brehm-online.com'
   USED_TIMEZONE: 'Europe/Berlin'
+  GITHUB_REF: ${{ github.ref }}
 
 jobs:
 
   test:
     runs-on: ubuntu-latest
     name: Executing Python tests
-    if: >
-      ${{
-      contains(github.ref, '/tags/') ||
-      contains(github.ref, '/heads/main') ||
-      contains(github.ref, '/heads/test') ||
-      contains(github.ref, '/heads/develop')
-      }}
     strategy:
       fail-fast: false
       matrix:
@@ -47,13 +41,6 @@ jobs:
   linter:
     runs-on: ubuntu-latest
     name: Executing Linters
-    if: >
-      ${{
-      contains(github.ref, '/tags/') ||
-      contains(github.ref, '/heads/main') ||
-      contains(github.ref, '/heads/test') ||
-      contains(github.ref, '/heads/develop')
-      }}
     container: python:3.9
     env:
       FLAKE8_MAX_LINE_LENGTH: 99
