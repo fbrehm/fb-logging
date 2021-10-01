@@ -1,6 +1,6 @@
 ---
 
-name: "Building OS packages."
+name: "Building OS packages"
 
 on:
   push:
@@ -181,9 +181,8 @@ jobs:
     runs-on: ubuntu-latest
     name: Sending Success message
     needs:
-      # - 'build_debian_sources'
-      # - 'build_debian_bin'
-      - 'test'
+      - 'build_debian_sources'
+      - 'build_debian_bin'
     steps:
       - name: Sending message
         uses: dawidd6/action-send-mail@v2
