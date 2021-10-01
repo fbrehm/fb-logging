@@ -96,4 +96,56 @@ jobs:
           path: debian/pkgs/*/*
           retention-days: 15
 
+  build_debian_bin:
+    runs-on: ubuntu-latest
+    name: Building Debian Binary Packages
+    needs:
+      - linter
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - compat: '11'
+            container: 'debian:buster'
+            distributor: 'Debian'
+            os_codename: 'buster'
+            os_release: '10'
+            version_prefix: 'deb10'
+    env:
+      COMPAT: ${{ matrix.compat }}
+      DISTRIBUTOR: ${{ matrix.distributor }}
+      OS_CODENAME: ${{ matrix.os_codename }}
+      OS_RELEASE: ${{ matrix.os_release }}
+      VERSION_PREFIX: ${{ matrix.version_prefix }}
+    container: ${{ matrix.container }}
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ./.github/actions/prepare-debian-container
+      - uses: ./.github/actions/debian-install-buildenv
+      - name: Updating Changelog
+        run: |
+          export PKG_VERSION=$( ./get-debian-version )
+          export BUILD_VERSION="${PKG_VERSION}+${VERSION_PREFIX}"
+          BUILDER="${DEBFULLNAME} <${DEBEMAIL}>"
+          echo "Version to build: ${BUILD_VERSION} - Builder: ${BUILDER}"
+          debchange --newversion "${BUILD_VERSION}" --force-bad-version --distribution "${OS_CODENAME}" --urgency medium "Build for ${DISTRIBUTOR} ${OS_RELEASE} - ${OS_CODENAME}"
+          head -n 5 debian/changelog
+      - name: Debian build
+        run: |
+          echo "Setting debian/compat to ${COMPAT}"
+          echo "${COMPAT}" > debian/compat
+          echo "y" | debuild -b -i -us -uc
+          ls -lA --color=always ..
+          mkdir -pv debian/pkgs/src debian/pkgs/${VERSION_PREFIX}
+          mv -vi ../*.deb debian/pkgs/${VERSION_PREFIX}
+          mv -vi ../*.build* debian/pkgs/src
+          ls -lA --color=always debian/pkgs/*/*
+      - name: 'Upload Source Package'
+        uses: actions/upload-artifact@v2
+        with:
+          name: debian_bin_pkgs_${{ matrix.version_prefix }}
+          path: debian/pkgs/*/*
+          retention-days: 15
+
+
 # vim: et tabstop=2 expandtab shiftwidth=2 softtabstop=2 list
