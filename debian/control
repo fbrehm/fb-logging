@@ -1,0 +1,32 @@
+Source: fb-logging
+Section: python
+Priority: extra
+Maintainer: Frank Brehm <frank@brehm-online.com>
+Build-Depends: debhelper (>= 9),
+               dh-python,
+               python3-all,
+               python3-pip,
+               python3-setuptools,
+               python3-six
+Standards-Version: 3.9.6
+Homepage: https://github.com/fbrehm/fb-logging
+Vcs-Browser: https://github.com/fbrehm/fb-logging
+Vcs-Git: https://github.com/fbrehm/fb-logging.git
+X-Python3-Version: >= 3.6
+
+Package: python3-fb-logging
+Architecture: all
+Depends: python3-six,
+         ${misc:Depends},
+         ${python3:Depends}
+Description: Python modules to extend logging mechanism
+  The following objects are supported by this package:
+  - ColoredFormatter - for colored output on the system console
+  - FbSysLogHandler - to avoid BOM errors in syslog messages
+  - UnixSyslogHandler - to support logging via syslog on systems without
+    /dev/log
+  The following functions are supported by this package:
+  - colorstr() - for colorizing messages
+ .
+ This package includes the Python3 modules for this package.
+

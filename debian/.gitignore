@@ -1,0 +1,6 @@
+*.debhelper
+*.log
+*.substvars
+files
+fb-logging
+python3-fb-logging
