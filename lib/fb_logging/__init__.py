@@ -56,7 +56,7 @@ class WrongLogFacilityIdTypeError(SyslogFacitityError, TypeError):
     def __str__(self):
 
         msg = "Wrong variable {v!r} ({t}) given as a syslog facility id.".format(
-                v=self.value, t=self.value.__class__.__name__)
+            v=self.value, t=self.value.__class__.__name__)
         return msg
 
 
@@ -95,7 +95,7 @@ class WrongLogFacilityNameTypeError(SyslogFacitityError, TypeError):
     def __str__(self):
 
         msg = "Wrong variable {v!r} ({t}) given as a syslog facility name.".format(
-                v=self.value, t=self.value.__class__.__name__)
+            v=self.value, t=self.value.__class__.__name__)
         return msg
 
 
