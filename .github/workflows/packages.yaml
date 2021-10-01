@@ -5,9 +5,9 @@ name: "Building OS packages."
 on:
   push:
     branches-ignore:
-      - /^dev-.*$/
-      - /^dev\/.*$/
-      - /^hf.*$/
+      - dev-**
+      - dev/**
+      - hf**
 
 env:
   DEBFULLNAME: 'Frank Brehm'
@@ -137,24 +137,28 @@ jobs:
             container: 'debian:buster'
             version_prefix: 'deb10'
             compat: '11'
+            set_timezone: 'n'
           - distributor: 'Debian'
             os_codename: 'bullseye'
             os_release: '11'
             container: 'debian:bullseye'
             version_prefix: 'deb11'
             compat: '12'
+            set_timezone: 'n'
           - distributor: 'Ubuntu'
             os_codename: 'bionic'
             os_release: '18.04'
             container: 'ubuntu:bionic'
             version_prefix: 'ubuntu18.04'
             compat: '11'
+            set_timezone: 'y'
           - distributor: 'Ubuntu'
             os_codename: 'focal'
             os_release: '20.04'
             container: 'ubuntu:focal'
             version_prefix: 'ubuntu20.04'
             compat: '12'
+            set_timezone: 'y'
     env:
       COMPAT: ${{ matrix.compat }}
       DISTRIBUTOR: ${{ matrix.distributor }}
@@ -164,6 +168,12 @@ jobs:
     container: ${{ matrix.container }}
     steps:
       - uses: actions/checkout@v2
+      - name: Setting timezone
+        if: ${{ matrix.set_timezone == 'y' }}
+        run: |
+          echo "Setting system timezone to ${USED_TIMEZONE} ..."
+          ln -fvs /usr/share/zoneinfo/${USED_TIMEZONE} /etc/localtime
+          export DEBIAN_FRONTEND=noninteractive
       - uses: ./.github/actions/prepare-debian-container
       - uses: ./.github/actions/debian-install-buildenv
       - name: Updating Changelog
