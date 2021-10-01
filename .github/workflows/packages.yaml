@@ -13,7 +13,6 @@ env:
   DEBFULLNAME: 'Frank Brehm'
   DEBEMAIL: 'frank@brehm-online.com'
   USED_TIMEZONE: 'Europe/Berlin'
-  GITHUB_REF: ${{ github.ref }}
 
 jobs:
 
@@ -76,7 +75,7 @@ jobs:
   build_debian_sources:
     runs-on: ubuntu-latest
     name: Building Debian Source Packages
-    if: ${{ github.ref == 'refs/heads/main' || github.ref == 'refs/heads/test' }}
+    if: ${{ github.ref == 'refs/heads/main' || github.ref == 'refs/heads/test' || startsWith( github.ref, 'refs/tags/' }}
     container: debian:bullseye
     needs:
       - linter
@@ -101,7 +100,7 @@ jobs:
   build_debian_bin:
     runs-on: ubuntu-latest
     name: Building Debian Binary Packages
-    if: ${{ github.ref == 'refs/heads/main' || github.ref == 'refs/heads/test' }}
+    if: ${{ github.ref == 'refs/heads/main' || github.ref == 'refs/heads/test' || startsWith( github.ref, 'refs/tags/' }}
     needs:
       - linter
     strategy:
@@ -174,5 +173,28 @@ jobs:
           path: debian/pkgs/*/*
           retention-days: 15
 
+  notify_success:
+    runs-on: ubuntu-latest
+    name: Sending Success message
+    # if: ${{ github.ref == 'refs/heads/main' || github.ref == 'refs/heads/test' || startsWith( github.ref, 'refs/tags/' }}
+    needs:
+      - 'build_debian_sources'
+      - 'build_debian_bin'
+    env:
+      NOTIFY_ADDRESS: 'frank@brehm-online.com frank.brehm@pixelpark.com'
+      SENDER_ADDRESS: 'github-runner@github.com'
+      GITHUB_REPO: ${{ github.repository }}
+      GITHUB_REF: ${{ github.ref }}
+      GITHUB_ACTOR: ${{ github.actor }}
+    steps:
+      - name: Sending message
+        shell: bash
+        continue-on-error: true
+        run: |
+          MSG="Module ${GITHUB_REPO} (${GITHUB_REF}): all checks and actions successful.\n"
+          MSG+="Commiter: ${GITHUB_ACTOR}\n\n"
+          MSG+="Cheers, Frank"
+          SUBJECT="Github Actions Workflow: Python module fb_logging"
+          echo -e "${MSG}" | mailx -s "${SUBJECT}" -r "${SENDER_ADDRESS}" ${NOTIFY_ADDRESS}
 
 # vim: et tabstop=2 expandtab shiftwidth=2 softtabstop=2 list
