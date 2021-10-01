@@ -72,6 +72,28 @@ jobs:
 #      - name: Execute Yamllint
 #        run: yamllint -c yamllint.yaml .gitlab-ci.yml
 
-
+  build_debian_sources:
+    runs-on: ubuntu-latest
+    name: Building Debian Source Packages
+    container: debian:bullseye
+    needs:
+      - linter
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ./.github/actions/prepare-debian-container
+      - uses: ./.github/actions/debian-install-buildenv
+      - name: Debian build
+        run: |
+          echo "y" | debuild -S -i -us -uc
+          ls -lA --color=always ..
+          mkdir -pv debian/pkgs/src
+          mv -vi ../*.dsc ../*.tar.* ../*.build* ../*.changes debian/pkgs/src
+          ls -lA --color=always debian/pkgs/*/*
+      - name: 'Upload Source Package'
+        uses: actions/upload-artifact@v2
+        with:
+          name: debian_sources
+          path: debian/pkgs/*/*
+          retention-days: 15
 
 # vim: et tabstop=2 expandtab shiftwidth=2 softtabstop=2 list
