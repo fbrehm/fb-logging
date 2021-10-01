@@ -1,3 +1,9 @@
+fb-logging (0.3.1) all; urgency=medium
+
+  * Adding notification job to github workflow
+
+ -- Frank Brehm <frank@brehm-online.com>  Fri, 01 Oct 2021 16:40:19 +0200
+
 fb-logging (0.3.0) all; urgency=medium
 
   * Creating Github workflow for building Debian and Ubuntu packages

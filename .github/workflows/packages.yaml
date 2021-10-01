@@ -1,6 +1,6 @@
 ---
 
-name: "Building OS packages."
+name: "Building OS packages"
 
 on:
   push:
@@ -13,19 +13,16 @@ env:
   DEBFULLNAME: 'Frank Brehm'
   DEBEMAIL: 'frank@brehm-online.com'
   USED_TIMEZONE: 'Europe/Berlin'
+  NOTIFY_ADDRESS: 'frank@brehm-online.com,frank.brehm@pixelpark.com'
+  SENDER_ADDRESS: 'Frank Brehm <frank@brehm-online.com>'
+  SMTP_SERVER_ADDRESS: 'mail.uhu-banane.net'
+  SMTP_SERVER_PORT: 587
 
 jobs:
 
   test:
     runs-on: ubuntu-latest
     name: Executing Python tests
-    if: >
-      ${{
-      contains(github.ref, '/tags/') ||
-      contains(github.ref, '/heads/main') ||
-      contains(github.ref, '/heads/test') ||
-      contains(github.ref, '/heads/develop')
-      }}
     strategy:
       fail-fast: false
       matrix:
@@ -47,13 +44,6 @@ jobs:
   linter:
     runs-on: ubuntu-latest
     name: Executing Linters
-    if: >
-      ${{
-      contains(github.ref, '/tags/') ||
-      contains(github.ref, '/heads/main') ||
-      contains(github.ref, '/heads/test') ||
-      contains(github.ref, '/heads/develop')
-      }}
     container: python:3.9
     env:
       FLAKE8_MAX_LINE_LENGTH: 99
@@ -89,12 +79,7 @@ jobs:
   build_debian_sources:
     runs-on: ubuntu-latest
     name: Building Debian Source Packages
-    if: >
-      ${{
-      contains(github.ref, '/tags/') ||
-      contains(github.ref, '/heads/main') ||
-      contains(github.ref, '/heads/test')
-      }}
+    if: ${{ github.ref == 'refs/heads/main' || github.ref == 'refs/heads/test' || startsWith( github.ref, 'refs/tags/' ) }}
     container: debian:bullseye
     needs:
       - linter
@@ -119,12 +104,7 @@ jobs:
   build_debian_bin:
     runs-on: ubuntu-latest
     name: Building Debian Binary Packages
-    if: >
-      ${{
-      contains(github.ref, '/tags/') ||
-      contains(github.ref, '/heads/main') ||
-      contains(github.ref, '/heads/test')
-      }}
+    if: ${{ github.ref == 'refs/heads/main' || github.ref == 'refs/heads/test' || startsWith( github.ref, 'refs/tags/' ) }}
     needs:
       - linter
     strategy:
@@ -197,5 +177,33 @@ jobs:
           path: debian/pkgs/*/*
           retention-days: 15
 
+  notify_success:
+    runs-on: ubuntu-latest
+    name: Sending Success message
+    needs:
+      - 'build_debian_sources'
+      - 'build_debian_bin'
+    steps:
+      - name: Sending message
+        uses: dawidd6/action-send-mail@v2
+        with:
+          # mail server settings
+          server_address: ${{ env.SMTP_SERVER_ADDRESS }}
+          server_port: ${{ env.SMTP_SERVER_PORT }}
+          # user credentials
+          username: ${{ secrets.EMAIL_USERNAME }}
+          password: ${{ secrets.EMAIL_PASSWORD }}
+          # email subject
+          subject: Github Workflow ${{ github.workflow }} of ${{ github.repository }} was successful.
+          # email body as text
+          body: |
+            Github Actions Workflow ${{ github.workflow }} of ${{ github.repository }} was successful.
+            Commiter: ${{ github.actor }}
+
+            Cheers Frank
+          # comma-separated string, send email to
+          to: ${{ env.NOTIFY_ADDRESS }}
+          # from email name
+          from: ${{ env.SENDER_ADDRESS }}
 
 # vim: et tabstop=2 expandtab shiftwidth=2 softtabstop=2 list
