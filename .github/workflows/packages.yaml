@@ -19,6 +19,13 @@ jobs:
   test:
     runs-on: ubuntu-latest
     name: Executing Python tests
+    if: >
+      ${{
+      contains(github.ref, '/tags/') ||
+      contains(github.ref, '/heads/main') ||
+      contains(github.ref, '/heads/test') ||
+      contains(github.ref, '/heads/develop')
+      }}
     strategy:
       fail-fast: false
       matrix:
@@ -40,6 +47,13 @@ jobs:
   linter:
     runs-on: ubuntu-latest
     name: Executing Linters
+    if: >
+      ${{
+      contains(github.ref, '/tags/') ||
+      contains(github.ref, '/heads/main') ||
+      contains(github.ref, '/heads/test') ||
+      contains(github.ref, '/heads/develop')
+      }}
     container: python:3.9
     env:
       FLAKE8_MAX_LINE_LENGTH: 99
@@ -75,6 +89,12 @@ jobs:
   build_debian_sources:
     runs-on: ubuntu-latest
     name: Building Debian Source Packages
+    if: >
+      ${{
+      contains(github.ref, '/tags/') ||
+      contains(github.ref, '/heads/main') ||
+      contains(github.ref, '/heads/test')
+      }}
     container: debian:bullseye
     needs:
       - linter
@@ -99,6 +119,12 @@ jobs:
   build_debian_bin:
     runs-on: ubuntu-latest
     name: Building Debian Binary Packages
+    if: >
+      ${{
+      contains(github.ref, '/tags/') ||
+      contains(github.ref, '/heads/main') ||
+      contains(github.ref, '/heads/test')
+      }}
     needs:
       - linter
     strategy:
