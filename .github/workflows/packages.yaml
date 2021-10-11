@@ -193,11 +193,26 @@ jobs:
       EL_VERSION: ${{ matrix.el_version }}
     steps:
       - uses: actions/checkout@v2
-      - name: Chacking locales
+      - name: Checking locales
         shell: bash
         run: |
+          echo "All locales"
           locale -a
+          echo
+          echo "Installing locales ..."
+          if [[ "${EL_VERSION}" == "7" ]] ; then
+            echo "en_US.utf8"
+            localedef --charmap UTF-8 --inputfile "en_US" "en_US.utf8"
+          else
+            yum --assumeyes install langpacks-en
+          fi
+          echo
+          echo "All locales"
+          locale -a
+          echo
+          echo "locales:"
           locale
+          echo
           export LC_ALL=en_US.utf8
           locale
       - name: Install EPEL repo
@@ -206,8 +221,12 @@ jobs:
       - name: Upgrade all packages
         shell: bash
         run: |
+          echo "Cleaning YUM ..."
           yum clean all
+          echo
+          echo "YUM makecache ..."
           yum makecache
+          echo
           echo "Upgrading all packages"
           yum --assumeyes upgrade
       - name: Install Python 3
@@ -216,25 +235,46 @@ jobs:
           if [[ "${EL_VERSION}" == "7" ]] ; then PY_VERSION="36" ; else PY_VERSION="38"; fi
           echo "Installing Python ${PY_VERSION} ..."
           yum --assumeyes install python${PY_VERSION} python${PY_VERSION}-setuptools python${PY_VERSION}-pip python${PY_VERSION}-devel
+          echo
+          echo "Python binaries:"
           ls -l --color=always /bin/python* /bin/pip* || true
+          echo
+          echo "Pip3 list:"
           pip3 list
       - name: Installing build tools
         shell: bash
         run: |
+          echo "Installing build tools"
           yum --assumeyes install gnupg2 rpm-build tree
       - name: Create build environment
         shell: bash
         run: |
+          echo "Creating directories ..."
           mkdir -pv rpmdir
           mkdir -pv rpmdir/SOURCES
           ODIR=$(pwd)
           ROOT_OBJECTS=$( ls -A1 | egrep -vw ".git|rpmdir" )
+          echo
           echo "Root objects:"; for o in ${ROOT_OBJECTS}; do echo " * ${o}"; done
           PKG_VERSION=$( ./get-rpm-version )
           PKG_RELEASE=$( ./get-rpm-release )
+          echo
           echo "Version to build: ${PKG_VERSION}-${PKG_RELEASE}"
-          mkdir -pv "rpmdir/SOURCES/python_fb_tools-${PKG_VERSION}"
-
+          echo
+          RPM_SRC_DIR="rpmdir/SOURCES/${PKG_NAME}-${PKG_VERSION}"
+          mkdir -pv "${RPM_SRC_DIR}"
+      - name: Creating source TAR file
+        shell: bash
+        run: |
+          echo "Copying sources recursive into ${RPM_SRC_DIR} ..."
+          tar cf - ${ROOT_OBJECTS} | (cd "${RPM_SRC_DIR}" ; tar xf -)
+          echo
+          echo "Creating ${PKG_NAME}.${PKG_VERSION}.tar.gz ..."
+          cd rpmdir/SOURCES && tar cfz "${PKG_NAME}.${PKG_VERSION}.tar.gz" "${RPM_SRC_DIR}"
+          echo
+          echo "Source file:"
+          ls -lA --color=always
+          cd "${ODIR}"
 
   notify_success:
     runs-on: ubuntu-latest
