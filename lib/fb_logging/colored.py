@@ -11,7 +11,7 @@ import re
 from numbers import Number
 from collections.abc import Sequence
 
-__version__ = '0.4.0'
+__version__ = '0.4.1'
 
 
 # =============================================================================
@@ -323,7 +323,7 @@ def colorstr(message, color):
 
 
 # =============================================================================
-def colorstr_8bit(message, message, color_fg=None, color_bg=None, font_effect=None):
+def colorstr_8bit(message, color_fg=None, color_bg=None, font_effect=None):
     """
     Wrapper function for Color.colorize_8bit()
 
@@ -337,7 +337,7 @@ def colorstr_8bit(message, message, color_fg=None, color_bg=None, font_effect=No
 
 
 # =============================================================================
-def colorstr_24bit(message, message, color_fg=None, color_bg=None, font_effect=None):
+def colorstr_24bit(message, color_fg=None, color_bg=None, font_effect=None):
     """
     Wrapper function for Color.colorize_24bit()
 
