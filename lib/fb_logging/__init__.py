@@ -22,6 +22,7 @@ import syslog
 
 from numbers import Number
 
+
 # =============================================================================
 class FbLoggingError(Exception):
     """
