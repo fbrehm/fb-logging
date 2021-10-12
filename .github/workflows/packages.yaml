@@ -185,7 +185,7 @@ jobs:
     needs:
       - linter
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix:
         include:
           - el_version: '7'
@@ -216,7 +216,7 @@ jobs:
             echo "${USED_LOCALE}.${USED_CHARSET}"
             localedef --charmap UTF-8 --inputfile "${USED_LOCALE}" "${USED_LC}"
           else
-            yum --assumeyes install langpacks-en
+            yum --assumeyes install langpacks-en glibc-all-langpacks
           fi
           echo
           echo "All locales"

@@ -13,7 +13,7 @@ Group:          Development/Languages/Python
 License:        LGPL-3
 Distribution:   Frank Brehm
 URL:            https://github.com/fbrehm/fb-logging
-Source0:        https://github.com/fbrehm/fb-logging/archive/refs/tag/%{version}.tar.gz
+Source0:        fb_logging.%{version}.tar.gz
 
 BuildRequires:  python@@@py_version_nodot@@@
 BuildRequires:  python@@@py_version_nodot@@@-libs
