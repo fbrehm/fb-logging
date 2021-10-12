@@ -12,12 +12,13 @@ on:
 env:
   DEBFULLNAME: 'Frank Brehm'
   DEBEMAIL: 'frank@brehm-online.com'
-  USED_TIMEZONE: 'Europe/Berlin'
+  GITREF: ${{ github.ref }}
   NOTIFY_ADDRESS: 'frank@brehm-online.com,frank.brehm@pixelpark.com'
+  PKG_NAME: 'fb_logging'
   SENDER_ADDRESS: 'Frank Brehm <frank@brehm-online.com>'
   SMTP_SERVER_ADDRESS: 'mail.uhu-banane.net'
   SMTP_SERVER_PORT: 587
-  PKG_NAME: 'fb_logging'
+  USED_TIMEZONE: 'Europe/Berlin'
 
 jobs:
 
