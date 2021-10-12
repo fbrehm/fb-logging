@@ -325,7 +325,6 @@ jobs:
         run: |
           rpmbuild -ba --nocheck --verbose \
               --define "_topdir $(pwd)/rpmdir" \
-              --define "version ${PKG_VERSION}" \
               fb_tools.spec
           echo
           echo "Results:"
