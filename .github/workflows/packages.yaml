@@ -261,7 +261,7 @@ jobs:
           pip3 install python-debian
           echo
           echo "Pip3 list:"
-          pip3 list
+          pip3 list --format columns
       - name: Installing build tools
         shell: bash
         env:
@@ -325,7 +325,7 @@ jobs:
         run: |
           rpmbuild -ba --nocheck --verbose \
               --define "_topdir $(pwd)/rpmdir" \
-              fb_tools.spec
+              fb_logging.spec
           echo
           echo "Results:"
           tree -aQpugs rpmdir/*RPMS || true
