@@ -171,7 +171,7 @@ jobs:
           mv -vi ../*.deb debian/pkgs/${VERSION_PREFIX}
           mv -vi ../*.build* debian/pkgs/src
           ls -lA --color=always debian/pkgs/*/*
-      - name: 'Upload Source Package'
+      - name: 'Upload Binary Package'
         uses: actions/upload-artifact@v2
         with:
           name: debian_bin_pkgs_${{ matrix.version_prefix }}
@@ -328,9 +328,17 @@ jobs:
               fb_logging.spec
           echo
           echo "Results:"
-          tree -aQpugs rpmdir/*RPMS || true
-          tree -aQpugs rpmdir/*RPMS || true
-          ls -lA rpmdir/RPMS/*/* rpmdir/SRPMS/*
+          # tree -aQpugs rpmdir/*RPMS || true
+          # tree -aQpugs rpmdir/*RPMS || true
+          find rpmdir/*RPMS -type f -print0 | xargs --null --no-run-if-empty ls -l -d --color=always
+      - name: 'Upload RPM Packages'
+        uses: actions/upload-artifact@v2
+        with:
+          name: rpm_pkgs_el${{ matrix.el_version }}
+          path:
+            - rpmdir/RPMS/*/*.rpm
+            - rpmdir/SRPMS/*.rpm
+          retention-days: 15
 
   notify_success:
     runs-on: ubuntu-latest
