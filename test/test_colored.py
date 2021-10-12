@@ -144,6 +144,21 @@ class TestColored(FbLoggingTestcase):
                 if modulus == 15:
                     print()
 
+    # -------------------------------------------------------------------------
+    def test_formatter_object(self):
+
+        LOG.info("Testing init of a ColoredFormatter object ...")
+
+        from fb_logging.colored import ColoredFormatter
+
+        try:
+            formatter = ColoredFormatter(                                   # noqa
+                '%(name)s: %(message)s (%(filename)s:%(lineno)d)')
+        except Exception as e:
+            self.fail("Could not instatiate ColoredFormatter object with %s: %s" % (
+                e.__class__.__name__, str(e)))
+
+
 
 # =============================================================================
 if __name__ == '__main__':
@@ -161,6 +176,7 @@ if __name__ == '__main__':
     suite.addTest(TestColored('test_import_modules', verbose))
     suite.addTest(TestColored('test_colorcode_4bit', verbose))
     suite.addTest(TestColored('test_colorcode_8bit', verbose))
+    suite.addTest(TestColored('test_formatter_object', verbose))
 
     runner = unittest.TextTestRunner(verbosity=verbose)
 
