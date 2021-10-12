@@ -11,7 +11,7 @@ import re
 from numbers import Number
 from collections.abc import Sequence
 
-__version__ = '0.4.1'
+__version__ = '0.4.2'
 
 
 # =============================================================================
@@ -42,7 +42,7 @@ class WrongColorTypeError(TypeError):
     def __str__(self):
 
         return "Color {c!r} has wrong type {t}.".format(
-                c=self.color, t=self.color.__class__.__name__)
+            c=self.color, t=self.color.__class__.__name__)
 
 
 # =============================================================================
@@ -196,7 +196,7 @@ class Colors:
                     raise ColorNotFoundError(color)
 
             return '\x1b[38;2;{};{};{}m'.format(
-                    color[0], color[1], color[2])
+                color[0], color[1], color[2])
 
         raise WrongColorTypeError(color)
 
@@ -224,7 +224,7 @@ class Colors:
                     raise ColorNotFoundError(color)
 
             return '\x1b[48;2;{};{};{}m'.format(
-                    color[0], color[1], color[2])
+                color[0], color[1], color[2])
 
         raise WrongColorTypeError(color)
 
@@ -333,7 +333,7 @@ def colorstr_8bit(message, color_fg=None, color_bg=None, font_effect=None):
     """
 
     return Colors.colorize_8bit(
-            message, color_fg=color_fg, color_bg=color_bg, font_effect=font_effect)
+        message, color_fg=color_fg, color_bg=color_bg, font_effect=font_effect)
 
 
 # =============================================================================
@@ -347,7 +347,7 @@ def colorstr_24bit(message, color_fg=None, color_bg=None, font_effect=None):
     """
 
     return Colors.colorize_24bit(
-            message, color_fg=color_fg, color_bg=color_bg, font_effect=font_effect)
+        message, color_fg=color_fg, color_bg=color_bg, font_effect=font_effect)
 
 
 # =============================================================================

@@ -50,7 +50,7 @@ jobs:
     env:
       FLAKE8_MAX_LINE_LENGTH: 99
       FLAKE8_MAX_COMPLEXITY: 20
-      FLAKE8_IGNORE_ERRORS: 'E226,E302,E41,E402'
+      FLAKE8_IGNORE_ERRORS: 'E226,E41,E402'
     needs:
       - test
     steps:
