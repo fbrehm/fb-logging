@@ -1,3 +1,12 @@
+fb-logging (0.3.2) all; urgency=medium
+
+  * Adding files template.spec, get-rpm-version, get-rpm-release and
+    changelog-deb2rpm.py
+  * Adding job for creating RPM packages to
+    .github/workflows/packages.yaml
+
+ -- Frank Brehm <frank.brehm@pixelpark.com>  Tue, 12 Oct 2021 10:56:34 +0200
+
 fb-logging (0.3.1) all; urgency=medium
 
   * Adding notification job to github workflow
