@@ -181,7 +181,7 @@ jobs:
   build_rpm:
     runs-on: ubuntu-latest
     name: Building RPM packages for Enterprise Linux
-    # if: ${{ github.ref == 'refs/heads/main' || github.ref == 'refs/heads/test' || startsWith( github.ref, 'refs/tags/' ) }}
+    if: ${{ github.ref == 'refs/heads/main' || github.ref == 'refs/heads/test' || startsWith( github.ref, 'refs/tags/' ) }}
     needs:
       - linter
     strategy:
@@ -268,7 +268,7 @@ jobs:
           LC_ALL: "en_US.utf8"
         run: |
           echo "Installing build tools"
-          yum --assumeyes install gnupg2 rpm-build tree
+          yum --assumeyes install gnupg2 rpm-build
       - name: Create build environment
         shell: bash
         env:
@@ -328,8 +328,6 @@ jobs:
               fb_logging.spec
           echo
           echo "Results:"
-          # tree -aQpugs rpmdir/*RPMS || true
-          # tree -aQpugs rpmdir/*RPMS || true
           find rpmdir/*RPMS -type f -print0 | xargs --null --no-run-if-empty ls -l -d --color=always
       - name: 'Upload RPM Packages'
         uses: actions/upload-artifact@v2
