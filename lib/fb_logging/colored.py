@@ -11,7 +11,7 @@ import re
 from numbers import Number
 from collections.abc import Sequence
 
-__version__ = '0.3.0'
+__version__ = '0.4.0'
 
 
 # =============================================================================
@@ -348,6 +348,119 @@ def colorstr_24bit(message, message, color_fg=None, color_bg=None, font_effect=N
 
     return Colors.colorize_24bit(
             message, color_fg=color_fg, color_bg=color_bg, font_effect=font_effect)
+
+
+# =============================================================================
+class ColoredFormatter(logging.Formatter):
+    """
+    A variant of code found at:
+    http://stackoverflow.com/questions/384076/how-can-i-make-the-python-logging-output-to-be-colored
+    """
+
+    level_color = {
+        'DEBUG': None,
+        'INFO': 'green',
+        'WARNING': 'yellow',
+        'ERROR': ('bold', 'bright_red'),
+        'CRITICAL': ('bold', 'yellow', 'red_bg'),
+    }
+
+    # -------------------------------------------------------------------------
+    def __init__(self, fmt=None, datefmt=None, dark=False):
+        """
+        Initialize the formatter with specified format strings.
+
+        Initialize the formatter either with the specified format string, or a
+        default. Allow for specialized date formatting with the optional
+        datefmt argument (if omitted, you get the ISO8601 format).
+        """
+
+        logging.Formatter.__init__(self, fmt, datefmt)
+
+        if dark:
+            # changing the default colors to "dark" because the xterm plugin
+            # for Jenkins cannot use bright colors
+            # see: http://stackoverflow.com/a/28071761
+            self.color_debug = 'dark_cyan'
+            self.color_info = 'dark_green'
+            self.color_warning = 'dark_yellow'
+            self.color_error = 'dark_red'
+
+    # -----------------------------------------------------------
+    @property
+    def color_debug(self):
+        """The color used to output debug messages."""
+        return self.level_color['DEBUG']
+
+    @color_debug.setter
+    def color_debug(self, value):
+        self.level_color['DEBUG'] = value
+
+    # -----------------------------------------------------------
+    @property
+    def color_info(self):
+        """The color used to output info messages."""
+        return self.level_color['INFO']
+
+    @color_info.setter
+    def color_info(self, value):
+        self.level_color['INFO'] = value
+
+    # -----------------------------------------------------------
+    @property
+    def color_warning(self):
+        """The color used to output warning messages."""
+        return self.level_color['WARNING']
+
+    @color_warning.setter
+    def color_warning(self, value):
+        self.level_color['WARNING'] = value
+
+    # -----------------------------------------------------------
+    @property
+    def color_error(self):
+        """The color used to output error messages."""
+        return self.level_color['ERROR']
+
+    @color_error.setter
+    def color_error(self, value):
+        self.level_color['ERROR'] = value
+
+    # -----------------------------------------------------------
+    @property
+    def color_critical(self):
+        """The color used to output critical messages."""
+        return self.level_color['CRITICAL']
+
+    @color_critical.setter
+    def color_critical(self, value):
+        self.level_color['CRITICAL'] = value
+
+    # -------------------------------------------------------------------------
+    def format(self, record):
+        """
+        Format the specified record as text.
+        """
+
+        rcrd = copy.copy(record)
+        levelname = rcrd.levelname
+
+        if levelname in self.level_color:
+
+            rcrd.name = colorstr(rcrd.name, 'bold')
+            rcrd.filename = colorstr(rcrd.filename, 'bold')
+            rcrd.module = colorstr(rcrd.module, 'bold')
+            rcrd.funcName = colorstr(rcrd.funcName, 'bold')
+            rcrd.pathname = colorstr(rcrd.pathname, 'bold')
+            rcrd.processName = colorstr(rcrd.processName, 'bold')
+            rcrd.threadName = colorstr(rcrd.threadName, 'bold')
+
+            if self.level_color[levelname] is not None:
+                rcrd.levelname = colorstr(
+                    levelname, self.level_color[levelname])
+                rcrd.msg = colorstr(rcrd.msg, self.level_color[levelname])
+
+        return logging.Formatter.format(self, rcrd)
 
 
 # =============================================================================
