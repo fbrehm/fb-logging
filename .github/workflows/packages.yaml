@@ -286,7 +286,7 @@ jobs:
           echo
           echo "Version to build: ${PKG_VERSION}-${PKG_RELEASE}"
           echo
-          RPM_SRC_DIR="${PKG_NAME}-${PKG_VERSION}"
+          RPM_SRC_DIR="python${PY_VERSION_NODOT}_${PKG_NAME}-${PKG_VERSION}"
           mkdir -pv "rpmdir/SOURCES/${RPM_SRC_DIR}"
           echo
           echo "Copying sources recursive into rpmdir/SOURCES/${RPM_SRC_DIR} ..."
