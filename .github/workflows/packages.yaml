@@ -335,9 +335,9 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: rpm_pkgs_el${{ matrix.el_version }}
-          path:
-            - rpmdir/RPMS/*/*.rpm
-            - rpmdir/SRPMS/*.rpm
+          path: |
+            rpmdir/RPMS/*/*.rpm
+            rpmdir/SRPMS/*.rpm
           retention-days: 15
 
   notify_success:
