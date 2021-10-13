@@ -1,3 +1,15 @@
+fb-logging (0.3.3) UNRELEASED; urgency=medium
+
+  * Adding Python 3.10 to test matrix in Github workflow
+  * Adding module lib/fb_logging/colored.py with classes
+    ColorNotFoundError, WrongColorTypeError, Colors and ColoredFormatter
+  * Adding test/test_colored.py for testing classes and functions in
+    lib/fb_logging/colored.py
+  * Adding functions stdout_is_redirected() and stderr_is_redirected()
+    to lib/fb_logging/__init__.py
+
+ -- Frank Brehm <frank.brehm@pixelpark.com>  Wed, 13 Oct 2021 15:51:46 +0200
+
 fb-logging (0.3.2) all; urgency=medium
 
   * Adding files template.spec, get-rpm-version, get-rpm-release and
