@@ -8,6 +8,7 @@ fb-logging (0.3.3) UNRELEASED; urgency=medium
   * Adding functions stdout_is_redirected() and stderr_is_redirected()
     to lib/fb_logging/__init__.py
   * Adding lib/fb_logging/syslog_handler.py with class FbSysLogHandler
+  * Adding lib/fb_logging/unix_handler.py with class UnixSyslogHandler
 
  -- Frank Brehm <frank.brehm@pixelpark.com>  Wed, 13 Oct 2021 15:51:46 +0200
 
