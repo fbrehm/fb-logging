@@ -15,12 +15,13 @@ import errno
 from logging.handlers import SYSLOG_UDP_PORT
 from logging.handlers import SysLogHandler
 
-__version__ = '0.3.0'
+__version__ = '0.3.1'
 
 if sys.version_info[0] < 3:
     raise RuntimeError("This module may only be used with Python > 3.1.")
 if sys.version_info[0] == 3 and sys.version_info[1] <= 1:
     raise RuntimeError("This module may only be used with Python > 3.1")
+
 
 # =============================================================================
 class FbSysLogHandler(SysLogHandler):

@@ -58,12 +58,13 @@ class TestColored(FbLoggingTestcase):
 
         print('')
         for color in Colors.keys():
-            LOG.debug("Testing color {clr!r} ({cls}) ...".format(clr=color, cls=color.__class__.__name__))
+            LOG.debug("Testing color {clr!r} ({cls}) ...".format(
+                clr=color, cls=color.__class__.__name__))
             try:
                 print('{c!r}: {msg}'.format(c=color, msg=colorstr(msg, color)))
             except Exception as e:
-                self.fail("Failed to generate colored string %r with %s: %s" % (
-                    key, e.__class__.__name__, str(e)))
+                self.fail("Failed to generate colored string {c!r} with {cls}: {e}".format(
+                    clr=color, cls=e.__class__.__name__, e=e))
 
         print('')
         LOG.info("Testing combined colored output ...")
@@ -79,8 +80,8 @@ class TestColored(FbLoggingTestcase):
             try:
                 print('{c}: {msg}'.format(c=pp(color), msg=colorstr(msg, color)))
             except Exception as e:
-                self.fail("Failed to generate colored string %r with %s: %s" % (
-                    key, e.__class__.__name__, str(e)))
+                self.fail("Failed to generate colored string {c!r} with {cls}: {e}".format(
+                    clr=color, cls=e.__class__.__name__, e=e))
 
         print('')
         LOG.info("Testing invalid colors ...")
@@ -89,7 +90,7 @@ class TestColored(FbLoggingTestcase):
         wrong_colors = (
             None,
             False,
-            { 2: 3},
+            {2: 3},
             -4,
             'uhu',
         )
@@ -107,8 +108,6 @@ class TestColored(FbLoggingTestcase):
         LOG.info("Testing colored output 8 bit colors ...")
 
         from fb_logging.colored import Colors
-        from fb_logging.colored import colorstr
-        from fb_logging.colored import ColorNotFoundError, WrongColorTypeError
 
         print('')
         LOG.info("Testing foreground colors ...")
@@ -157,7 +156,6 @@ class TestColored(FbLoggingTestcase):
         except Exception as e:
             self.fail("Could not instatiate ColoredFormatter object with %s: %s" % (
                 e.__class__.__name__, str(e)))
-
 
 
 # =============================================================================

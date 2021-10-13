@@ -56,14 +56,14 @@ class TestSyslogTestcase(FbLoggingTestcase):
             fb_logging.syslog_handler.__version__))
 
         LOG.debug("Importing FbSysLogHandler from fb_logging.syslog_handler ...")
-        from fb_logging.syslog_handler import FbSysLogHandler
+        from fb_logging.syslog_handler import FbSysLogHandler               # noqa
 
         import fb_logging.unix_handler
         LOG.debug("Version of fb_logging.unix_handler: {!r}.".format(
             fb_logging.unix_handler.__version__))
 
         LOG.debug("Importing UnixSyslogHandler from fb_logging.unix_handler ...")
-        from fb_logging.unix_handler import UnixSyslogHandler
+        from fb_logging.unix_handler import UnixSyslogHandler               # noqa
 
     # -------------------------------------------------------------------------
     @unittest.skipUnless(os.path.exists('/dev/log'), "Socket '/dev/log' must exist.")
@@ -78,11 +78,9 @@ class TestSyslogTestcase(FbLoggingTestcase):
         test_logger.setLevel(logging.INFO)
         appname = os.path.basename(sys.argv[0])
 
-        format_str_syslog = (
-            appname + ': %(name)s(%(lineno)d) %(funcName)s() %(levelname)s - %(message)s')
-        format_str_console = (
-            '[%(asctime)s]: ' + appname +
-            ': %(name)s(%(lineno)d) %(funcName)s() %(levelname)s - %(message)s')
+        line_tail = ': %(name)s(%(lineno)d) %(funcName)s() %(levelname)s - %(message)s'
+        format_str_syslog = appname + line_tail
+        format_str_console = '[%(asctime)s]: ' + appname + line_tail
 
         formatter_syslog = logging.Formatter(format_str_syslog)
         formatter_console = logging.Formatter(format_str_console)
@@ -120,11 +118,9 @@ class TestSyslogTestcase(FbLoggingTestcase):
         test_logger.setLevel(logging.INFO)
         appname = os.path.basename(sys.argv[0])
 
-        format_str_syslog = (
-            appname + ': %(name)s(%(lineno)d) %(funcName)s() %(levelname)s - %(message)s')
-        format_str_console = (
-            '[%(asctime)s]: ' + appname +
-            ': %(name)s(%(lineno)d) %(funcName)s() %(levelname)s - %(message)s')
+        line_tail = ': %(name)s(%(lineno)d) %(funcName)s() %(levelname)s - %(message)s'
+        format_str_syslog = appname + line_tail
+        format_str_console = '[%(asctime)s]: ' + appname + line_tail
 
         formatter_syslog = logging.Formatter(format_str_syslog)
         formatter_console = logging.Formatter(format_str_console)
