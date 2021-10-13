@@ -4,7 +4,7 @@
 @author: Frank Brehm
 @contact: frank@brehm-online.com
 @copyright: © 2021 Frank Brehm, Berlin
-@license: GPL3
+@license: LGPL3
 @summary: testing colored logging formatter
 """
 
