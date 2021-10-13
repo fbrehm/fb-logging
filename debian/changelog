@@ -1,4 +1,4 @@
-fb-logging (0.3.3) UNRELEASED; urgency=medium
+fb-logging (0.4.0) all; urgency=medium
 
   * Adding Python 3.10 to test matrix in Github workflow
   * Adding module lib/fb_logging/colored.py with classes
