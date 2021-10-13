@@ -4,7 +4,7 @@
 @author: Frank Brehm
 @contact: frank@brehm-online.com
 @copyright: © 2021 Frank Brehm, Berlin
-@license: GPL3
+@license: LGPL3
 @summary: test script (and module) for unit tests on logging objects
 '''
 
@@ -62,15 +62,12 @@ class TestFbLogging(FbLoggingTestcase):
 
         if os_name.lower() == 'sunos':
             self.assertTrue(
-                    use_ux_handler,
-                    "On a {os!r} system {func}() must return {ret!r}.".format(
-                        os=os_name, func='use_unix_syslog_handler', ret=True))
+                use_ux_handler, "On a {os!r} system {func}() must return {ret!r}.".format(
+                    os=os_name, func='use_unix_syslog_handler', ret=True))
         else:
             self.assertFalse(
-                    use_ux_handler,
-                    "On a {os!r} system {func}() must return {ret!r}.".format(
-                        os=os_name, func='use_unix_syslog_handler', ret=False))
-
+                use_ux_handler, "On a {os!r} system {func}() must return {ret!r}.".format(
+                    os=os_name, func='use_unix_syslog_handler', ret=False))
 
     # -------------------------------------------------------------------------
     def test_get_syslog_facility_name(self):
@@ -93,8 +90,8 @@ class TestFbLogging(FbLoggingTestcase):
                 [syslog.LOG_MAIL, 'syslog.LOG_MAIL', 'mail'],
                 [0.0, 'syslog.LOG_KERN', 'kern'],
             ]
-            invalid_test_data = [ 10, None, 'blah', 1024, -3, 0.4, 99.4]
-            invalid_test_values = [ 10, 1024, -3, 0.4, 99.4]
+            invalid_test_data = [10, None, 'blah', 1024, -3, 0.4, 99.4]
+            invalid_test_values = [10, 1024, -3, 0.4, 99.4]
         else:
             valid_test_data = [
                 [
@@ -133,8 +130,8 @@ class TestFbLogging(FbLoggingTestcase):
                     'kern',
                 ],
             ]
-            invalid_test_data = [ None, 'blah', 1024, -3, 0.4, 99.4]
-            invalid_test_values = [ 1024, -3, 0.4, 99.4]
+            invalid_test_data = [None, 'blah', 1024, -3, 0.4, 99.4]
+            invalid_test_values = [1024, -3, 0.4, 99.4]
 
         for test_tuple in valid_test_data:
 
@@ -158,7 +155,8 @@ class TestFbLogging(FbLoggingTestcase):
             e = cm.exception
             LOG.debug("Got a {c}: {e}.".format(c=e.__class__.__name__, e=e))
 
-        LOG.info("Testing syslog_facility_name() with wrong values without raising an exception ...")
+        LOG.info("Testing {} with wrong values without raising an exception ...".format(
+            'syslog_facility_name()'))
 
         FbSyslogFacilityInfo.raise_on_wrong_facility_name = False
 
@@ -191,7 +189,7 @@ class TestFbLogging(FbLoggingTestcase):
                 ['uSer', syslog.LOG_USER, 'syslog.LOG_USER'],
             ]
             invalid_test_data = [
-                    0, 4.6, None, object, True, 'uhu', 'local 1', 'authpriv', 'syslog']
+                0, 4.6, None, object, True, 'uhu', 'local 1', 'authpriv', 'syslog']
             invalid_test_values = ['uhu', 'local 1', 'authpriv', 'syslog']
         else:
             valid_test_data = [
@@ -211,7 +209,7 @@ class TestFbLogging(FbLoggingTestcase):
                     'logging.handlers.SysLogHandler.LOG_USER'],
             ]
             invalid_test_data = [
-                    0, 4.6, None, object, True, 'uhu', 'local 1']
+                0, 4.6, None, object, True, 'uhu', 'local 1']
             invalid_test_values = ['uhu', 'local 1']
 
         for test_tuple in valid_test_data:
@@ -274,7 +272,3 @@ if __name__ == '__main__':
 # =============================================================================
 
 # vim: tabstop=4 expandtab shiftwidth=4 softtabstop=4 list
-
-
-
-

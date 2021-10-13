@@ -10,7 +10,7 @@
 __author__ = 'Frank Brehm <frank@brehm-online.com>'
 __copyright__ = '(C) 2021 by Frank Brehm, Berlin'
 __contact__ = 'frank@brehm-online.com'
-__version__ = '0.3.2'
+__version__ = '0.4.0'
 __license__ = 'LGPL-3'
 
 # Standard modules
@@ -21,6 +21,7 @@ import logging.handlers
 import syslog
 
 from numbers import Number
+
 
 # =============================================================================
 class FbLoggingError(Exception):
@@ -116,6 +117,18 @@ class WrongLogFacilityNameValueError(SyslogFacitityError, ValueError):
 
         msg = "Wrong variable {!r} given as a syslog facility name.".format(self.value)
         return msg
+
+
+# =============================================================================
+def stdout_is_redirected():
+    """ Check if stdout is redirected """
+    return os.fstat(0) != os.fstat(1)
+
+
+# =============================================================================
+def stderr_is_redirected():
+    """ Check if stderr is redirected """
+    return os.fstat(0) != os.fstat(2)
 
 
 # =============================================================================

@@ -12,12 +12,13 @@ on:
 env:
   DEBFULLNAME: 'Frank Brehm'
   DEBEMAIL: 'frank@brehm-online.com'
-  USED_TIMEZONE: 'Europe/Berlin'
+  GITREF: ${{ github.ref }}
   NOTIFY_ADDRESS: 'frank@brehm-online.com,frank.brehm@pixelpark.com'
+  PKG_NAME: 'fb_logging'
   SENDER_ADDRESS: 'Frank Brehm <frank@brehm-online.com>'
   SMTP_SERVER_ADDRESS: 'mail.uhu-banane.net'
   SMTP_SERVER_PORT: 587
-  PKG_NAME: 'fb_logging'
+  USED_TIMEZONE: 'Europe/Berlin'
 
 jobs:
 
@@ -27,7 +28,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python_version: [ '3.6', '3.7', '3.8', '3.9' ]
+        python_version: [ '3.6', '3.7', '3.8', '3.9', '3.10' ]
     container: python:${{ matrix.python_version }}
     steps:
       - uses: actions/checkout@v2
@@ -49,7 +50,7 @@ jobs:
     env:
       FLAKE8_MAX_LINE_LENGTH: 99
       FLAKE8_MAX_COMPLEXITY: 20
-      FLAKE8_IGNORE_ERRORS: 'E226,E302,E41,E402'
+      FLAKE8_IGNORE_ERRORS: 'E226,E41,E402'
     needs:
       - test
     steps:
@@ -344,6 +345,7 @@ jobs:
     needs:
       - 'build_debian_sources'
       - 'build_debian_bin'
+      - 'build_rpm'
     steps:
       - name: Sending message
         uses: dawidd6/action-send-mail@v2

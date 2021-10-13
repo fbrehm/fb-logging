@@ -101,13 +101,11 @@ class FbLoggingTestcase(unittest.TestCase):
         super(FbLoggingTestcase, self).__init__(methodName)
 
         self.assertGreaterEqual(
-                sys.version_info[0], 3,
-                "Unsupported Python version {}.".format(sys.version))
+            sys.version_info[0], 3, "Unsupported Python version {}.".format(sys.version))
 
         if sys.version_info[0] == 3:
             self.assertGreaterEqual(
-                    sys.version_info[1], 6,
-                    "Unsupported Python version {}.".format(sys.version))
+                sys.version_info[1], 6, "Unsupported Python version {}.".format(sys.version))
 
         if self.verbose >= 3:
             LOG.debug("Used Phyton version: {!r}.".format(sys.version))
