@@ -12,6 +12,8 @@ import os
 import sys
 import logging
 
+from random import randint
+
 try:
     import unittest2 as unittest
 except ImportError:
@@ -173,6 +175,51 @@ class TestColored(FbLoggingTestcase):
                     print()
 
     # -------------------------------------------------------------------------
+    def test_colorcode_24bit(self):
+
+        LOG.info("Testing colored output 24 bit colors ...")
+
+        from fb_logging.colored import Colors, colorstr_24bit
+
+        test_colors = [
+            ((0, 0, 0), (255, 255, 255)),
+            ((255, 255, 255), (0, 0, 0)),
+            ((255, 0, 0), None),
+            ((0, 255, 0), None),
+            ((0, 0, 255), None),
+            ((127, 0, 127), None),
+            ((255, 0, 255), None),
+            ((0, 127, 127), None),
+            ((0, 255, 255), None),
+            ((127, 127, 0), None),
+            ((255, 255, 0), None),
+            (None, (63, 63, 63)),
+        ]
+
+        i = 0
+        while i < 10:
+            i += 1
+            c = ((randint(0, 255), randint(0, 255), randint(0, 255)), None)
+            test_colors.append(c)
+
+        i = 0
+        while i < 3:
+            i += 1
+            c = (None, (randint(0, 255), randint(0, 255), randint(0, 255)))
+            test_colors.append(c)
+
+        msg = "Colored output"
+        print('')
+
+        for color in test_colors:
+
+            ctxt = '{!r}'.format(color)
+            LOG.debug("Testing color {clr} ...".format(clr=ctxt))
+
+            print("{ctxt:<30} {msg}".format(
+                ctxt=(ctxt + ':'), msg=colorstr_24bit(msg, color[0], color[1])))
+
+    # -------------------------------------------------------------------------
     def test_formatter_object(self):
 
         LOG.info("Testing init of a ColoredFormatter object ...")
@@ -203,6 +250,7 @@ if __name__ == '__main__':
     suite.addTest(TestColored('test_import_modules', verbose))
     suite.addTest(TestColored('test_colorcode_4bit', verbose))
     suite.addTest(TestColored('test_colorcode_8bit', verbose))
+    suite.addTest(TestColored('test_colorcode_24bit', verbose))
     suite.addTest(TestColored('test_formatter_object', verbose))
 
     runner = unittest.TextTestRunner(verbosity=verbose)
