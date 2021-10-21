@@ -11,7 +11,7 @@ import re
 from numbers import Number
 from collections.abc import Sequence
 
-__version__ = '0.4.2'
+__version__ = '0.5.0'
 
 
 # =============================================================================
@@ -71,31 +71,76 @@ class Colors:
     BLUE_BG = 44
     MAGENTA_BG = 45
     CYAN_BG = 46
-    GREY80_BG = 47
     WHITE_BG = 47
     BRIGHT_BLACK = 90
-    RED = 91
     BRIGHT_RED = 91
-    GREEN = 92
     BRIGHT_GREEN = 92
-    YELLOW = 93
     BRIGHT_YELLOW = 93
-    BLUE = 94
     BRIGHT_BLUE = 94
-    MAGENTA = 95
     BRIGHT_MAGENTA = 95
-    CYAN = 96
     BRIGHT_CYAN = 96
-    WHITE = 97
     BRIGHT_WHITE = 97
     BRIGHT_BLACK_BG = 100
     BRIGHT_RED_BG = 101
     BRIGHT_GREEN_BG = 102
     BRIGHT_YELLOW_BG = 103
     BRIGHT_BLUE_BG = 104
-    BRIGHT_PURPLE_BG = 105
+    BRIGHT_MAGENTA_BG = 105
     BRIGHT_CYAN_BG = 106
     BRIGHT_WHITE_BG = 107
+
+    legacy_colors = {
+        'GREY30': 'BRIGHT_BLACK',
+        'GREY65': 'DARK_WHITE',
+        'GREY70': 'BRIGHT_WHITE',
+        'GREY20_BG': 'BLACK_BG',
+        'GREY33_BG': 'BRIGHT_BLACK_BG',
+        'GREY80_BG': 'WHITE_BG',
+        'RED': 'BRIGHT_RED',
+        'GREEN': 'BRIGHT_GREEN',
+        'YELLOW': 'BRIGHT_YELLOW',
+        'BLUE': 'BRIGHT_BLUE',
+        'MAGENTA': 'BRIGHT_MAGENTA',
+        'CYAN': 'BRIGHT_CYAN',
+        'WHITE': 'BRIGHT_WHITE',
+        'LIGHT_BLACK': 'BRIGHT_BLACK',
+        'LIGHT_RED': 'BRIGHT_RED',
+        'LIGHT_GREEN': 'BRIGHT_GREEN',
+        'LIGHT_YELLOW': 'BRIGHT_YELLOW',
+        'LIGHT_BLUE': 'BRIGHT_BLUE',
+        'LIGHT_MAGENTA': 'BRIGHT_MAGENTA',
+        'LIGHT_CYAN': 'BRIGHT_CYAN',
+        'LIGHT_WHITE': 'BRIGHT_WHITE',
+        'LIGHT_BLACK_BG': 'BRIGHT_BLACK_BG',
+        'LIGHT_RED_BG': 'BRIGHT_RED_BG',
+        'LIGHT_GREEN_BG': 'BRIGHT_GREEN_BG',
+        'LIGHT_YELLOW_BG': 'BRIGHT_YELLOW_BG',
+        'LIGHT_BLUE_BG': 'BRIGHT_BLUE_BG',
+        'LIGHT_MAGENTA_BG': 'BRIGHT_MAGENTA_BG',
+        'LIGHT_CYAN_BG': 'BRIGHT_CYAN_BG',
+        'LIGHT_WHITE_BG': 'BRIGHT_WHITE_BG',
+        'AQUA': 'BRIGHT_CYAN',
+        'AUQA': 'BRIGHT_CYAN',
+        'LIGHT_AQUA': 'BRIGHT_CYAN',
+        'LIGHT_AUQA': 'BRIGHT_CYAN',
+        'BRIGHT_AQUA': 'BRIGHT_CYAN',
+        'BRIGHT_AUQA': 'BRIGHT_CYAN',
+        'DARK_AQUA': 'DARK_CYAN',
+        'DARK_AUQA': 'DARK_CYAN',
+        'AQUA_BG': 'CYAN_BG',
+        'AUQA_BG': 'CYAN_BG',
+        'LIGHT_AQUA_BG': 'BRIGHT_CYAN_BG',
+        'LIGHT_AUQA_BG': 'BRIGHT_CYAN_BG',
+        'BRIGHT_AQUA_BG': 'BRIGHT_CYAN_BG',
+        'BRIGHT_AUQA_BG': 'BRIGHT_CYAN_BG',
+        'PURPLE': 'BRIGHT_MAGENTA',
+        'LIGHT_PURPLE': 'BRIGHT_MAGENTA',
+        'BRIGHT_PURPLE': 'BRIGHT_MAGENTA',
+        'DARK_PURPLE': 'DARK_MAGENTA',
+        'PURPLE_BG': 'MAGENTA_BG',
+        'LIGHT_PURPLE_BG': 'BRIGHT_MAGENTA_BG',
+        'BRIGHT_PURPLE_BG': 'BRIGHT_MAGENTA_BG',
+    }
 
     # -------------------------------------------------------------------------
     @classmethod
@@ -122,6 +167,8 @@ class Colors:
             raise WrongColorTypeError(value)
 
         key = str(value).upper()
+        if key in cls.legacy_colors:
+            key = cls.legacy_colors[key]
         if not hasattr(cls, key):
             raise ColorNotFoundError(value)
         return getattr(cls, key)
