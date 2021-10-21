@@ -11,7 +11,7 @@ import re
 from numbers import Number
 from collections.abc import Sequence
 
-__version__ = '0.5.0'
+__version__ = '0.5.1'
 
 
 # =============================================================================
@@ -277,15 +277,13 @@ class Colors:
 
     # -------------------------------------------------------------------------
     @classmethod
-    def colorize_24bit(cls, message, color_fg=None, color_bg=None, font_effect=None):
+    def colorize_24bit(cls, message, color_fg=None, color_bg=None):
 
         start_out = ''
         if color_fg is not None:
             start_out += cls.termout_fg(color_fg)
         if color_bg is not None:
-            start_out += cls.termout_bg(color_fg)
-        if font_effect is not None:
-            start_out += cls.termcode_4bit(font_effect)
+            start_out += cls.termout_bg(color_bg)
 
         return start_out + message + cls.termout('reset')
 
@@ -384,7 +382,7 @@ def colorstr_8bit(message, color_fg=None, color_bg=None, font_effect=None):
 
 
 # =============================================================================
-def colorstr_24bit(message, color_fg=None, color_bg=None, font_effect=None):
+def colorstr_24bit(message, color_fg=None, color_bg=None):
     """
     Wrapper function for Color.colorize_24bit()
 
@@ -394,7 +392,7 @@ def colorstr_24bit(message, color_fg=None, color_bg=None, font_effect=None):
     """
 
     return Colors.colorize_24bit(
-        message, color_fg=color_fg, color_bg=color_bg, font_effect=font_effect)
+        message, color_fg=color_fg, color_bg=color_bg)
 
 
 # =============================================================================
