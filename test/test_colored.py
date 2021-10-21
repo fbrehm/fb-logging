@@ -57,11 +57,20 @@ class TestColored(FbLoggingTestcase):
         msg = "Colored output"
 
         print('')
-        for color in Colors.keys():
-            LOG.debug("Testing color {clr!r} ({cls}) ...".format(
-                clr=color, cls=color.__class__.__name__))
+        max_len = 1
+        normal_colors = Colors.keys()
+        for color in normal_colors:
+            if len(color) > max_len:
+                max_len = len(color)
+        max_len += 1
+        tpl = '{{c:<{}}} {{msg}}'.format(max_len)
+        for color in normal_colors:
+            if self.verbose > 1:
+                LOG.debug("Testing color {clr!r} ({cls}) ...".format(
+                    clr=color, cls=color.__class__.__name__))
             try:
-                print('{c!r}: {msg}'.format(c=color, msg=colorstr(msg, color)))
+                c = '{}:'.format(color)
+                print(tpl.format(c=c, msg=colorstr(msg, color)))
             except Exception as e:
                 self.fail("Failed to generate colored string {c!r} with {cls}: {e}".format(
                     clr=color, cls=e.__class__.__name__, e=e))
@@ -79,6 +88,28 @@ class TestColored(FbLoggingTestcase):
             LOG.debug("Testing color {clr} ...".format(clr=pp(color)))
             try:
                 print('{c}: {msg}'.format(c=pp(color), msg=colorstr(msg, color)))
+            except Exception as e:
+                self.fail("Failed to generate colored string {c!r} with {cls}: {e}".format(
+                    clr=color, cls=e.__class__.__name__, e=e))
+
+        print('')
+        LOG.info("Testing legacy colors ...")
+        print('')
+        max_len = 1
+        legacy_colors = sorted(Colors.legacy_colors.keys())
+        for color in legacy_colors:
+            if len(color) > max_len:
+                max_len = len(color)
+        max_len += 1
+        tpl = '{{c:<{}}} {{msg}}  ({{real}})'.format(max_len)
+        for color in legacy_colors:
+            real_color = Colors.legacy_colors[color]
+            if self.verbose > 1:
+                LOG.debug("Testing legacy color {clr!r} == {real!r} ({cls}) ...".format(
+                    clr=color, real=real_colorreal_color, cls=color.__class__.__name__))
+            try:
+                c = '{}:'.format(color)
+                print(tpl.format(c=c, msg=colorstr(msg, color), real=real_color))
             except Exception as e:
                 self.fail("Failed to generate colored string {c!r} with {cls}: {e}".format(
                     clr=color, cls=e.__class__.__name__, e=e))
