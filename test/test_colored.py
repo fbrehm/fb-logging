@@ -65,9 +65,8 @@ class TestColored(FbLoggingTestcase):
         max_len += 1
         tpl = '{{c:<{}}} {{msg}}'.format(max_len)
         for color in normal_colors:
-            if self.verbose > 1:
-                LOG.debug("Testing color {clr!r} ({cls}) ...".format(
-                    clr=color, cls=color.__class__.__name__))
+            LOG.debug("Testing color {clr!r} ({cls}) ...".format(
+                clr=color, cls=color.__class__.__name__))
             try:
                 c = '{}:'.format(color)
                 print(tpl.format(c=c, msg=colorstr(msg, color)))
@@ -104,9 +103,8 @@ class TestColored(FbLoggingTestcase):
         tpl = '{{c:<{}}} {{msg}}  ({{real}})'.format(max_len)
         for color in legacy_colors:
             real_color = Colors.legacy_colors[color]
-            if self.verbose > 1:
-                LOG.debug("Testing legacy color {clr!r} == {real!r} ({cls}) ...".format(
-                    clr=color, real=real_colorreal_color, cls=color.__class__.__name__))
+            LOG.debug("Testing legacy color {clr!r} == {real!r} ({cls}) ...".format(
+                clr=color, real=real_color, cls=color.__class__.__name__))
             try:
                 c = '{}:'.format(color)
                 print(tpl.format(c=c, msg=colorstr(msg, color), real=real_color))
