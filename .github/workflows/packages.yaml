@@ -9,7 +9,7 @@ on:
       - '!dev/**'
       - '!hf**'
     tags:
-      - *
+      - '**'
 
 env:
   DEBFULLNAME: 'Frank Brehm'
