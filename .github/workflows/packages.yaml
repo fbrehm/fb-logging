@@ -4,10 +4,12 @@ name: "Building OS packages"
 
 on:
   push:
-    branches-ignore:
-      - dev-**
-      - dev/**
-      - hf**
+    branches:
+      - '!dev-**'
+      - '!dev/**'
+      - '!hf**'
+    tags:
+      - *
 
 env:
   DEBFULLNAME: 'Frank Brehm'
