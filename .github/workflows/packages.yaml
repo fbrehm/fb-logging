@@ -67,7 +67,7 @@ jobs:
           MODULE_VERSION=$( cat lib/fb_logging/__init__.py | grep -P '^__version__(\s|=)' | sed -e "s/^[^'\"]*['\"]//"  -e "s/['\"][ 	]*\$//" )
           echo "Module version: '${MODULE_VERSION}'"
           if [[ echo "${GITREF}" | grep -q -P '^refs/tags/' ]] ; then
-              TAG_VERSION=$( echo "${GITREF}" | | sed -e 's|^refs/tags/||' )
+              TAG_VERSION=$( echo "${GITREF}" | sed -e 's|^refs/tags/||' )
               if [[ "${MODULE_VERSION}" == "${TAG_VERSION}" ]] ; then
                   echo "Tag and module version '${TAG_VERSION}' are okay."
               else
