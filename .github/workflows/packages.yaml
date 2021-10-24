@@ -5,6 +5,7 @@ name: "Building OS packages"
 on:
   push:
     branches:
+      - '**'
       - '!dev-**'
       - '!dev/**'
       - '!hf**'
