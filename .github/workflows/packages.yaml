@@ -183,9 +183,8 @@ jobs:
           echo "${COMPAT}" > debian/compat
           echo "y" | debuild -b -i -us -uc
           ls -lA --color=always ..
-          mkdir -pv debian/pkgs/src debian/pkgs/${VERSION_PREFIX}
-          mv -vi ../*.deb debian/pkgs/${VERSION_PREFIX}
-          mv -vi ../*.build* debian/pkgs/src
+          mkdir -pv debian/pkgs/${VERSION_PREFIX}
+          mv -vi ../*.deb ../*.build* debian/pkgs/${VERSION_PREFIX}
           ls -lA --color=always debian/pkgs/*/*
       - name: 'Upload Binary Package'
         uses: actions/upload-artifact@v2
