@@ -4,10 +4,13 @@ name: "Building OS packages"
 
 on:
   push:
-    branches-ignore:
-      - dev-**
-      - dev/**
-      - hf**
+    branches:
+      - '**'
+      - '!dev-**'
+      - '!dev/**'
+      - '!hf**'
+    tags:
+      - '**'
 
 env:
   DEBFULLNAME: 'Frank Brehm'
@@ -59,11 +62,27 @@ jobs:
       - uses: ./.github/actions/install-pip-modules
 #      - name: Install shellcheck and yamllint
 #        run: apt install --yes shellcheck yamllint
+      - name: "Checking module version against tag."
+        shell: bash
+        run: |
+          MODULE_VERSION=$( cat lib/fb_logging/__init__.py | grep -P '^__version__(\s|=)' | sed -e "s/^[^'\"]*['\"]//"  -e "s/['\"][ 	]*\$//" )
+          echo "Module version: '${MODULE_VERSION}'"
+          if echo "${GITREF}" | grep -q -P '^refs/tags/' ; then
+              TAG_VERSION=$( echo "${GITREF}" | sed -e 's|^refs/tags/||' )
+              if [[ "${MODULE_VERSION}" == "${TAG_VERSION}" ]] ; then
+                  echo "Tag and module version '${TAG_VERSION}' are okay."
+              else
+                  echo "Tag '${TAG_VERSION}' does not match module version '${MODULE_VERSION}'" >&2
+                  exit 5
+              fi
+          fi
       - name: Install flake8 and pylint
+        shell: bash
         run: |
           pip install --upgrade --upgrade-strategy eager flake8 pylint
           pip list --format columns
       - name: Execute Flake 8
+        shell: bash
         run: >
           flake8
           --max-line-length=$FLAKE8_MAX_LINE_LENGTH
@@ -168,9 +187,8 @@ jobs:
           echo "${COMPAT}" > debian/compat
           echo "y" | debuild -b -i -us -uc
           ls -lA --color=always ..
-          mkdir -pv debian/pkgs/src debian/pkgs/${VERSION_PREFIX}
-          mv -vi ../*.deb debian/pkgs/${VERSION_PREFIX}
-          mv -vi ../*.build* debian/pkgs/src
+          mkdir -pv debian/pkgs/${VERSION_PREFIX}
+          mv -vi ../*.deb ../*.build* debian/pkgs/${VERSION_PREFIX}
           ls -lA --color=always debian/pkgs/*/*
       - name: 'Upload Binary Package'
         uses: actions/upload-artifact@v2
@@ -339,6 +357,29 @@ jobs:
             rpmdir/SRPMS/*.rpm
           retention-days: 15
 
+  deploy_to_pypi:
+    runs-on: ubuntu-latest
+    name: "Deployment of the Python package to PyPi"
+    # if: ${{ startsWith( github.ref, 'refs/tags/' ) }}
+    needs:
+      - linter
+      # - 'build_debian_sources'
+      # - 'build_debian_bin'
+      # - 'build_rpm'
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+      - uses: casperdcl/deploy-pypi@v2
+        with:
+          password: ${{ secrets.PYPI_TOKEN }}
+          pip: wheel -w dist/ --no-deps .
+          build: clean sdist -d dist/ bdist_wheel -d dist/
+          # only upload if a tag is pushed (otherwise just build & check)
+          upload: ${{ github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags') }}
+      - name: Show results
+        shell: bash
+        run: ls -l --color=always dist/
+
   notify_success:
     runs-on: ubuntu-latest
     name: Sending Success message
@@ -346,6 +387,7 @@ jobs:
       - 'build_debian_sources'
       - 'build_debian_bin'
       - 'build_rpm'
+      - 'deploy_to_pypi'
     steps:
       - name: Sending message
         uses: dawidd6/action-send-mail@v2
