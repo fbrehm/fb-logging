@@ -1,3 +1,12 @@
+fb-logging (0.4.2) all; urgency=medium
+
+  * Checking matching of tag with module version in Github workflow
+    linter job
+  * Adding Github workflow job for uploading Python package to PyPi
+  * Updating PyPi classifiers
+
+ -- Frank Brehm <frank.brehm@pixelpark.com>  Mon, 25 Oct 2021 09:31:11 +0200
+
 fb-logging (0.4.1) all; urgency=medium
 
   * Adding path tmp/ to .gitignore
