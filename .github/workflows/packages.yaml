@@ -399,10 +399,10 @@ jobs:
           username: ${{ secrets.EMAIL_USERNAME }}
           password: ${{ secrets.EMAIL_PASSWORD }}
           # email subject
-          subject: Github Workflow ${{ github.workflow }} of ${{ github.repository }} was successful.
+          subject: Github Workflow ${{ github.workflow }} of ${{ github.repository }} for ${{ github.ref }} was successful.
           # email body as text
           body: |
-            Github Actions Workflow ${{ github.workflow }} of ${{ github.repository }} was successful.
+            Github Actions Workflow ${{ github.workflow }} of ${{ github.repository }} for ${{ github.ref }} was successful.
             Commiter: ${{ github.actor }}
 
             Cheers Frank
