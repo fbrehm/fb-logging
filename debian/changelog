@@ -1,3 +1,10 @@
+fb-logging (0.4.3) UNRELEASED; urgency=medium
+
+  * Minor change in Github workflow job notify_success.
+  * Adding MANIFEST.in file
+
+ -- Frank Brehm <frank.brehm@pixelpark.com>  Thu, 28 Oct 2021 09:15:58 +0200
+
 fb-logging (0.4.2) all; urgency=medium
 
   * Checking matching of tag with module version in Github workflow
