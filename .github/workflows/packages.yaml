@@ -15,6 +15,7 @@ on:
 env:
   DEBFULLNAME: 'Frank Brehm'
   DEBEMAIL: 'frank@brehm-online.com'
+  FB_REPO_IN_DIR: '/var/www/incoming'
   GITREF: ${{ github.ref }}
   NOTIFY_ADDRESS: 'frank@brehm-online.com,frank.brehm@pixelpark.com'
   PKG_NAME: 'fb_logging'
@@ -360,12 +361,8 @@ jobs:
   deploy_to_pypi:
     runs-on: ubuntu-latest
     name: "Deployment of the Python package to PyPi"
-    # if: ${{ startsWith( github.ref, 'refs/tags/' ) }}
     needs:
       - linter
-      # - 'build_debian_sources'
-      # - 'build_debian_bin'
-      # - 'build_rpm'
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
@@ -380,6 +377,32 @@ jobs:
         shell: bash
         run: ls -l --color=always dist/
 
+  deploy_to_fbrepo:
+    runs-on: ubuntu-latest
+    name: "Deployment of all Packages to Frank Brehms repo server"
+    # if: ${{ startsWith( github.ref, 'refs/tags/' ) }}
+    needs:
+      - 'build_debian_sources'
+      - 'build_debian_bin'
+      - 'build_rpm'
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install SSH Key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.FB_REPOIN_SSH_PRIVATE_KEY }}
+          known_hosts: 'just-a-placeholder-so-we-dont-get-errors'
+      - name: Adding Known Hosts
+        run: ssh-keyscan -H ${{ secrets.FB_REPO_SERVER }} >> ~/.ssh/known_hosts
+      - name: Deploy Debian packages with rsync
+        run: >
+          rsync -aHvz debian/pkgs/
+          ${{ secrets.FB_REPO_USER }}@${{ secrets.FB_REPO_SERVER }}:${FB_REPO_IN_DIR}/debian/
+      - name: Deploy RPM packages with rsync
+        run: >
+          rsync -aHvz rpmdir/
+          ${{ secrets.FB_REPO_USER }}@${{ secrets.FB_REPO_SERVER }}:${FB_REPO_IN_DIR}/el/
+
   notify_success:
     runs-on: ubuntu-latest
     name: Sending Success message
@@ -388,6 +411,7 @@ jobs:
       - 'build_debian_bin'
       - 'build_rpm'
       - 'deploy_to_pypi'
+      - 'deploy_to_fbrepo'
     steps:
       - name: Sending message
         uses: dawidd6/action-send-mail@v2
