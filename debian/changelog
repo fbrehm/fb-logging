@@ -1,4 +1,10 @@
-fb-logging (0.4.3) UNRELEASED; urgency=medium
+fb-logging (0.4.4) all; urgency=medium
+
+  * Adding Github workflow job to upload to my repo server.
+
+ -- Frank Brehm <frank@brehm-online.com>  Thu, 11 Nov 2021 08:52:43 +0100
+
+fb-logging (0.4.3) all; urgency=medium
 
   * Minor change in Github workflow job notify_success.
   * Adding MANIFEST.in file
