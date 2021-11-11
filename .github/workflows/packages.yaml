@@ -391,8 +391,18 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           path: artifacts
+      - name: Sorting all artifacts
+        run: |
+          mv -vi artifacts/debian_bin_pkgs_*/* artifacts/
+          mv -vi artifacts/debian_sources/src artifacts/
+          rmdir -v artifacts/debian_bin_pkgs_* artifacts/debian_sources
+          mkdir -pv artifacts/el-7 artifacts/el-8
+          mv -vi artifacts/rpm_pkgs_el7/*/*/*.rpm artifacts/rpm_pkgs_el7/*/*.rpm artifacts/el-7/
+          mv -vi artifacts/rpm_pkgs_el8/*/*/*.rpm artifacts/rpm_pkgs_el8/*/*.rpm artifacts/el-8/
+          rm -rv artifacts/rpm_pkgs_el*
       - name: Show all artifacts
-        run: find artifacts -type f -print0 | xargs --null --no-run-if-empty ls -l --color=always
+        run: |
+          find artifacts -print0 | xargs --null --no-run-if-empty ls -l -d --color=always
       - name: Install SSH Key
         uses: shimataro/ssh-key-action@v2
         with:
@@ -407,11 +417,11 @@ jobs:
           cat ~/.ssh/known_hosts
 #      - name: Deploy Debian packages with rsync
 #        run: >
-#          rsync -aHvz debian/pkgs/
+#          rsync -aHvz artifacts/deb* artifacts/ubuntu*
 #          ${{ secrets.FB_REPO_USER }}@${{ secrets.FB_REPO_SERVER }}:${FB_REPO_IN_DIR}/debian/
 #      - name: Deploy RPM packages with rsync
 #        run: >
-#          rsync -aHvz rpmdir/
+#          rsync -aHvz artifacts/el-*
 #          ${{ secrets.FB_REPO_USER }}@${{ secrets.FB_REPO_SERVER }}:${FB_REPO_IN_DIR}/el/
 
   notify_success:
