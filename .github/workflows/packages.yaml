@@ -415,14 +415,14 @@ jobs:
           ls -l --color=always ~/.ssh/
           echo "Content of ~/.ssh/known_hosts:"
           cat ~/.ssh/known_hosts
-#      - name: Deploy Debian packages with rsync
-#        run: >
-#          rsync -aHvz artifacts/deb* artifacts/ubuntu*
-#          ${{ secrets.FB_REPO_USER }}@${{ secrets.FB_REPO_SERVER }}:${FB_REPO_IN_DIR}/debian/
-#      - name: Deploy RPM packages with rsync
-#        run: >
-#          rsync -aHvz artifacts/el-*
-#          ${{ secrets.FB_REPO_USER }}@${{ secrets.FB_REPO_SERVER }}:${FB_REPO_IN_DIR}/el/
+      - name: Deploy Debian packages with rsync
+        run: >
+          rsync -aHvz artifacts/deb* artifacts/ubuntu*
+          ${{ secrets.FB_REPO_USER }}@${{ secrets.FB_REPO_SERVER }}:${FB_REPO_IN_DIR}/debian/
+      - name: Deploy RPM packages with rsync
+        run: >
+          rsync -aHvz artifacts/el-*
+          ${{ secrets.FB_REPO_USER }}@${{ secrets.FB_REPO_SERVER }}:${FB_REPO_IN_DIR}/el/
 
   notify_success:
     runs-on: ubuntu-latest
