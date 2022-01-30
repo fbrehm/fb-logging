@@ -211,24 +211,31 @@ jobs:
           - el_version: '7'
             yum: 'yum'
             py_minor_version: '6'
+            py_version_dot: '3.6'
+            py_version_nodot: '36'
             image: centos:7
             epel_package: epel-release
           - el_version: '8'
             yum: 'dnf'
             py_minor_version: '8'
+            py_version_dot: '3.8'
+            py_version_nodot: '38'
             image: dokken/centos-stream-8
             epel_package: epel-release
           - el_version: '9'
             yum: 'dnf'
             py_minor_version: '9'
+            py_version_dot: '3'
+            py_version_nodot: '3'
             image: dokken/centos-stream-9
             epel_package: https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm
     container: ${{ matrix.image }}
     env:
       EL_VERSION: ${{ matrix.el_version }}
       EPEL_PACKAGE: ${{ matrix.epel_package }}
-      PY_VERSION_DOT: 3.${{ matrix.py_minor_version}}
-      PY_VERSION_NODOT: 3${{ matrix.py_minor_version}}
+      PY_VERSION_DOT: ${{ matrix.py_version_dot}}
+      PY_VERSION_NODOT: ${{ matrix.py_version_nodot}}
+      PYTHON: "python${{ matrix.py_version_nodot}}"
       USED_CHARSET: 'utf8'
       USED_LOCALE: 'en_US'
       USED_LC: 'en_US.utf8'
@@ -279,7 +286,6 @@ jobs:
           LC_ALL: "en_US.utf8"
         run: |
           echo "Installing Python ${PY_VERSION_NODOT} ..."
-          if [[ "${EL_VERSION}" -ge "9" ]] ; then PYTHON=python3 ; else PYTHON=python${PY_VERSION_NODOT} ; fi
           yum --assumeyes install ${PYTHON} \
                                   ${PYTHON}-setuptools \
                                   ${PYTHON}-pip \
