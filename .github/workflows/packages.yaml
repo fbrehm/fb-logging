@@ -279,10 +279,11 @@ jobs:
           LC_ALL: "en_US.utf8"
         run: |
           echo "Installing Python ${PY_VERSION_NODOT} ..."
-          yum --assumeyes install python${PY_VERSION_NODOT} \
-                                  python${PY_VERSION_NODOT}-setuptools \
-                                  python${PY_VERSION_NODOT}-pip \
-                                  python${PY_VERSION_NODOT}-devel
+          if [[ "${EL_VERSION}" -ge "9" ]] ; then PYTHON=python3 ; else PYTHON=python${PY_VERSION_NODOT} ; fi
+          yum --assumeyes install ${PYTHON} \
+                                  ${PYTHON}-setuptools \
+                                  ${PYTHON}-pip \
+                                  ${PYTHON}-devel
           echo
           echo "Python binaries:"
           ls -l --color=always /bin/python* /bin/pip* || true
