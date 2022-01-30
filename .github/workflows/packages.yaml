@@ -211,14 +211,31 @@ jobs:
           - el_version: '7'
             yum: 'yum'
             py_minor_version: '6'
+            py_version_dot: '3.6'
+            py_version_nodot: '36'
+            image: centos:7
+            epel_package: epel-release
           - el_version: '8'
             yum: 'dnf'
             py_minor_version: '8'
-    container: centos:${{ matrix.el_version }}
+            py_version_dot: '3.8'
+            py_version_nodot: '38'
+            image: dokken/centos-stream-8
+            epel_package: epel-release
+          - el_version: '9'
+            yum: 'dnf'
+            py_minor_version: '9'
+            py_version_dot: '3'
+            py_version_nodot: '3'
+            image: dokken/centos-stream-9
+            epel_package: https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm
+    container: ${{ matrix.image }}
     env:
       EL_VERSION: ${{ matrix.el_version }}
-      PY_VERSION_DOT: 3.${{ matrix.py_minor_version}}
-      PY_VERSION_NODOT: 3${{ matrix.py_minor_version}}
+      EPEL_PACKAGE: ${{ matrix.epel_package }}
+      PY_VERSION_DOT: ${{ matrix.py_version_dot}}
+      PY_VERSION_NODOT: ${{ matrix.py_version_nodot}}
+      PYTHON: "python${{ matrix.py_version_nodot}}"
       USED_CHARSET: 'utf8'
       USED_LOCALE: 'en_US'
       USED_LC: 'en_US.utf8'
@@ -249,7 +266,7 @@ jobs:
           locale
       - name: Install EPEL repo
         shell: bash
-        run: yum --assumeyes install epel-release
+        run: yum --assumeyes install "${EPEL_PACKAGE}"
       - name: Upgrade all packages
         shell: bash
         env:
@@ -269,10 +286,10 @@ jobs:
           LC_ALL: "en_US.utf8"
         run: |
           echo "Installing Python ${PY_VERSION_NODOT} ..."
-          yum --assumeyes install python${PY_VERSION_NODOT} \
-                                  python${PY_VERSION_NODOT}-setuptools \
-                                  python${PY_VERSION_NODOT}-pip \
-                                  python${PY_VERSION_NODOT}-devel
+          yum --assumeyes install ${PYTHON} \
+                                  ${PYTHON}-setuptools \
+                                  ${PYTHON}-pip \
+                                  ${PYTHON}-devel
           echo
           echo "Python binaries:"
           ls -l --color=always /bin/python* /bin/pip* || true
@@ -396,9 +413,10 @@ jobs:
           mv -vi artifacts/debian_bin_pkgs_*/* artifacts/
           mv -vi artifacts/debian_sources/src artifacts/
           rmdir -v artifacts/debian_bin_pkgs_* artifacts/debian_sources
-          mkdir -pv artifacts/el-7 artifacts/el-8
+          mkdir -pv artifacts/el-7 artifacts/el-8 artifacts/el-9
           mv -vi artifacts/rpm_pkgs_el7/*/*/*.rpm artifacts/rpm_pkgs_el7/*/*.rpm artifacts/el-7/
           mv -vi artifacts/rpm_pkgs_el8/*/*/*.rpm artifacts/rpm_pkgs_el8/*/*.rpm artifacts/el-8/
+          mv -vi artifacts/rpm_pkgs_el9/*/*/*.rpm artifacts/rpm_pkgs_el9/*/*.rpm artifacts/el-9/
           rm -rv artifacts/rpm_pkgs_el*
       - name: Show all artifacts
         run: |
