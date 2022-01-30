@@ -1,3 +1,11 @@
+fb-logging (0.4.5) all; urgency=medium
+
+  * Support creating RPMs for CentOS Stream 9
+  * Changing Distro for building EL-8 packages to CentOS Stream 8
+  * Adding flake8 config to setup.cfg
+
+ -- Frank Brehm <frank@brehm-online.com>  Sun, 30 Jan 2022 18:45:34 +0100
+
 fb-logging (0.4.4) all; urgency=medium
 
   * Adding Github workflow job to upload to my repo server.
