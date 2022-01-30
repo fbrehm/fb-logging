@@ -212,17 +212,21 @@ jobs:
             yum: 'yum'
             py_minor_version: '6'
             image: centos:7
+            epel_package: epel-release
           - el_version: '8'
             yum: 'dnf'
             py_minor_version: '8'
             image: dokken/centos-stream-8
+            epel_package: epel-release
           - el_version: '9'
             yum: 'dnf'
             py_minor_version: '9'
             image: dokken/centos-stream-9
+            epel_package: https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm
     container: ${{ matrix.image }}
     env:
       EL_VERSION: ${{ matrix.el_version }}
+      EPEL_PACKAGE: ${{ matrix.epel_package }}
       PY_VERSION_DOT: 3.${{ matrix.py_minor_version}}
       PY_VERSION_NODOT: 3${{ matrix.py_minor_version}}
       USED_CHARSET: 'utf8'
@@ -255,7 +259,7 @@ jobs:
           locale
       - name: Install EPEL repo
         shell: bash
-        run: yum --assumeyes install epel-release
+        run: yum --assumeyes install "${EPEL_PACKAGE}"
       - name: Upgrade all packages
         shell: bash
         env:
