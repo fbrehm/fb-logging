@@ -1,3 +1,9 @@
+fb-logging (0.4.6) all; urgency=medium
+
+  * Supporting Ubuntu 22.04 Jammy Jellyfish
+
+ -- Frank Brehm <frank@brehm-online.com>  Sat, 23 Apr 2022 07:55:46 +0200
+
 fb-logging (0.4.5) all; urgency=medium
 
   * Support creating RPMs for CentOS Stream 9
