@@ -343,7 +343,7 @@ jobs:
                                   -e "s/@@@py_version_nodot@@@/${PY_VERSION_NODOT}/gi" \
                                   -e "s/@@@py_version_dot@@@/${PY_VERSION_DOT}/gi" \
                                   > fb_logging.spec
-          python${PY_VERSION_DOT} changelog-deb2rpm.py debian/changelog >>fb_logging.spec
+          python${PY_VERSION_DOT} bin/dch2speclog debian/changelog >>fb_logging.spec
           echo
           echo "Generated Spec file:"
           cat fb_logging.spec

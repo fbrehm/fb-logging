@@ -1,6 +1,3 @@
-# For consistency and completeness
-%global python2_pkgversion 2
-
 %define version @@@Version@@@
 %define builddir python@@@py_version_nodot@@@_fb_logging-%{version}
 
@@ -25,6 +22,9 @@ BuildArch:      noarch
 
 %description
 Python modules to extend the logging mechanism in Python.
+
+This package provides the following script:
+ * dch2speclog - converting a Debian changelog into log entries of a RPM spec file.
 
 This is the Python@@@py_version_nodot@@@ version.
 
