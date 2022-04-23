@@ -399,6 +399,12 @@ jobs:
       - name: Show results
         shell: bash
         run: ls -l --color=always dist/
+      - name: 'Upload Python Package'
+        uses: actions/upload-artifact@v2
+        with:
+          name: python_pkgs
+          path: dist/*
+          retention-days: 8
 
   deploy_to_fbrepo:
     runs-on: ubuntu-latest
@@ -452,9 +458,6 @@ jobs:
     runs-on: ubuntu-latest
     name: Sending Success message
     needs:
-      - 'build_debian_sources'
-      - 'build_debian_bin'
-      - 'build_rpm'
       - 'deploy_to_pypi'
       - 'deploy_to_fbrepo'
     steps:
