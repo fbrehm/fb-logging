@@ -1,4 +1,4 @@
-fb-logging (0.4.6) UNRELEASED; urgency=medium
+fb-logging (0.4.6) all; urgency=medium
 
   * Supporting Ubuntu 22.04 Jammy Jellyfish
 
