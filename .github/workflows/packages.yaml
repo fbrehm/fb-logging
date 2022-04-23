@@ -9,6 +9,8 @@ on:
       - '!dev-**'
       - '!dev/**'
       - '!hf**'
+      - '!old**'
+      - '!feature**'
     tags:
       - '**'
 
