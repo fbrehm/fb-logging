@@ -280,4 +280,18 @@ build CentOS 8 with Python 3.8:
   # image: centos:8
   image: dokken/centos-stream-8
 
+# ---------------------------
+build CentOS 9 with Python 3:
+  variables:
+    EL_MAJOR_VERSION: '9'
+    YUM: dnf
+    PYTHON_PACKAGES: >
+      python3 python3-pip python3-devel python3-setuptools
+    PYTHON_VERSION_DOT: '3'
+    PYTHON_VERSION_NODOT: '3'
+  extends:
+    - '.pkg-build-rules'
+  # image: centos:8
+  image: dokken/centos-stream-9
+
 # vim: et tabstop=2 expandtab shiftwidth=2 softtabstop=2 list
