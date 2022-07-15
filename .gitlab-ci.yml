@@ -111,7 +111,7 @@ Linter:
   stage: linter
   extends:
     - .docker_job_definition
-  image: python:3.9
+  image: python:3.10
   tags:
     - docker
   script:
@@ -120,8 +120,8 @@ Linter:
     - pip list --format columns
     - 'echo; echo -e "flake8 bin lib setup.py"'
     - flake8 bin lib setup.py
-    - 'echo; echo -e "shellcheck -x compile-xlate-msgs.sh xtract-xlate-msgs.sh"'
-    - shellcheck -x compile-xlate-msgs.sh xtract-xlate-msgs.sh
+    # - 'echo; echo -e "shellcheck -x compile-xlate-msgs.sh xtract-xlate-msgs.sh"'
+    # - shellcheck -x compile-xlate-msgs.sh xtract-xlate-msgs.sh
     - 'echo; echo -e "yamllint -c .yamllint.yaml .gitlab-ci.yml"'
     - yamllint -c .yamllint.yaml .gitlab-ci.yml
   rules:
