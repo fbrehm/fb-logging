@@ -159,7 +159,7 @@ Linter:
     USED_CHARSET: 'utf8'
     USED_LOCALE: 'en_US'
     USED_LC: 'en_US.utf8'
-    PKG_NAME: 'fb-logging'
+    PKG_NAME: 'fb_logging'
     SRC_SPEC_FILE: 'template.spec'
     TGT_SPEC_FILE: "${PKG_NAME}.spec"
   cache:
@@ -216,14 +216,16 @@ Linter:
       ROOT_OBJECTS=$( ls -A1 | egrep -vw ".git|rpmdir" )
       PKG_VERSION=$( ./get-rpm-version )
       PKG_RELEASE=$( ./get-rpm-release )
-      SRC_DIR="rpmdir/SOURCES/${PKG_NAME}-${PKG_VERSION}"
-      SRC_TARBALL="${SRC_DIR}.tar.gz"
+      SRC_BASE="python${PYTHON_VERSION_NODOT}_${PKG_NAME}-${PKG_VERSION}"
+      SRC_DIR="rpmdir/SOURCES/${SRC_BASE}"
+      TAR_BASE="${PKG_NAME}.${PKG_VERSION}.tar.gz"
+      SRC_TARBALL="rpmdir/SOURCES/${TAR_BASE}"
       echo "Version to build: ${PKG_VERSION}-${PKG_RELEASE}"
       echo "Sources directory: '${SRC_DIR}'"
       mkdir -pv "${SRC_DIR}"
       tar cf - ${ROOT_OBJECTS} | (cd "${SRC_DIR}" ; tar xf -)
       echo "Creating ${SRC_TARBALL} ..."
-      cd rpmdir/SOURCES && tar cfz "${PKG_NAME}.${PKG_VERSION}.tar.gz" "${PKG_NAME}-${PKG_VERSION}"
+      cd rpmdir/SOURCES && tar cfz "${TAR_BASE}" "${SRC_BASE}"
       ls -lA --color=always
       cd "${ODIR}"
     - |

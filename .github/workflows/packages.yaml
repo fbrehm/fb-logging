@@ -337,7 +337,7 @@ jobs:
           echo "Copying sources recursive into rpmdir/SOURCES/${RPM_SRC_DIR} ..."
           tar cf - ${ROOT_OBJECTS} | (cd "rpmdir/SOURCES/${RPM_SRC_DIR}" ; tar xf -)
           echo
-          TARBALL=$( echo "${PKG_NAME}" | sed -e 's/_/-/g/' ).${PKG_VERSION}.tar.gz
+          TARBALL="${PKG_NAME}.${PKG_VERSION}.tar.gz"
           echo "Creating rpmdir/SOURCES/${TARBALL} ..."
           cd rpmdir/SOURCES
           tar cfz "${TARBALL}" "${RPM_SRC_DIR}"
