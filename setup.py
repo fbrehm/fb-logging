@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
+@summary: Python modules to extend the logging mechanism in Python.
+
 @author: Frank Brehm
 @contact: frank@brehm-online.com
 @copyright: © 2021 by Frank Brehm, Berlin
 @license: LGPL3+
-@summary: Python modules to extend the logging mechanism in Python.
 """
+
 from __future__ import print_function
 
 import os
@@ -15,15 +17,11 @@ import re
 import pprint
 import datetime
 import textwrap
-import glob
-import pathlib
-import subprocess
 
 from pathlib import Path
 
 # Third party modules
 from setuptools import setup
-from setuptools.command.install import install
 
 # own modules:
 __module_name__ = 'fb_logging'
@@ -44,10 +42,12 @@ PATHS = {
 }
 
 def pp(obj):
+    """Human friendly output of data structures."""
     pprinter = pprint.PrettyPrinter(indent=4)
     return pprinter.pformat(obj)
 
-#print("Paths:\n{}".format(pp(PATHS)))
+
+# print("Paths:\n{}".format(pp(PATHS)))
 
 if os.path.exists(__module_dir__) and os.path.isfile(__init_py__):
     sys.path.insert(0, os.path.abspath(__lib_dir__))
@@ -75,7 +75,7 @@ if sys.version_info[0] < 3:
 
 # -----------------------------------
 def read(fname):
-
+    """Read in a file and return content."""
     content = None
     fn = str(fname)
 
@@ -91,21 +91,23 @@ def read(fname):
 
 # -----------------------------------
 def is_python_file(filename):
+    """Evaluate, whether a file is a Pyton file."""
     fn = str(filename)
-    if filename.endswith('.py'):
+    if fn.endswith('.py'):
         return True
     else:
         return False
 
 
 # -----------------------------------
-__debian_dir__ =  __base_dir__ / 'debian'
+__debian_dir__ = __base_dir__ / 'debian'
 __changelog_file__ = __debian_dir__ / 'changelog'
 __readme_file__ = __base_dir__ / 'README.md'
 
 
 # -----------------------------------
 def get_debian_version():
+    """Evaluate current package version from Debian changelog."""
     if not __changelog_file__.is_file():
         return None
     changelog = read(__changelog_file__)
@@ -118,6 +120,7 @@ def get_debian_version():
         return None
     return match.group(1).strip()
 
+
 __debian_version__ = get_debian_version()
 
 if __debian_version__ is not None and __debian_version__ != '':
@@ -126,7 +129,7 @@ if __debian_version__ is not None and __debian_version__ != '':
 
 # -----------------------------------
 def write_local_version():
-
+    """Write evaluated version from Debian changelog into local_version.py."""
     local_version_file = __module_dir__ / 'local_version.py'
     local_version_file_content = textwrap.dedent('''\
         #!/usr/bin/env python3
@@ -166,7 +169,7 @@ __requirements__ = [
 
 # -----------------------------------
 def read_requirements():
-
+    """Read in and evaluate file requirements.txt."""
     req_file = __base_dir__ / 'requirements.txt'
     if not req_file.is_file():
         return
@@ -199,7 +202,7 @@ read_requirements()
 __scripts__ = []
 
 def get_scripts():
-
+    """Try to get all executable scripts and store them in __scripts__."""
     if not __bin_dir__.is_dir():
         return
 
