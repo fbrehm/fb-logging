@@ -1,0 +1,281 @@
+---
+
+stages:
+  - test
+  - linter
+  - build
+  - sign
+  - deploy
+
+variables:
+  DEBFULLNAME: 'Frank Brehm'
+  DEBEMAIL: 'frank@brehm-online.com'
+  EXPIRE_ARTIFACTS_IN: '1 week'
+  FB_REPOSERVER_URL: 'http://repo.uhu-banane.de'
+  FB_REPOSERVER_GPGKEY_URL: 'http://repo.uhu-banane.de/public/repo.uhu-banane.de.gpg-key2.asc'
+  NOTIFY_ADDRESS: 'frank.brehm@pixelpark.com'
+  SENDER_ADDRESS: 'gitlab-ci@pixelpark.com'
+  SSH_PRIV_KEY_YUM_REPO: 'nada'
+  USED_TIMEZONE: 'Europe/Berlin'
+  VERSION_PREFIX: 'unknown'
+  YUM_REPO_GPG_ID: 'C0E73F70'
+  YUM_REPO_GPG_PASSWD: 'secret'
+  YUM_REPO_HOST: 'repo02.pixelpark.com'
+  YUM_REPO_USER: 'rpm-repo'
+  YUM_REPO_DIR_HTTP: '/Linux/yum/pixelpark'
+  YUM_REPO_DIR: "/srv/www/repo${YUM_REPO_DIR_HTTP}"
+  YUM_REPO_GPG_KEY_PUB: 'nada'
+  YUM_REPO_GPG_KEY_SEC: 'nada'
+
+# ---------------------------
+.docker_job_definition:
+  before_script:
+    - locale -a
+    - apt update && apt install --yes sudo locales gettext
+    - >
+      if test -f /etc/locale.gen; then
+        echo "/etc/locale.gen:"
+        grep -P -v '^\s*(#.*)?$' /etc/locale.gen || true
+        echo "<-- EOF"
+      fi
+    - >
+      if grep 'en_US.UTF-8' /etc/locale.gen; then
+        sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen
+      else
+        echo 'en_US.UTF-8 UTF-8' >> /etc/locale.gen
+      fi
+    - >
+      if grep 'de_DE.UTF-8' /etc/locale.gen; then
+        sed -i -e 's/# de_DE.UTF-8 UTF-8/de_DE.UTF-8 UTF-8/' /etc/locale.gen
+      else
+        echo 'de_DE.UTF-8 UTF-8' >> /etc/locale.gen
+      fi
+    - locale-gen
+    - locale -a
+    - pip install --upgrade pip
+    - pip install -r requirements.txt --upgrade --upgrade-strategy eager
+
+# ---------------------------
+.test-rules:
+  stage: test
+  rules:
+    - if: '$CI_COMMIT_TAG'
+    - if: $CI_COMMIT_BRANCH == "master"
+    - if: $CI_COMMIT_BRANCH == "main"
+    - if: $CI_COMMIT_BRANCH == "test"
+    - if: $CI_COMMIT_BRANCH == "develop"
+  tags:
+    - docker
+  script:
+    - pip install --upgrade --upgrade-strategy eager pytest
+    - pip list --format columns
+    - pytest --verbose
+
+# ---------------------------
+test Python 3.6:
+  extends:
+    - .docker_job_definition
+    - .test-rules
+  image: python:3.6
+
+# ---------------------------
+test Python 3.7:
+  extends:
+    - .docker_job_definition
+    - .test-rules
+  image: python:3.7
+
+# ---------------------------
+test Python 3.8:
+  extends:
+    - .docker_job_definition
+    - .test-rules
+  image: python:3.8
+
+# ---------------------------
+test Python 3.9:
+  extends:
+    - .docker_job_definition
+    - .test-rules
+  image: python:3.9
+
+# ---------------------------
+test Python 3.10:
+  extends:
+    - .docker_job_definition
+    - .test-rules
+  image: python:3.10
+
+# ---------------------------
+Linter:
+  stage: linter
+  extends:
+    - .docker_job_definition
+  image: python:3.10
+  tags:
+    - docker
+  script:
+    - apt install --yes shellcheck yamllint
+    - pip install --upgrade --upgrade-strategy eager flake8 pylint
+    - pip list --format columns
+    - 'echo; echo -e "flake8 bin lib setup.py"'
+    - flake8 bin lib setup.py
+    # - 'echo; echo -e "shellcheck -x compile-xlate-msgs.sh xtract-xlate-msgs.sh"'
+    # - shellcheck -x compile-xlate-msgs.sh xtract-xlate-msgs.sh
+    - 'echo; echo -e "yamllint -c .yamllint.yaml .gitlab-ci.yml"'
+    - yamllint -c .yamllint.yaml .gitlab-ci.yml
+  rules:
+    - if: '$CI_COMMIT_TAG'
+    - if: $CI_COMMIT_BRANCH == "master"
+    - if: $CI_COMMIT_BRANCH == "main"
+    - if: $CI_COMMIT_BRANCH == "test"
+    - if: $CI_COMMIT_BRANCH =~ /test-.*/
+    - if: $CI_COMMIT_BRANCH =~ /build.*/
+    - if: $CI_COMMIT_BRANCH == "develop"
+  needs:
+    - 'test Python 3.6'
+    - 'test Python 3.7'
+    - 'test Python 3.8'
+    - 'test Python 3.9'
+    - 'test Python 3.10'
+
+# ---------------------------
+.pkg-build-rules:
+  stage: build
+  rules:
+    - if: '$CI_COMMIT_TAG'
+    - if: $CI_COMMIT_BRANCH == "master"
+    - if: $CI_COMMIT_BRANCH == "main"
+    - if: $CI_COMMIT_BRANCH == "test"
+    - if: $CI_COMMIT_BRANCH =~ /test-.*/
+    - if: $CI_COMMIT_BRANCH =~ /build.*/
+  tags:
+    - docker
+  needs:
+    - 'Linter'
+  variables:
+    USED_CHARSET: 'utf8'
+    USED_LOCALE: 'en_US'
+    USED_LC: 'en_US.utf8'
+    PKG_NAME: 'fb-logging'
+    SRC_SPEC_FILE: 'template.spec'
+    TGT_SPEC_FILE: "${PKG_NAME}.spec"
+  cache:
+    key: ${CI_JOB_NAME}
+    paths:
+      - .rpm-version
+  artifacts:
+    name: "$CI_JOB_NAME-$CI_COMMIT_REF_NAME"
+    paths:
+      - rpmdir/RPMS/*/*.rpm
+      - rpmdir/SRPMS/*.src.rpm
+    expire_in: '1 week'
+  before_script:
+    - ls -lA --color=always /etc/yum.repos.d
+    - ${YUM} clean all
+    - ${YUM} makecache
+    - |
+      echo "All locales"
+      locale -a
+    - |
+      echo "Installing locales ..."
+      if [[ "${EL_MAJOR_VERSION}" == "7" ]] ; then
+        echo "${USED_LOCALE}.${USED_CHARSET}"
+        localedef --charmap UTF-8 --inputfile "${USED_LOCALE}" "${USED_LC}"
+      else
+        dnf --assumeyes install langpacks-en glibc-all-langpacks
+      fi
+    - |
+      echo "All locales"
+      locale -a
+      echo
+      echo "locales:"
+      locale
+    - |
+      echo "Exporting LC_ALL ..."
+      export LC_ALL="${USED_LC}"
+      echo
+      echo "locales:"
+      locale
+    - |
+      echo "Installing epel-release  ..."
+      ${YUM} --assumeyes install epel-release
+    - ${YUM} makecache
+    - ${YUM} --assumeyes upgrade
+    - ${YUM} --assumeyes install ${PYTHON_PACKAGES} gnupg2 rpm-build gettext
+    - ls -l --color=always /bin/python* /bin/pip* || true
+    - pip3 list --format columns
+  script:
+    - mkdir -pv rpmdir
+    - mkdir -pv rpmdir/SOURCES
+    - |
+      echo "Creating source tar file ..."
+      ODIR=$(pwd)
+      ROOT_OBJECTS=$( ls -A1 | egrep -vw ".git|rpmdir" )
+      PKG_VERSION=$( ./get-rpm-version )
+      PKG_RELEASE=$( ./get-rpm-release )
+      SRC_DIR="rpmdir/SOURCES/${PKG_NAME}-${PKG_VERSION}"
+      SRC_TARBALL="${SRC_DIR}.tar.gz"
+      echo "Version to build: ${PKG_VERSION}-${PKG_RELEASE}"
+      echo "Sources directory: '${SRC_DIR}'"
+      mkdir -pv "${SRC_DIR}"
+      tar cf - ${ROOT_OBJECTS} | (cd "${SRC_DIR}" ; tar xf -)
+      echo "Creating ${SRC_TARBALL} ..."
+      cd rpmdir/SOURCES && tar cfz "${PKG_NAME}.${PKG_VERSION}.tar.gz" "${PKG_NAME}-${PKG_VERSION}"
+      ls -lA --color=always
+      cd "${ODIR}"
+    - |
+      echo "Generating '${TGT_SPEC_FILE}' ..."
+      PKG_VERSION=$( ./get-rpm-version )
+      PKG_RELEASE=$( ./get-rpm-release )
+      cat "${SRC_SPEC_FILE}" | \
+          tail -n +3 | \
+          sed -e "s/@@@Version@@@/$PKG_VERSION/gi" \
+              -e "s/@@@Release@@@/${PKG_RELEASE}/gi" \
+              -e "s/@@@py_version_dot@@@/${PYTHON_VERSION_DOT}/gi" \
+              -e "s/@@@py_version_nodot@@@/${PYTHON_VERSION_NODOT}/gi" > "${TGT_SPEC_FILE}"
+      echo "Generated spec-file:"
+      cat "${TGT_SPEC_FILE}"
+      echo "${PKG_VERSION}-${PKG_RELEASE}" > .rpm-version
+    - |
+      echo "Creating ${HOME}/.rpmmacros ..."
+      echo "%__python3 /bin/python${PYTHON_VERSION_DOT}" > "${HOME}/.rpmmacros"
+      echo "%_signature gpg" >> "${HOME}/.rpmmacros"
+      echo "Generated file:"
+      cat "${HOME}/.rpmmacros"
+    - |
+      echo "Building RPM packages:"
+      rpmbuild -ba --nocheck --verbose --define "_topdir $(pwd)/rpmdir" --define "version ${PKG_VERSION}" "${TGT_SPEC_FILE}"
+    - |
+      echo "Results:"
+      find rpmdir/*RPMS -type f -print0 | xargs --null --no-run-if-empty ls -l -d --color=always
+
+# ---------------------------
+build CentOS 7 with Python 3.6:
+  variables:
+    EL_MAJOR_VERSION: '7'
+    YUM: yum
+    PYTHON_PACKAGES: >
+      python36 python36-pip python36-devel python3-setuptools
+    PYTHON_VERSION_DOT: '3.6'
+    PYTHON_VERSION_NODOT: '36'
+  extends:
+    - '.pkg-build-rules'
+  image: centos:7
+
+# ---------------------------
+build CentOS 8 with Python 3.8:
+  variables:
+    EL_MAJOR_VERSION: '8'
+    YUM: dnf
+    PYTHON_PACKAGES: >
+      python38 python38-pip python38-devel python38-setuptools
+      platform-python-devel
+    PYTHON_VERSION_DOT: '3.8'
+    PYTHON_VERSION_NODOT: '38'
+  extends:
+    - '.pkg-build-rules'
+  # image: centos:8
+  image: dokken/centos-stream-8
+
+# vim: et tabstop=2 expandtab shiftwidth=2 softtabstop=2 list
