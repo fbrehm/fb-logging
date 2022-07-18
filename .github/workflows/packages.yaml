@@ -56,7 +56,7 @@ jobs:
     env:
       FLAKE8_MAX_LINE_LENGTH: 99
       FLAKE8_MAX_COMPLEXITY: 20
-      FLAKE8_IGNORE_ERRORS: 'E226,E41,E402'
+      FLAKE8_IGNORE_ERRORS: 'E226,E41,E402,W503'
     needs:
       - test
     steps:
@@ -352,7 +352,7 @@ jobs:
                                   -e "s/@@@py_version_nodot@@@/${PY_VERSION_NODOT}/gi" \
                                   -e "s/@@@py_version_dot@@@/${PY_VERSION_DOT}/gi" \
                                   > fb_logging.spec
-          python${PY_VERSION_DOT} changelog-deb2rpm.py debian/changelog >>fb_logging.spec
+          python${PY_VERSION_DOT} bin/dch2speclog debian/changelog >>fb_logging.spec
           echo
           echo "Generated Spec file:"
           cat fb_logging.spec

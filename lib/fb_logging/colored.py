@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-@summary: additional logging formatter for colored output via console
-"""
+"""@summary: Additional logging formatter for colored output via console."""
 
 import logging
 import copy
@@ -20,12 +18,12 @@ class ColorNotFoundError(KeyError):
 
     # -------------------------------------------------------------------------
     def __init__(self, color):
-
+        """Construct this exception."""
         self.color = color
 
     # -------------------------------------------------------------------------
     def __str__(self):
-
+        """Typecast into str."""
         return "Color {!r} not found.".format(self.color)
 
 
@@ -35,18 +33,20 @@ class WrongColorTypeError(TypeError):
 
     # -------------------------------------------------------------------------
     def __init__(self, color):
-
+        """Construct this exception."""
         self.color = color
 
     # -------------------------------------------------------------------------
     def __str__(self):
-
+        """Typecast into str."""
         return "Color {c!r} has wrong type {t}.".format(
             c=self.color, t=self.color.__class__.__name__)
 
 
 # =============================================================================
 class Colors:
+    """A class for handling terminal color codes."""
+
     ENDC = 0
     RESET = 0
     BOLD = 1
@@ -145,8 +145,7 @@ class Colors:
     # -------------------------------------------------------------------------
     @classmethod
     def termcode_4bit(cls, value):
-        """
-        Tries to get the numeric value of given 4 Bit color value or font effect name.
+        """Try to get the numeric value of given 4 Bit color value or font effect name.
 
         @param color: The color to use, must be a valid 4 Bit color code.
         @type color: str or int
@@ -156,7 +155,6 @@ class Colors:
         @return: The numeric terminal code of the color.
         @rtype: int
         """
-
         if isinstance(value, bool):
             raise WrongColorTypeError(value)
 
@@ -176,7 +174,7 @@ class Colors:
     # -------------------------------------------------------------------------
     @classmethod
     def termout_8bit_fg(cls, color):
-
+        """Return the terminal code of given 8-bit foreground color."""
         if isinstance(color, Number):
             if isinstance(color, bool):
                 raise WrongColorTypeError(color)
@@ -192,7 +190,7 @@ class Colors:
     # -------------------------------------------------------------------------
     @classmethod
     def termout_8bit_bg(cls, color):
-
+        """Return the terminal code of given 8-bit background color."""
         if isinstance(color, Number):
             if isinstance(color, bool):
                 raise WrongColorTypeError(color)
@@ -208,7 +206,7 @@ class Colors:
     # -------------------------------------------------------------------------
     @classmethod
     def colorize_8bit(cls, message, color_fg=None, color_bg=None, font_effect=None):
-
+        """Colorize the given message with a 8-bit color."""
         start_out = ''
         if color_fg is not None:
             start_out += cls.termout_8bit_fg(color_fg)
@@ -222,7 +220,7 @@ class Colors:
     # -------------------------------------------------------------------------
     @classmethod
     def termout_fg(cls, color):
-
+        """Return the terminal code of given foreground color."""
         if isinstance(color, (list, tuple)):
 
             if len(color) != 3:
@@ -250,7 +248,7 @@ class Colors:
     # -------------------------------------------------------------------------
     @classmethod
     def termout_bg(cls, color):
-
+        """Return the terminal code of given background color."""
         if isinstance(color, (list, tuple)):
 
             if len(color) != 3:
@@ -278,7 +276,7 @@ class Colors:
     # -------------------------------------------------------------------------
     @classmethod
     def colorize_24bit(cls, message, color_fg=None, color_bg=None):
-
+        """Colorize the given message with a 24-bit color."""
         start_out = ''
         if color_fg is not None:
             start_out += cls.termout_fg(color_fg)
@@ -290,8 +288,7 @@ class Colors:
     # -------------------------------------------------------------------------
     @classmethod
     def termout(cls, color):
-        """
-        Output of an ANSII terminal code.
+        """Output of an ANSII terminal code.
 
         @param color: The color to use, must be a valid color code.
         @type color: str or int
@@ -299,7 +296,6 @@ class Colors:
         @return: The terminal output to start colorized message.
         @rtype: str
         """
-
         if isinstance(color, (str, bytes)):
             num = cls.termcode_4bit(color)
             return '\x1b[{}m'.format(num)
@@ -315,8 +311,7 @@ class Colors:
     # -------------------------------------------------------------------------
     @classmethod
     def colorize(cls, message, color):
-        """
-        Wrapper function to colorize the message.
+        """Colorize the given message message.
 
         @param message: The message to colorize
         @type message: str
@@ -325,9 +320,7 @@ class Colors:
 
         @return: the colorized message
         @rtype: str
-
         """
-
         start_out = ''
         if isinstance(color, Sequence) and not isinstance(color, (str, bytes)):
             for single_color in color:
@@ -340,7 +333,7 @@ class Colors:
     # -------------------------------------------------------------------------
     @classmethod
     def keys(cls):
-
+        """Return all colornames of this class."""
         ret = []
         re_capital = re.compile(r'^[A-Z][A-Z_0-9]*$')
         for key in sorted(cls.__dict__.keys()):
@@ -351,8 +344,7 @@ class Colors:
 
 # =============================================================================
 def colorstr(message, color):
-    """
-    Wrapper function for Color.colorize()
+    """Wrap Color.colorize().
 
     @param message: The message to colorize
     @type message: str
@@ -361,43 +353,36 @@ def colorstr(message, color):
 
     @return: the colorized message
     @rtype: str
-
     """
-
     return Colors.colorize(message, color)
 
 
 # =============================================================================
 def colorstr_8bit(message, color_fg=None, color_bg=None, font_effect=None):
-    """
-    Wrapper function for Color.colorize_8bit()
+    """Wrap Color.colorize_8bit().
 
     @return: the colorized message
     @rtype: str
-
     """
-
     return Colors.colorize_8bit(
         message, color_fg=color_fg, color_bg=color_bg, font_effect=font_effect)
 
 
 # =============================================================================
 def colorstr_24bit(message, color_fg=None, color_bg=None):
-    """
-    Wrapper function for Color.colorize_24bit()
+    """Wrap Color.colorize_24bit().
 
     @return: the colorized message
     @rtype: str
-
     """
-
     return Colors.colorize_24bit(
         message, color_fg=color_fg, color_bg=color_bg)
 
 
 # =============================================================================
 class ColoredFormatter(logging.Formatter):
-    """
+    """Format logging messages colorful for screen output.
+
     A variant of code found at:
     http://stackoverflow.com/questions/384076/how-can-i-make-the-python-logging-output-to-be-colored
     """
@@ -412,14 +397,12 @@ class ColoredFormatter(logging.Formatter):
 
     # -------------------------------------------------------------------------
     def __init__(self, fmt=None, datefmt=None, dark=False):
-        """
-        Initialize the formatter with specified format strings.
+        """Initialize the formatter with specified format strings.
 
         Initialize the formatter either with the specified format string, or a
         default. Allow for specialized date formatting with the optional
         datefmt argument (if omitted, you get the ISO8601 format).
         """
-
         logging.Formatter.__init__(self, fmt, datefmt)
 
         if dark:
@@ -434,7 +417,7 @@ class ColoredFormatter(logging.Formatter):
     # -----------------------------------------------------------
     @property
     def color_debug(self):
-        """The color used to output debug messages."""
+        """Return the color used to output debug messages."""
         return self.level_color['DEBUG']
 
     @color_debug.setter
@@ -444,7 +427,7 @@ class ColoredFormatter(logging.Formatter):
     # -----------------------------------------------------------
     @property
     def color_info(self):
-        """The color used to output info messages."""
+        """Return the color used to output info messages."""
         return self.level_color['INFO']
 
     @color_info.setter
@@ -454,7 +437,7 @@ class ColoredFormatter(logging.Formatter):
     # -----------------------------------------------------------
     @property
     def color_warning(self):
-        """The color used to output warning messages."""
+        """Return the color used to output warning messages."""
         return self.level_color['WARNING']
 
     @color_warning.setter
@@ -464,7 +447,7 @@ class ColoredFormatter(logging.Formatter):
     # -----------------------------------------------------------
     @property
     def color_error(self):
-        """The color used to output error messages."""
+        """Return the color used to output error messages."""
         return self.level_color['ERROR']
 
     @color_error.setter
@@ -474,7 +457,7 @@ class ColoredFormatter(logging.Formatter):
     # -----------------------------------------------------------
     @property
     def color_critical(self):
-        """The color used to output critical messages."""
+        """Return the color used to output critical messages."""
         return self.level_color['CRITICAL']
 
     @color_critical.setter
@@ -483,10 +466,7 @@ class ColoredFormatter(logging.Formatter):
 
     # -------------------------------------------------------------------------
     def format(self, record):
-        """
-        Format the specified record as text.
-        """
-
+        """Format the specified record as text."""
         rcrd = copy.copy(record)
         levelname = rcrd.levelname
 

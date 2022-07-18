@@ -22,14 +22,27 @@ import pprint
 import platform
 
 from pathlib import Path
-from debian.changelog import Changelog
+
+# own modules:
+
+my_path = Path(__file__)
+my_real_path = my_path.resolve()
+bin_path = my_real_path.parent
+base_dir = bin_path.parent
+lib_dir = base_dir.joinpath('lib')
+module_dir = lib_dir.joinpath('fb_logging')
+
+if module_dir.exists():
+        sys.path.insert(0, str(lib_dir))
+
+from fb_logging.deb_changelog import Changelog
 
 # Own modules
 from fb_logging.colored import ColoredFormatter
 
 from fb_logging import __version__ as __pkg_version__
 
-__version__ = '0.3.0'
+__version__ = '0.4.0'
 
 LOG = logging.getLogger(__name__)
 
