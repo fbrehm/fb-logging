@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-@summary: wrapping logging handler for logging.handlers.SysLogHandler
-          to convert all log messages to utf-8.
+@summary: A wrapping logging handler for logging.handlers.SysLogHandler.
+
+It's intended to convert all log messages to utf-8.
 """
 
 # Standard modules
@@ -25,9 +26,9 @@ if sys.version_info[0] == 3 and sys.version_info[1] <= 1:
 
 # =============================================================================
 class FbSysLogHandler(SysLogHandler):
-    """
-    A wrapper  logging handler for logging.handlers.SysLogHandler
-    to convert all log messages to utf-8.
+    """A wrapper logging handler for logging.handlers.SysLogHandler.
+
+    It's intended to convert all log messages to utf-8.
     """
 
     def __init__(
@@ -35,8 +36,7 @@ class FbSysLogHandler(SysLogHandler):
             facility=SysLogHandler.LOG_USER,
             socktype=None,
             encoding="utf-8"):
-        """
-        Initialize the FbSysLogHandler.
+        """Initialize the FbSysLogHandler.
 
         To log to a local syslogd, `FbSysLogHandler(address="/dev/log")`
         may be used.
@@ -55,7 +55,6 @@ class FbSysLogHandler(SysLogHandler):
         @type encoding: str
 
         """
-
         # Initialisation of the parent object
         do_ux_socket = False
 
@@ -113,11 +112,10 @@ class FbSysLogHandler(SysLogHandler):
 
     # -------------------------------------------------------------------------
     def emit(self, record):
-        """
-        Wrapper method for SysLogHandler.emit() to encode an unicode message
-        to UTF-8 (or whatever).
-        """
+        """Wrap for SysLogHandler.emit().                           # noqa: D402.
 
+        Encode an unicode message to UTF-8 (or whatever).
+        """
         msg = record.msg
         if isinstance(msg, bytes):
             msg = msg.decode(self.encoding)

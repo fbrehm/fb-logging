@@ -63,6 +63,8 @@ variables:
     - if: $CI_COMMIT_BRANCH == "master"
     - if: $CI_COMMIT_BRANCH == "main"
     - if: $CI_COMMIT_BRANCH == "test"
+    - if: $CI_COMMIT_BRANCH =~ /test-.*/
+    - if: $CI_COMMIT_BRANCH =~ /build.*/
     - if: $CI_COMMIT_BRANCH == "develop"
   tags:
     - docker
@@ -157,7 +159,7 @@ Linter:
     USED_CHARSET: 'utf8'
     USED_LOCALE: 'en_US'
     USED_LC: 'en_US.utf8'
-    PKG_NAME: 'fb-logging'
+    PKG_NAME: 'fb_logging'
     SRC_SPEC_FILE: 'template.spec'
     TGT_SPEC_FILE: "${PKG_NAME}.spec"
   cache:
@@ -214,14 +216,16 @@ Linter:
       ROOT_OBJECTS=$( ls -A1 | egrep -vw ".git|rpmdir" )
       PKG_VERSION=$( ./get-rpm-version )
       PKG_RELEASE=$( ./get-rpm-release )
-      SRC_DIR="rpmdir/SOURCES/${PKG_NAME}-${PKG_VERSION}"
-      SRC_TARBALL="${SRC_DIR}.tar.gz"
+      SRC_BASE="python${PYTHON_VERSION_NODOT}_${PKG_NAME}-${PKG_VERSION}"
+      SRC_DIR="rpmdir/SOURCES/${SRC_BASE}"
+      TAR_BASE="${PKG_NAME}.${PKG_VERSION}.tar.gz"
+      SRC_TARBALL="rpmdir/SOURCES/${TAR_BASE}"
       echo "Version to build: ${PKG_VERSION}-${PKG_RELEASE}"
       echo "Sources directory: '${SRC_DIR}'"
       mkdir -pv "${SRC_DIR}"
       tar cf - ${ROOT_OBJECTS} | (cd "${SRC_DIR}" ; tar xf -)
       echo "Creating ${SRC_TARBALL} ..."
-      cd rpmdir/SOURCES && tar cfz "${PKG_NAME}.${PKG_VERSION}.tar.gz" "${PKG_NAME}-${PKG_VERSION}"
+      cd rpmdir/SOURCES && tar cfz "${TAR_BASE}" "${SRC_BASE}"
       ls -lA --color=always
       cd "${ODIR}"
     - |
@@ -229,11 +233,11 @@ Linter:
       PKG_VERSION=$( ./get-rpm-version )
       PKG_RELEASE=$( ./get-rpm-release )
       cat "${SRC_SPEC_FILE}" | \
-          tail -n +3 | \
           sed -e "s/@@@Version@@@/$PKG_VERSION/gi" \
               -e "s/@@@Release@@@/${PKG_RELEASE}/gi" \
               -e "s/@@@py_version_dot@@@/${PYTHON_VERSION_DOT}/gi" \
               -e "s/@@@py_version_nodot@@@/${PYTHON_VERSION_NODOT}/gi" > "${TGT_SPEC_FILE}"
+      python${PYTHON_VERSION_DOT} bin/dch2speclog debian/changelog >>"${TGT_SPEC_FILE}"
       echo "Generated spec-file:"
       cat "${TGT_SPEC_FILE}"
       echo "${PKG_VERSION}-${PKG_RELEASE}" > .rpm-version
@@ -241,7 +245,7 @@ Linter:
       echo "Creating ${HOME}/.rpmmacros ..."
       echo "%__python3 /bin/python${PYTHON_VERSION_DOT}" > "${HOME}/.rpmmacros"
       echo "%_signature gpg" >> "${HOME}/.rpmmacros"
-      echo "Generated file:"
+      echo "Generated ${HOME}/.rpmmacros:"
       cat "${HOME}/.rpmmacros"
     - |
       echo "Building RPM packages:"
@@ -256,7 +260,7 @@ build CentOS 7 with Python 3.6:
     EL_MAJOR_VERSION: '7'
     YUM: yum
     PYTHON_PACKAGES: >
-      python36 python36-pip python36-devel python3-setuptools
+      python36 python36-six python36-pip python36-devel python3-setuptools
     PYTHON_VERSION_DOT: '3.6'
     PYTHON_VERSION_NODOT: '36'
   extends:
@@ -269,7 +273,7 @@ build CentOS 8 with Python 3.8:
     EL_MAJOR_VERSION: '8'
     YUM: dnf
     PYTHON_PACKAGES: >
-      python38 python38-pip python38-devel python38-setuptools
+      python38 python38-six python38-pip python38-devel python38-setuptools
       platform-python-devel
     PYTHON_VERSION_DOT: '3.8'
     PYTHON_VERSION_NODOT: '38'
@@ -277,5 +281,19 @@ build CentOS 8 with Python 3.8:
     - '.pkg-build-rules'
   # image: centos:8
   image: dokken/centos-stream-8
+
+# ---------------------------
+build CentOS 9 with Python 3:
+  variables:
+    EL_MAJOR_VERSION: '9'
+    YUM: dnf
+    PYTHON_PACKAGES: >
+      python3 python3-six python3-pip python3-devel python3-setuptools
+    PYTHON_VERSION_DOT: '3'
+    PYTHON_VERSION_NODOT: '3'
+  extends:
+    - '.pkg-build-rules'
+  # image: centos:8
+  image: dokken/centos-stream-9
 
 # vim: et tabstop=2 expandtab shiftwidth=2 softtabstop=2 list

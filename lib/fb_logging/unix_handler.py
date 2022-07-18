@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-'''
-@summary: additional logging handler for the common logging framework
-          to combine it with syslog
-'''
+"""
+@summary: An additional logging handler for the common logging framework.
+
+It's intended to combine it with syslog.
+"""
 
 # Standard modules
 import logging
@@ -25,10 +26,7 @@ if sys.version_info[0] < 3:
 
 # =============================================================================
 class UnixSyslogHandler(logging.Handler):
-    '''
-    A handler class which sends formatted logging records over
-    the C API.
-    '''
+    """A handler class which sends formatted logging records over the C API."""
 
     # from <linux/sys/syslog.h>:
     # ======================================================================
@@ -144,8 +142,7 @@ class UnixSyslogHandler(logging.Handler):
 
     # -------------------------------------------------------------------------
     def __init__(self, ident=None, logopt=None, facility=None, encoding="utf-8"):
-        """
-        Initialize a handler.
+        """Initialize a handler.
 
         @param ident: Identifier of the syslog message, uses basename
                       or current running program, if not given
@@ -158,9 +155,7 @@ class UnixSyslogHandler(logging.Handler):
         @type facility: int
         @param encoding: the character set to use to encode unicode messages
         @type encoding: str
-
         """
-
         self._opened = False
         self._facility = 'user'
 
@@ -207,13 +202,13 @@ class UnixSyslogHandler(logging.Handler):
     # -------------------------------------------------------------------------
     @property
     def opened(self):
-        """Is the syslog object already opened."""
+        """Return, whether the syslog object already opened."""
         return getattr(self, '_opened', False)
 
     # -------------------------------------------------------------------------
     @property
     def facility(self):
-        """The syslog facility name to use."""
+        """Return the syslog facility name to use."""
         return getattr(self, '_facility', 'user')
 
     @facility.setter
@@ -238,23 +233,20 @@ class UnixSyslogHandler(logging.Handler):
     # -------------------------------------------------------------------------
     @property
     def facility_id(self):
-        """The numeric value of the syslog facility."""
+        """Return the numeric value of the syslog facility."""
         return self.facility_names.get(
             self.facility, self.facility_names['user'])
 
     # -------------------------------------------------------------------------
     def close(self):
-        """
-        Closes the handler.
-        """
-
+        """Close the handler."""
         syslog.closelog()
         logging.Handler.close(self)
 
     # -------------------------------------------------------------------------
     def map_priority(self, level_name):
-        """
-        Map a logging level name to a key in the priority_names map.
+        """Map a logging level name to a key in the priority_names map.
+
         This is useful in two scenarios: when custom levels are being
         used, and in the case where you can't do a straightforward
         mapping by lowercasing the logging level name because of locale-
@@ -267,20 +259,16 @@ class UnixSyslogHandler(logging.Handler):
 
         @return: the numeric logging level code
         @rtype: str
-
         """
-
         return self.priority_map.get(level_name.upper(), "warning")
 
     # -------------------------------------------------------------------------
     def emit(self, record):
-        """
-        Emit a record.
+        """Emit a record.
 
         The record is formatted, and then sent to the syslog server. If
         exception information is present, it is NOT sent to the server.
         """
-
         msg = record.msg
         if isinstance(msg, bytes):
             msg = msg.decode(self.encoding)
