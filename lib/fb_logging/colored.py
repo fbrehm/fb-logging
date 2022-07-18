@@ -9,7 +9,7 @@ import re
 from numbers import Number
 from collections.abc import Sequence
 
-__version__ = '0.5.1'
+__version__ = '0.5.2'
 
 
 # =============================================================================

@@ -18,7 +18,7 @@ from numbers import Number
 
 # Own modules
 
-__version__ = '1.2.0'
+__version__ = '1.2.1'
 
 if sys.version_info[0] < 3:
     raise RuntimeError("This module may only be used with Python > 3.1.")
