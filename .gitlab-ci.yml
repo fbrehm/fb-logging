@@ -234,6 +234,7 @@ Linter:
               -e "s/@@@Release@@@/${PKG_RELEASE}/gi" \
               -e "s/@@@py_version_dot@@@/${PYTHON_VERSION_DOT}/gi" \
               -e "s/@@@py_version_nodot@@@/${PYTHON_VERSION_NODOT}/gi" > "${TGT_SPEC_FILE}"
+      python${PYTHON_VERSION_DOT} bin/dch2speclog debian/changelog >>"${TGT_SPEC_FILE}"
       echo "Generated spec-file:"
       cat "${TGT_SPEC_FILE}"
       echo "${PKG_VERSION}-${PKG_RELEASE}" > .rpm-version
