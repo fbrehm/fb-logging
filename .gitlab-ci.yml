@@ -352,7 +352,7 @@ build CentOS 9 with Python 3:
       echo
     - echo "$YUM_REPO_GPG_KEY_PUB" | gpg --import
     - gpg --list-public-keys
-    - echo "$YUM_REPO_GPG_KEY_SEC" | gpg --import
+    - echo "$YUM_REPO_GPG_KEY_SEC" | gpg --import --batch --pinentry-mode loopback --passphrase "${YUM_REPO_GPG_PASSWD}"
     - gpg --list-secret-keys
     - 'for f in $( find rpmdir -type f -iname "*.rpm" ) ; do echo "Signing ${f} ..."; ./rpm-addsign-wrapper.expect "${f}" "${YUM_REPO_GPG_PASSWD}"; done'
     - |
