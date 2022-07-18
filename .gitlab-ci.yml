@@ -348,7 +348,7 @@ build CentOS 9 with Python 3:
       cp -v -i "${rpmoptfile}" "${rpmoptfile_bak}"
       sed -i -e 's/ <.*/\x27 \\/' "${rpmoptfile}"
       ls -l "${rpmoptfile}" "${rpmoptfile_bak}"
-      diff -u "${rpmoptfile_bak}" "${rpmoptfile}"
+      diff -u "${rpmoptfile_bak}" "${rpmoptfile}" || true
       echo
     - echo "$YUM_REPO_GPG_KEY_PUB" | gpg --import
     - gpg --list-public-keys
