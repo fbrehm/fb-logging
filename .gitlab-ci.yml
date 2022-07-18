@@ -300,20 +300,18 @@ build CentOS 9 with Python 3:
     - if: '$CI_COMMIT_TAG'
     - if: $CI_COMMIT_BRANCH == "master"
     - if: $CI_COMMIT_BRANCH == "main"
+    - if: $CI_COMMIT_BRANCH == "test"
   stage: sign
   tags:
     - docker
-  image: centos:7
+  image: dokken/centos-stream-8
   before_script:
     - |
       echo "All locales"
       locale -a
     - |
       echo "Installing locales ..."
-      for l in de_AT de_CH de_DE en_CA en_GB en_IE en_IN en_US; do
-        echo "${l}.utf8"
-        localedef --charmap UTF-8 --inputfile "${l}" "${l}.utf8"
-      done
+      dnf --assumeyes install langpacks-en glibc-all-langpacks
     - |
       echo "All locales"
       locale -a
@@ -331,7 +329,27 @@ build CentOS 9 with Python 3:
     - yum --assumeyes install rpm-sign expect
   script:
     - ls -lA rpmdir/RPMS/*/* rpmdir/SRPMS/*
-    - echo -e "%_signature gpg\n%_gpg_name ${YUM_REPO_GPG_ID}" >$HOME/.rpmmacros
+    - |
+      echo "Generating $HOME/.rpmmacros ..."
+      echo -e "%_signature gpg\n%_gpg_name ${YUM_REPO_GPG_ID}" >$HOME/.rpmmacros
+      echo -e "%__gpg_sign_cmd   %{__gpg} gpg --no-verbose --no-armor --batch --pinentry-mode loopback --passphrase '${YUM_REPO_GPG_PASSWD}' --no-secmem-warning -u \"%{_gpg_name}\" -sbo %{__signature_filename} %{__plaintext_filename}" >>$HOME/.rpmmacros
+      echo "Generated $HOME/.rpmmacros:"
+      echo "--------->"
+      cat $HOME/.rpmmacros
+      echo "<---------"
+      echo
+    - |
+      echo "Tweaking /usr/lib/rpm/rpmpopt-* ..."
+      ls -l /usr/lib/rpm/rpmpopt-*
+      rpmoptfile=$( ls -1 /usr/lib/rpm/rpmpopt-* | head -n 1 )
+      rpmoptfile_base=$( basename "${rpmoptfile}" )
+      rpmoptfile_dir=$( dirname "${rpmoptfile}" )
+      rpmoptfile_bak="${rpmoptfile_dir}/.~${rpmoptfile_base}.bak"
+      cp -v -i "${rpmoptfile}" "${rpmoptfile_bak}"
+      sed -i -e 's/ <.*/\x27 \\/' "${rpmoptfile}"
+      ls -l "${rpmoptfile}" "${rpmoptfile_bak}"
+      diff -u "${rpmoptfile_bak}" "${rpmoptfile}"
+      echo
     - echo "$YUM_REPO_GPG_KEY_PUB" | gpg --import
     - gpg --list-public-keys
     - echo "$YUM_REPO_GPG_KEY_SEC" | gpg --import
@@ -341,7 +359,8 @@ build CentOS 9 with Python 3:
       echo "Signing packages ..."
       for f in $( find rpmdir -type f -iname "*.rpm" ) ; do
           echo "  * ${f} ..."
-          ./rpm-addsign-wrapper.expect "${f}" "${YUM_REPO_GPG_PASSWD}"
+          rpmsign --addsign "${f}"
+          # ./rpm-addsign-wrapper.expect "${f}" "${YUM_REPO_GPG_PASSWD}"
       done
     - |
       echo "Results:"
