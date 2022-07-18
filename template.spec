@@ -29,6 +29,7 @@ This package provides the following script:
 This is the Python@@@py_version_nodot@@@ version.
 
 %prep
+echo "Preparing '${builddir}-' ..."
 %setup -n %{builddir}
 
 %build

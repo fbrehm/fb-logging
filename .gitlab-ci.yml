@@ -233,7 +233,6 @@ Linter:
       PKG_VERSION=$( ./get-rpm-version )
       PKG_RELEASE=$( ./get-rpm-release )
       cat "${SRC_SPEC_FILE}" | \
-          tail -n +3 | \
           sed -e "s/@@@Version@@@/$PKG_VERSION/gi" \
               -e "s/@@@Release@@@/${PKG_RELEASE}/gi" \
               -e "s/@@@py_version_dot@@@/${PYTHON_VERSION_DOT}/gi" \
@@ -246,7 +245,7 @@ Linter:
       echo "Creating ${HOME}/.rpmmacros ..."
       echo "%__python3 /bin/python${PYTHON_VERSION_DOT}" > "${HOME}/.rpmmacros"
       echo "%_signature gpg" >> "${HOME}/.rpmmacros"
-      echo "Generated file:"
+      echo "Generated ${HOME}/.rpmmacros:"
       cat "${HOME}/.rpmmacros"
     - |
       echo "Building RPM packages:"

@@ -303,9 +303,6 @@ jobs:
           echo "Python binaries:"
           ls -l --color=always /bin/python* /bin/pip* || true
           echo
-          echo "Installing Python-Debian with pip3 ..."
-          pip3 install python-debian
-          echo
           echo "Pip3 list:"
           pip3 list --format columns
       - name: Installing build tools
