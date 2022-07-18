@@ -136,39 +136,47 @@ except NameError:
     pass
 
 
+# =============================================================================
 class ChangelogParseError(_base_exception_class):
     """Indicates that the changelog could not be parsed"""
     is_user_error = True
 
+    # -------------------------------------------------------------------------
     def __init__(self, line):
         # type: (str) -> None
         self._line = line
         super(ChangelogParseError, self).__init__()
 
+    # -------------------------------------------------------------------------
     def __str__(self):
         # type: () -> str
         return "Could not parse changelog: "+self._line
 
 
+# =============================================================================
 class ChangelogCreateError(_base_exception_class):
     """Indicates that changelog could not be created, as all the information
     required was not given"""
 
 
+# =============================================================================
 class VersionError(_base_exception_class):
     """Indicates that the version does not conform to the required format"""
 
     is_user_error = True
 
+    # -------------------------------------------------------------------------
     def __init__(self, version):
         # type: (str) -> None
         self._version = version
         super(VersionError, self).__init__()
 
+    # -------------------------------------------------------------------------
     def __str__(self):
         return "Could not parse version: " + self._version
 
 
+# =============================================================================
 class ChangeBlock(object):
     """Holds all the information about one block from the changelog.
 
@@ -194,6 +202,7 @@ class ChangeBlock(object):
         Policy mandates the use of UTF-8.
     """
 
+    # -------------------------------------------------------------------------
     def __init__(self,
                  package=None,          # type: Optional[str]
                  version=None,          # type: Optional[Union[Version, str]]
@@ -222,22 +231,26 @@ class ChangeBlock(object):
         self._no_trailer = False
         self._trailer_separator = "  "
 
+    # -------------------------------------------------------------------------
     def _set_version(self, version):
         # type: (Optional[Union[Version, str]]) -> None
         if version is not None:
             self._raw_version = str(version)
 
+    # -------------------------------------------------------------------------
     def _get_version(self):
         # type: () -> Optional[Version]
         if self._raw_version is None:
             return None
         return Version(self._raw_version)
 
+    # -------------------------------------------------------------------------
     version = property(
         _get_version, _set_version,
         doc="The package version that this block pertains to"
         )
 
+    # -------------------------------------------------------------------------
     def other_keys_normalised(self):
         # type: () -> Dict[str, str]
         """ Obtain a dict from the block header (other than urgency) """
@@ -250,16 +263,19 @@ class ChangeBlock(object):
             norm_dict[key] = value
         return norm_dict
 
+    # -------------------------------------------------------------------------
     def changes(self):
         # type: () -> List[str]
         """ Get the changelog entries for this block as a list of str """
         return self._changes
 
+    # -------------------------------------------------------------------------
     def add_trailing_line(self, line):
         # type: (str) -> None
         """ Add a sign-off (trailer) line to the block """
         self._trailing.append(line)
 
+    # -------------------------------------------------------------------------
     def add_change(self, change):
         # type: (str) -> None
         """ Append a change entry to the block """
@@ -282,6 +298,7 @@ class ChangeBlock(object):
                 changes.append(change)
             self._changes = changes
 
+    # -------------------------------------------------------------------------
     def _get_bugs_closed_generic(self, type_re):
         # type: (Pattern) -> List[int]
         changes = six.u(' ').join(self._changes)
@@ -292,18 +309,21 @@ class ChangeBlock(object):
                 bugs.append(int(bugmatch.group(0)))
         return bugs
 
+    # -------------------------------------------------------------------------
     @property
     def bugs_closed(self):
         # type: () -> List[int]
         """ List of (Debian) bugs closed by the block """
         return self._get_bugs_closed_generic(closes)
 
+    # -------------------------------------------------------------------------
     @property
     def lp_bugs_closed(self):
         # type: () -> List[int]
         """ List of Launchpad bugs closed by the block """
         return self._get_bugs_closed_generic(closeslp)
 
+    # -------------------------------------------------------------------------
     def _format(self):
         # type: () -> str
         # TODO(jsw): Switch to StringIO or a list to join at the end.
@@ -338,20 +358,15 @@ class ChangeBlock(object):
             block += line + "\n"
         return block
 
-    if sys.version >= '3':
-        __str__ = _format
+    # -------------------------------------------------------------------------
+    __str__ = _format
 
-        def __bytes__(self):
-            return str(self).encode(self._encoding)
-    else:
-        __unicode__ = _format
-
-        def __str__(self):
-            # pylint: disable=undefined-variable
-            # (pylint3 doesn't cope with the use of `unicode`)
-            return unicode(self).encode(self._encoding)
+    # -------------------------------------------------------------------------
+    def __bytes__(self):
+        return str(self).encode(self._encoding)
 
 
+# =============================================================================
 topline = re.compile(
     r'^(\w%(name_chars)s*) \(([^\(\) \t]+)\)'
     r'((\s+%(name_chars)s+)+)\;'
@@ -401,6 +416,7 @@ old_format_re7 = re.compile(r'^Old Changelog:\s*$', re.IGNORECASE)
 old_format_re8 = re.compile(r'^(?:\d+:)?\w[\w.+~-]*:?\s*$')
 
 
+# =============================================================================
 class Changelog(object):
     """Represents a debian/changelog file.
 
@@ -457,6 +473,7 @@ class Changelog(object):
 
     """
 
+    # -------------------------------------------------------------------------
     # TODO(jsw): Avoid masking the 'file' built-in.
     def __init__(self,
                  file=None,                 # type: IterableDataSource
@@ -465,6 +482,7 @@ class Changelog(object):
                  strict=False,              # type: bool
                  encoding='utf-8',          # type: str
                  ):
+        """Constructor."""
         # type: (...) -> None
         self._encoding = encoding
         self._blocks = []   # type: List[ChangeBlock]
@@ -475,6 +493,7 @@ class Changelog(object):
                 allow_empty_author=allow_empty_author,
                 strict=strict)
 
+    # -------------------------------------------------------------------------
     @staticmethod
     def _parse_error(message, strict):
         # type: (str, bool) -> None
@@ -483,15 +502,16 @@ class Changelog(object):
         else:
             warnings.warn(message)
 
-    def parse_changelog(self,
+    # -------------------------------------------------------------------------
+    def parse_changelog(self,                                                   # noqa: C901
                         file,             # type: Optional[IterableDataSource]
                         max_blocks=None,  # type: Optional[int]
                         allow_empty_author=False,  # type: bool
                         strict=True,      # type: bool
                         encoding=None,    # type: Optional[str]
-                       ):
+                        ):
         # type: (...) -> None
-        """ Read and parse a changelog file
+        """Read and parse a changelog file.
 
         If you create an Changelog object without specifying a changelog
         file, you can parse a changelog file with this method. If the
@@ -677,76 +697,87 @@ class Changelog(object):
                 assert False, "Unknown state: %s" % state
 
         if (state not in (next_heading_or_eof, slurp_to_end)
-                or (state == slurp_to_end
-                    and old_state != next_heading_or_eof)):
-            self._parse_error(
-                "Found eof where expected %s" % state, strict)
+                or (state == slurp_to_end and old_state != next_heading_or_eof)):
+            self._parse_error("Found eof where expected %s" % state, strict)
             current_block._changes = changes
             current_block._no_trailer = True
             self._blocks.append(current_block)
 
+    # -------------------------------------------------------------------------
     def get_version(self):
         # type: () -> Version
-        """Return a Version object for the last version"""
+        """Return a Version object for the last version."""
         return self._blocks[0].version
 
+    # -------------------------------------------------------------------------
     def set_version(self, version):
         # type: (Union[Version, str]) -> None
-        """Set the version of the last changelog block
+        """Set the version of the last changelog block.
 
         version can be a full version string, or a Version object
         """
         self._blocks[0].version = Version(version)
 
+    # -------------------------------------------------------------------------
     version = property(
         get_version, set_version,
         doc="""Version object for latest changelog block.
             (Property that can both get and set the version.)"""
     )
 
+    # -------------------------------------------------------------------------
     # For convenience, let's expose some of the version properties
     full_version = property(
         lambda self: self.version.full_version,
         doc="The full version number of the last version"
     )
+    # -------------------------------------------------------------------------
     epoch = property(
         lambda self: self.version.epoch,
         doc="The epoch number of the last revision, or `None` "
         "if no epoch was used."
     )
+    # -------------------------------------------------------------------------
     debian_version = property(
         lambda self: self.version.debian_revision,
         doc="The debian part of the version number of the last version."
     )
+    # -------------------------------------------------------------------------
     debian_revision = property(
         lambda self: self.version.debian_revision,
         doc="The debian part of the version number of the last version."
     )
+    # -------------------------------------------------------------------------
     upstream_version = property(
         lambda self: self.version.upstream_version,
         doc="The upstream part of the version number of the last version."
     )
 
+    # -------------------------------------------------------------------------
     def get_package(self):
         # type: () -> Optional[str]
-        """Returns the name of the package in the last entry."""
+        """Return the name of the package in the last entry."""
         return self._blocks[0].package
 
+    # -------------------------------------------------------------------------
     def set_package(self, package):
         # type: (str) -> None
-        """ set the name of the package in the last entry. """
+        """Set the name of the package in the last entry."""
         self._blocks[0].package = package
 
+    # -------------------------------------------------------------------------
     package = property(
         get_package, set_package,
         doc="Name of the package in the last version"
     )
 
+    # -------------------------------------------------------------------------
     def get_versions(self):
+        """Return a list of version objects that the package went through."""
         # type: () -> List[Version]
-        """Returns a list of version objects that the package went through."""
         return [block.version for block in self._blocks]
 
+    # -------------------------------------------------------------------------
     versions = property(
         get_versions,
         doc="""\
@@ -756,9 +787,11 @@ went through. These version objects provide all version attributes such as
 These attributes cannot be assigned to."""
     )
 
+    # -------------------------------------------------------------------------
     def _raw_versions(self):
         return [block._raw_version for block in self._blocks]
 
+    # -------------------------------------------------------------------------
     def _format(self):
         # type: () -> str
         pieces = []
@@ -767,26 +800,24 @@ These attributes cannot be assigned to."""
             pieces.append(six.text_type(block))
         return six.u('').join(pieces)
 
-    if sys.version >= '3':
-        __str__ = _format
+    # -------------------------------------------------------------------------
+    __str__ = _format
 
-        def __bytes__(self):
-            return str(self).encode(self._encoding)
-    else:
-        __unicode__ = _format
+    # -------------------------------------------------------------------------
+    def __bytes__(self):
+        """Typecast into a bytes array."""
+        return str(self).encode(self._encoding)
 
-        def __str__(self):
-            # pylint: disable=undefined-variable
-            # (pylint3 doesn't cope with the use of `unicode`)
-            return unicode(self).encode(self._encoding)
-
+    # -------------------------------------------------------------------------
     def __iter__(self):
+        """Return an iterator ofver changelog blocks."""
         # type: () -> Iterator
         return iter(self._blocks)
 
+    # -------------------------------------------------------------------------
     def __getitem__(self, n):
         # type: (Union[Version, int, str]) -> ChangeBlock
-        """ select a changelog entry by number, version string, or Version
+        """Select a changelog entry by number, version string, or Version.
 
         :param n: integer or str representing a version or Version object
         """
@@ -796,14 +827,19 @@ These attributes cannot be assigned to."""
             return self[Version(n)]
         return self._blocks[self.versions.index(n)]
 
+    # -------------------------------------------------------------------------
     def __len__(self):
+        """Get the number of changelog blocks."""
         # type: () -> int
         return len(self._blocks)
 
+    # -------------------------------------------------------------------------
     def set_distributions(self, distributions):
+        """Set the distribution of the top changelog entry."""
         # type: (str) -> None
         self._blocks[0].distributions = distributions
 
+    # -------------------------------------------------------------------------
     distributions = property(
         lambda self: self._blocks[0].distributions, set_distributions,
         doc="""\
@@ -811,10 +847,13 @@ A string indicating the distributions that the package will be uploaded to
 in the most recent version."""
     )
 
+    # -------------------------------------------------------------------------
     def set_urgency(self, urgency):
+        """Set the urgency of the top changelog entry."""
         # type: (str) -> None
         self._blocks[0].urgency = urgency
 
+    # -------------------------------------------------------------------------
     urgency = property(
         lambda self: self._blocks[0].urgency, set_urgency,
         doc="""\
@@ -822,9 +861,10 @@ A string indicating the urgency with which the most recent version will
 be uploaded."""
     )
 
+    # -------------------------------------------------------------------------
     def add_change(self, change):
         # type: (str) -> None
-        """ and a new dot point to a changelog entry
+        """Add a new dot point to a changelog entry.
 
         Adds a change entry to the most recent version. The change entry
         should conform to the required format of the changelog (i.e. start
@@ -835,11 +875,13 @@ be uploaded."""
         """
         self._blocks[0].add_change(change)
 
+    # -------------------------------------------------------------------------
     def set_author(self, author):
         # type: (Text) -> None
-        """ set the author of the top changelog entry """
+        """Set the author of the top changelog entry."""
         self._blocks[0].author = author
 
+    # -------------------------------------------------------------------------
     author = property(
         lambda self: self._blocks[0].author, set_author,
         doc="""\
@@ -847,15 +889,17 @@ be uploaded."""
         This should be a properly formatted name/email pair."""
     )
 
+    # -------------------------------------------------------------------------
     def set_date(self, date):
         # type: (str) -> None
-        """ set the date of the top changelog entry
+        """Set the date of the top changelog entry.
 
         :param date: str
             a properly formatted date string (`date -R` format; see Policy)
         """
         self._blocks[0].date = date
 
+    # -------------------------------------------------------------------------
     date = property(
         lambda self: self._blocks[0].date, set_date,
         doc="""\
@@ -864,6 +908,7 @@ be uploaded."""
         See the :func:`format_date()` function."""
     )
 
+    # -------------------------------------------------------------------------
     def new_block(self,
                   package=None,          # type: Optional[str]
                   version=None,          # type: Optional[Union[Version, str]]
@@ -877,7 +922,7 @@ be uploaded."""
                   encoding=None,         # type: Optional[str]
                   ):
         # type: (...) -> None
-        """ Add a new changelog block to the changelog
+        """Add a new changelog block to the changelog.
 
         Start a new :class:`ChangeBlock` entry representing a new version
         of the package. The arguments (all optional) are passed directly
@@ -893,8 +938,9 @@ be uploaded."""
         block.add_trailing_line('')
         self._blocks.insert(0, block)
 
+    # -------------------------------------------------------------------------
     def write_to_open_file(self, filehandle):
-        """ Write the changelog entry to a filehandle
+        """Write the changelog entry to a filehandle.
 
         Write the changelog out to the filehandle passed. The file argument
         must be an open file object.
@@ -902,6 +948,7 @@ be uploaded."""
         filehandle.write(self.__str__())
 
 
+# =============================================================================
 def get_maintainer():
     # type: () -> Tuple[Optional[Text], Optional[Text]]
     """Get the maintainer information in the same manner as dch.
@@ -977,9 +1024,10 @@ def get_maintainer():
     return (maintainer, email_address)
 
 
+# =============================================================================
 def format_date(timestamp=None, localtime=True):
     # type: (Optional[float], bool) -> str
-    """ format a datestamp in the required format for the changelog
+    """Format a datestamp in the required format for the changelog.
 
     :param timestamp: float, optional. The timestamp (seconds since epoch)
         for which the date string should be created. If not specified, the
@@ -991,3 +1039,7 @@ def format_date(timestamp=None, localtime=True):
         specification (i.e. RFC822).
     """
     return email.utils.formatdate(timestamp, localtime)
+
+
+# =============================================================================
+# vim: fileencoding=utf-8 filetype=python ts=4 et list
