@@ -9,6 +9,8 @@ on:
       - '!dev-**'
       - '!dev/**'
       - '!hf**'
+      - '!old**'
+      - '!feature**'
     tags:
       - '**'
 
@@ -54,7 +56,7 @@ jobs:
     env:
       FLAKE8_MAX_LINE_LENGTH: 99
       FLAKE8_MAX_COMPLEXITY: 20
-      FLAKE8_IGNORE_ERRORS: 'E226,E41,E402'
+      FLAKE8_IGNORE_ERRORS: 'E226,E41,E402,W503'
     needs:
       - test
     steps:
@@ -293,15 +295,13 @@ jobs:
         run: |
           echo "Installing Python ${PY_VERSION_NODOT} ..."
           yum --assumeyes install ${PYTHON} \
+                                  ${PYTHON}-six \
                                   ${PYTHON}-setuptools \
                                   ${PYTHON}-pip \
                                   ${PYTHON}-devel
           echo
           echo "Python binaries:"
           ls -l --color=always /bin/python* /bin/pip* || true
-          echo
-          echo "Installing Python-Debian with pip3 ..."
-          pip3 install python-debian
           echo
           echo "Pip3 list:"
           pip3 list --format columns
@@ -335,9 +335,10 @@ jobs:
           echo "Copying sources recursive into rpmdir/SOURCES/${RPM_SRC_DIR} ..."
           tar cf - ${ROOT_OBJECTS} | (cd "rpmdir/SOURCES/${RPM_SRC_DIR}" ; tar xf -)
           echo
-          echo "Creating rpmdir/SOURCES/${PKG_NAME}.${PKG_VERSION}.tar.gz ..."
+          TARBALL="${PKG_NAME}.${PKG_VERSION}.tar.gz"
+          echo "Creating rpmdir/SOURCES/${TARBALL} ..."
           cd rpmdir/SOURCES
-          tar cfz "${PKG_NAME}.${PKG_VERSION}.tar.gz" "${RPM_SRC_DIR}"
+          tar cfz "${TARBALL}" "${RPM_SRC_DIR}"
           echo
           echo "Source file:"
           ls -lA --color=always *.tar.gz
@@ -349,7 +350,7 @@ jobs:
                                   -e "s/@@@py_version_nodot@@@/${PY_VERSION_NODOT}/gi" \
                                   -e "s/@@@py_version_dot@@@/${PY_VERSION_DOT}/gi" \
                                   > fb_logging.spec
-          python${PY_VERSION_DOT} changelog-deb2rpm.py debian/changelog >>fb_logging.spec
+          python${PY_VERSION_DOT} bin/dch2speclog debian/changelog >>fb_logging.spec
           echo
           echo "Generated Spec file:"
           cat fb_logging.spec
@@ -399,6 +400,12 @@ jobs:
       - name: Show results
         shell: bash
         run: ls -l --color=always dist/
+      - name: 'Upload Python Package'
+        uses: actions/upload-artifact@v2
+        with:
+          name: python_pkgs
+          path: dist/*
+          retention-days: 8
 
   deploy_to_fbrepo:
     runs-on: ubuntu-latest
@@ -452,9 +459,6 @@ jobs:
     runs-on: ubuntu-latest
     name: Sending Success message
     needs:
-      - 'build_debian_sources'
-      - 'build_debian_bin'
-      - 'build_rpm'
       - 'deploy_to_pypi'
       - 'deploy_to_fbrepo'
     steps:
