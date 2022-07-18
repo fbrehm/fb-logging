@@ -82,7 +82,7 @@ class BaseVersion(object):
 
     # -------------------------------------------------------------------------
     def __init__(self, version):
-        """Constructor."""
+        """Construct this object."""
         # type: (Union[str, BaseVersion]) -> None
         if isinstance(version, BaseVersion):
             version = str(version)

@@ -1,4 +1,4 @@
-""" Facilities for reading and writing Debian changelogs
+"""Facilities for reading and writing Debian changelogs.
 
 The aim of this module is to provide programmatic access to Debian changelogs
 to query and manipulate them. The format for the changelog is defined in
@@ -94,14 +94,12 @@ import pwd
 import re
 import socket
 import warnings
-import sys
 
 import six
 
 try:
     # pylint: disable=unused-import
     from typing import (
-        Any,
         Dict,
         Iterable,
         Iterator,
@@ -112,7 +110,6 @@ try:
         Union,
         Text,
         Tuple,
-        TypeVar,
     )
     IterableDataSource = Union[
         bytes,
@@ -138,41 +135,50 @@ except NameError:
 
 # =============================================================================
 class ChangelogParseError(_base_exception_class):
-    """Indicates that the changelog could not be parsed"""
+    """Indicates that the changelog could not be parsed."""
+
     is_user_error = True
 
     # -------------------------------------------------------------------------
     def __init__(self, line):
+        """Construct this exception."""
         # type: (str) -> None
         self._line = line
         super(ChangelogParseError, self).__init__()
 
     # -------------------------------------------------------------------------
     def __str__(self):
+        """Typecasting into str."""
         # type: () -> str
         return "Could not parse changelog: "+self._line
 
 
 # =============================================================================
 class ChangelogCreateError(_base_exception_class):
-    """Indicates that changelog could not be created, as all the information
-    required was not given"""
+    """Indicates that changelog could not be created.
+
+    Because as all the information required was not given.
+    """
+
+    pass
 
 
 # =============================================================================
 class VersionError(_base_exception_class):
-    """Indicates that the version does not conform to the required format"""
+    """Indicates that the version does not conform to the required format."""
 
     is_user_error = True
 
     # -------------------------------------------------------------------------
     def __init__(self, version):
+        """Construct this exception."""
         # type: (str) -> None
         self._version = version
         super(VersionError, self).__init__()
 
     # -------------------------------------------------------------------------
     def __str__(self):
+        """Typecasting into str."""
         return "Could not parse version: " + self._version
 
 
@@ -214,7 +220,8 @@ class ChangeBlock(object):
                  date=None,             # type: Optional[str]
                  other_pairs=None,      # type: Dict[str, str]
                  encoding='utf-8',      # type: str
-                ):
+                 ):
+        """Construct this object."""
         # type: (...) -> None
         self._raw_version = None   # type: Optional[str]
         self._set_version(version)
@@ -248,12 +255,12 @@ class ChangeBlock(object):
     version = property(
         _get_version, _set_version,
         doc="The package version that this block pertains to"
-        )
+    )
 
     # -------------------------------------------------------------------------
     def other_keys_normalised(self):
         # type: () -> Dict[str, str]
-        """ Obtain a dict from the block header (other than urgency) """
+        """Obtain a dict from the block header (other than urgency)."""
         norm_dict = {}
         for (key, value) in self.other_pairs.items():
             key = key[0].upper() + key[1:].lower()
@@ -266,19 +273,19 @@ class ChangeBlock(object):
     # -------------------------------------------------------------------------
     def changes(self):
         # type: () -> List[str]
-        """ Get the changelog entries for this block as a list of str """
+        """Get the changelog entries for this block as a list of str."""
         return self._changes
 
     # -------------------------------------------------------------------------
     def add_trailing_line(self, line):
         # type: (str) -> None
-        """ Add a sign-off (trailer) line to the block """
+        """Add a sign-off (trailer) line to the block."""
         self._trailing.append(line)
 
     # -------------------------------------------------------------------------
     def add_change(self, change):
         # type: (str) -> None
-        """ Append a change entry to the block """
+        """Append a change entry to the block."""
         if not self._changes:
             self._changes = [change]
         else:
@@ -313,14 +320,14 @@ class ChangeBlock(object):
     @property
     def bugs_closed(self):
         # type: () -> List[int]
-        """ List of (Debian) bugs closed by the block """
+        """List of (Debian) bugs closed by the block."""
         return self._get_bugs_closed_generic(closes)
 
     # -------------------------------------------------------------------------
     @property
     def lp_bugs_closed(self):
         # type: () -> List[int]
-        """ List of Launchpad bugs closed by the block """
+        """List of Launchpad bugs closed by the block."""
         return self._get_bugs_closed_generic(closeslp)
 
     # -------------------------------------------------------------------------
@@ -363,6 +370,7 @@ class ChangeBlock(object):
 
     # -------------------------------------------------------------------------
     def __bytes__(self):
+        """Typecast into a bytes array."""
         return str(self).encode(self._encoding)
 
 
@@ -482,7 +490,7 @@ class Changelog(object):
                  strict=False,              # type: bool
                  encoding='utf-8',          # type: str
                  ):
-        """Constructor."""
+        """Construct this object."""
         # type: (...) -> None
         self._encoding = encoding
         self._blocks = []   # type: List[ChangeBlock]
