@@ -261,7 +261,7 @@ build CentOS 7 with Python 3.6:
     EL_MAJOR_VERSION: '7'
     YUM: yum
     PYTHON_PACKAGES: >
-      python36 python36-pip python36-devel python3-setuptools
+      python36 python36-six python36-pip python36-devel python3-setuptools
     PYTHON_VERSION_DOT: '3.6'
     PYTHON_VERSION_NODOT: '36'
   extends:
@@ -274,7 +274,7 @@ build CentOS 8 with Python 3.8:
     EL_MAJOR_VERSION: '8'
     YUM: dnf
     PYTHON_PACKAGES: >
-      python38 python38-pip python38-devel python38-setuptools
+      python38 python38-six python38-pip python38-devel python38-setuptools
       platform-python-devel
     PYTHON_VERSION_DOT: '3.8'
     PYTHON_VERSION_NODOT: '38'
@@ -289,7 +289,7 @@ build CentOS 9 with Python 3:
     EL_MAJOR_VERSION: '9'
     YUM: dnf
     PYTHON_PACKAGES: >
-      python3 python3-pip python3-devel python3-setuptools
+      python3 python3-six python3-pip python3-devel python3-setuptools
     PYTHON_VERSION_DOT: '3'
     PYTHON_VERSION_NODOT: '3'
   extends:

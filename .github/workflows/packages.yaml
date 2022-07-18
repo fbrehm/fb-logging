@@ -295,6 +295,7 @@ jobs:
         run: |
           echo "Installing Python ${PY_VERSION_NODOT} ..."
           yum --assumeyes install ${PYTHON} \
+                                  ${PYTHON}-six \
                                   ${PYTHON}-setuptools \
                                   ${PYTHON}-pip \
                                   ${PYTHON}-devel
