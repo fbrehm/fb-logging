@@ -1,4 +1,4 @@
-fb-logging (0.5.1) UNRELEASED; urgency=medium
+fb-logging (0.5.1) all; urgency=medium
 
   * Fixing Signing job in .gitlab-ci.yml
 
