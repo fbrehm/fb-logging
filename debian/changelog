@@ -1,4 +1,4 @@
-fb-logging (0.5.0) UNRELEASED; urgency=medium
+fb-logging (0.5.0) all; urgency=medium
 
   * Changing changelog-deb2rpm.py to bin/dch2speclog.
   * Adding modules fb_logging.deb_changelog and fb_logging.deb_version
@@ -6,6 +6,8 @@ fb-logging (0.5.0) UNRELEASED; urgency=medium
   * Completing all docstrings in all modules and scripts according
     to flake8.
   * Updating all CI control files for bin/ directory
+  * Adding .gitlab-ci.yml for creating and deploying packages with
+    GitLab
 
  -- Frank Brehm <frank.brehm@pixelpark.com>  Mon, 18 Jul 2022 16:12:43 +0200
 
