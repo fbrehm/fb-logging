@@ -19,13 +19,13 @@ variables:
   USED_TIMEZONE: 'Europe/Berlin'
   VERSION_PREFIX: 'unknown'
   YUM_REPO_GPG_ID: 'C0E73F70'
-  YUM_REPO_GPG_PASSWD: 'secret'
+  YUM_REPO_GPG_PASSWD: ''
   YUM_REPO_HOST: 'repo02.pixelpark.com'
   YUM_REPO_USER: 'rpm-repo'
   YUM_REPO_DIR_HTTP: '/Linux/yum/pixelpark'
   YUM_REPO_DIR: "/srv/www/repo${YUM_REPO_DIR_HTTP}"
   YUM_REPO_GPG_KEY_PUB: 'nada'
-  YUM_REPO_GPG_KEY_SEC: 'nada'
+  YUM_REPO_GPG_KEY_SEC: ''
 
 # ---------------------------
 .docker_job_definition:
@@ -346,7 +346,7 @@ build CentOS 9 with Python 3:
       rpmoptfile_dir=$( dirname "${rpmoptfile}" )
       rpmoptfile_bak="${rpmoptfile_dir}/.~${rpmoptfile_base}.bak"
       cp -v -i "${rpmoptfile}" "${rpmoptfile_bak}"
-      sed -i -e 's/ <.*/\x27 \\/' "${rpmoptfile}"
+      sed -i -e 's/\(--addsign.*\) <.*/\1\x27 \\/' "${rpmoptfile}"
       ls -l "${rpmoptfile}" "${rpmoptfile_bak}"
       diff -u "${rpmoptfile_bak}" "${rpmoptfile}" || true
       echo
@@ -357,7 +357,16 @@ build CentOS 9 with Python 3:
       gpg --list-public-keys
       echo
       echo "Importing secret GPG key ..."
-      echo "$YUM_REPO_GPG_KEY_SEC" | gpg --import --batch --pinentry-mode loopback --passphrase "${YUM_REPO_GPG_PASSWD}"
+      pw='******'
+      sec_key='******** Secret key ********'
+      if [[ -z "${YUM_REPO_GPG_PASSWD}" ]] ; then
+        pw=''
+      fi
+      if [[ -z "${YUM_REPO_GPG_KEY_SEC}" ]] ; then
+        sec_key=''
+      fi
+      echo "echo '${sec_key}' | gpg --import --batch --pinentry-mode loopback --passphrase '${pw}'"
+      echo "${YUM_REPO_GPG_KEY_SEC}" | gpg --import --batch --pinentry-mode loopback --passphrase "${YUM_REPO_GPG_PASSWD}"
       gpg --list-secret-keys
     - |
       echo
