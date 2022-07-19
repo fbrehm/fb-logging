@@ -1,3 +1,9 @@
+fb-logging (0.5.1) UNRELEASED; urgency=medium
+
+  * Fixing Signing job in .gitlab-ci.yml
+
+ -- Frank Brehm <frank.brehm@pixelpark.com>  Tue, 19 Jul 2022 10:53:42 +0200
+
 fb-logging (0.5.0) all; urgency=medium
 
   * Changing changelog-deb2rpm.py to bin/dch2speclog.
