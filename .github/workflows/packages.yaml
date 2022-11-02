@@ -463,7 +463,7 @@ jobs:
       - 'deploy_to_fbrepo'
     steps:
       - name: Sending message
-        uses: dawidd6/action-send-mail@v2
+        uses: dawidd6/action-send-mail@v3
         with:
           # mail server settings
           server_address: ${{ env.SMTP_SERVER_ADDRESS }}
