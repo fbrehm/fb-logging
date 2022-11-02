@@ -63,7 +63,7 @@ __debian_pkg_name__ = __module_name__.replace('_', '-')
 
 __author__ = 'Frank Brehm'
 __contact__ = 'frank@brehm-online.com'
-__copyright__ = '(C) 2021 Frank Brehm, Berlin'
+__copyright__ = '(C) 2022 Frank Brehm, Berlin'
 __license__ = 'LGPL3+'
 __url__ = 'https://github.com/fbrehm/fb-logging'
 __description__ = 'Python modules to extend the logging mechanism in Python.'
@@ -135,10 +135,11 @@ def write_local_version():
         #!/usr/bin/env python3
         # -*- coding: utf-8 -*-
         """
+        @summary: {desc}
+
         @author: {author}
         @contact: {contact}
         @copyright: © {cur_year} by {author}, Berlin
-        @summary: {desc}
         """
 
         __author__ = '{author} <{contact}>'
