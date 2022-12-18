@@ -1,0 +1,38 @@
+---
+
+name: Preparing GPG
+author: Frank Brehm
+description: This action prepares gpg for signing files without entering a password
+
+inputs:
+  public_key:
+    description: "This is the exported public GPG key"
+    required: true
+  private_key:
+    description: "This is the exported private key"
+    required: true
+  key_id:
+    description: "This is the id of the imported private key"
+    required: true
+  key_password:
+    description: "This is the password of the imported private key"
+    required: true
+  password_file:
+    description: "The filename to store the password relative to the home directory."
+    required: true
+    default: '.private/uhu.txt'
+
+runs:
+  using: "composite"
+  steps:
+    - name: Importing public key
+      shell: bash
+      env:
+        PUBLIC_KEY: ${{ inputs.public_key }}
+      run: |
+        echo "Importing public key ..."
+        echo "${PUBLIC_KEY}" | gpg --import
+        echo
+        gpg --list-public-keys
+
+# vim: et tabstop=2 expandtab shiftwidth=2 softtabstop=2 list
