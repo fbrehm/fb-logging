@@ -100,16 +100,16 @@ import six
 try:
     # pylint: disable=unused-import
     from typing import (
-        Dict,
+        Dict,                   # noqa: F401
         Iterable,
-        Iterator,
+        Iterator,               # noqa: F401
         IO,
-        List,
-        Optional,
-        Pattern,
+        List,                   # noqa: F401
+        Optional,               # noqa: F401
+        Pattern,                # noqa: F401
         Union,
         Text,
-        Tuple,
+        Tuple,                  # noqa: F401
     )
     IterableDataSource = Union[
         bytes,
