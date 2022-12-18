@@ -25,11 +25,11 @@ import warnings
 
 try:
     # pylint: disable=unused-import
-    from typing import (
-        Any,                # noqa: F401
-        Optional,           # noqa: F401
-        Text,               # noqa: F401
-        Union,              # noqa: F401
+    from typing import (    # noqa: F401
+        Any,
+        Optional,
+        Text,
+        Union,
     )
 except ImportError:
     # Lack of typing is not important at runtime
