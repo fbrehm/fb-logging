@@ -116,7 +116,7 @@ jobs:
       - name: Debian build
         run: |
           PASSWORD_FILE_ABS=$( readlink --canonicalize-missing "${GPG_PASSWORD_FILE}" )
-          echo "y" | debuild -S -i --sign-command "gpg --batch --pinentry-mode loopback --passphrase-file '${GPG_PASSWORD_FILE}'"
+          echo "y" | debuild -S -i -p "gpg --batch --pinentry-mode loopback --passphrase-file '${GPG_PASSWORD_FILE}'"
           ls -lA --color=always ..
           mkdir -pv debian/pkgs/src
           mv -vi ../*.dsc ../*.tar.* ../*.build* ../*.changes debian/pkgs/src
