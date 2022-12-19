@@ -110,9 +110,7 @@ jobs:
         with:
           public_key: ${{ secrets.GPG_PUBLIC_KEY }}
           private_key: ${{ secrets.GPG_PRIVATE_KEY }}
-          # key_id: ${GPG_KEY_ID}
           key_password: ${{ secrets.GPG_KEY_PASSWORD }}
-          # password_file: ${GPG_PASSWORD_FILE}
       - name: Debian build
         run: |
           PASSWORD_FILE_ABS=$( readlink --canonicalize-missing "${GPG_PASSWORD_FILE}" )
@@ -127,7 +125,7 @@ jobs:
           echo 'echo $0 $*' >>"${HOME}/signing-hook-script.sh"
           echo 'pwd' >>"${HOME}/signing-hook-script.sh"
           echo "ls -la '${DSC_FILE}' '${BUILDINFO_FILE}' '${CHANGES_FILE}'" >>"${HOME}/signing-hook-script.sh"
-          echo "for file in '${DSC_FILE}' '${BUILDINFO_FILE}' '${CHANGES_FILE}' ; do"
+          echo "for file in '${DSC_FILE}' '${BUILDINFO_FILE}' '${CHANGES_FILE}' ; do" >>"${HOME}/signing-hook-script.sh"
           echo "    echo" >>"${HOME}/signing-hook-script.sh"
           echo "    echo 'gpg -u \"${GPG_KEY_ID}\" --armor --batch --pinentry-mode loopback --passphrase-file \"${PASSWORD_FILE_ABS}\" --sign \"\${file}\" '" >>"${HOME}/signing-hook-script.sh"
           echo "    gpg -u \"${GPG_KEY_ID}\" --armor --batch --pinentry-mode loopback --passphrase-file \"${PASSWORD_FILE_ABS}\" --sign \"\${file}\" " >>"${HOME}/signing-hook-script.sh"

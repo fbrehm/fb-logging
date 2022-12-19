@@ -11,16 +11,9 @@ inputs:
   private_key:
     description: "This is the exported private key"
     required: true
-#  key_id:
-#    description: "This is the id of the imported private key"
-#    required: true
   key_password:
     description: "This is the password of the imported private key"
     required: true
-#  password_file:
-#    description: "The filename to store the password relative to the home directory."
-#    required: true
-#    default: '.private/uhu.txt'
 
 runs:
   using: "composite"
@@ -49,7 +42,6 @@ runs:
       shell: bash
       env:
         KEY_PASSWORD: ${{ inputs.key_password }}
-        # PASSWORD_FILE_REL: ${{ inputs.password_file }}
       run: |
         PASSWORD_FILE_REL="${GPG_PASSWORD_FILE:-.private/uhu.txt}"
         PASSWORD_FILE_ABS=$( readlink --canonicalize-missing "${PASSWORD_FILE_REL}" )
@@ -66,9 +58,6 @@ runs:
         ls -l --directory --color=auto "${PASSWORD_DIR}" "${PASSWORD_FILE_ABS}"
     - name: Creating GnuPG config
       shell: bash
-#      env:
-#        PASSWORD_FILE_REL: ${{ inputs.password_file }}
-#        KEY_ID: ${{ inputs.key_id }}
       run: |
         PASSWORD_FILE_REL="${GPG_PASSWORD_FILE:-.private/uhu.txt}"
         PASSWORD_FILE_ABS=$( readlink --canonicalize-missing "${PASSWORD_FILE_REL}" )
