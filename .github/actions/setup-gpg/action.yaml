@@ -25,14 +25,44 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Importing public key
+    - name: Importing public GPG key
       shell: bash
       env:
         PUBLIC_KEY: ${{ inputs.public_key }}
+        KEY_PASSWORD: ${{ inputs.key_password }}
       run: |
-        echo "Importing public key ..."
+        echo "Importing public GPG key ..."
         echo "${PUBLIC_KEY}" | gpg --import
         echo
         gpg --list-public-keys
+    - name: Importing private GPG key
+      shell: bash
+      env:
+        PRIVATE_KEY: ${{ inputs.private_key }}
+        KEY_PASSWORD: ${{ inputs.key_password }}
+      run: |
+        echo "Importing private GPG key ..."
+        echo "${PRIVATE_KEY}" | gpg --import --batch --pinentry-mode loopback --passphrase "${KEY_PASSWORD}"
+        echo
+        gpg --list-secret-keys
+    - name: Creating GPG key file
+      shell: bash
+      env:
+        KEY_PASSWORD: ${{ inputs.key_password }}
+        PASSWORD_FILE_REL: ${{ inputs.password_file }}
+      run: |
+        PASSWORD_FILE_ABS=$( readlink --canonicalize-missing "${PASSWORD_FILE_REL}" )
+        PASSWORD_DIR=$( dirname "${PASSWORD_FILE_ABS}" )
+        if [[ ! -d "${PASSWORD_DIR}" ]] ; then
+            echo
+            mkdir --parents --verbose --mode 0700 "${PASSWORD_DIR}"
+        fi
+        echo
+        echo "Creating password file '${PASSWORD_FILE_ABS}' ..."
+        echo "${KEY_PASSWORD}" > "${PASSWORD_FILE_ABS}"
+        chmod --verbose 0600 "${PASSWORD_FILE_ABS}"
+        echo
+        ls -l --directory --color auto "${PASSWORD_DIR}" "${PASSWORD_FILE_ABS}"
+
 
 # vim: et tabstop=2 expandtab shiftwidth=2 softtabstop=2 list
