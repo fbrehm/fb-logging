@@ -26,6 +26,7 @@ env:
   SMTP_SERVER_ADDRESS: 'mail.uhu-banane.net'
   SMTP_SERVER_PORT: 587
   USED_TIMEZONE: 'Europe/Berlin'
+  GPG_PASSWORD_FILE: '.private/uhu.txt'
 
 jobs:
 
@@ -111,9 +112,11 @@ jobs:
           private_key: ${{ secrets.GPG_PRIVATE_KEY }}
           key_id: "${GPG_KEY_ID}"
           key_password: ${{ secrets.GPG_KEY_PASSWORD }}
+          password_file: "${GPG_PASSWORD_FILE}"
       - name: Debian build
         run: |
-          echo "y" | debuild -S -i
+          PASSWORD_FILE_ABS=$( readlink --canonicalize-missing "${GPG_PASSWORD_FILE}" )
+          echo "y" | debuild -S -i --sign-command "gpg --batch --pinentry-mode loopback --passphrase-file '${GPG_PASSWORD_FILE}'"
           ls -lA --color=always ..
           mkdir -pv debian/pkgs/src
           mv -vi ../*.dsc ../*.tar.* ../*.build* ../*.changes debian/pkgs/src
