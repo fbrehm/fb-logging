@@ -110,9 +110,9 @@ jobs:
         with:
           public_key: ${{ secrets.GPG_PUBLIC_KEY }}
           private_key: ${{ secrets.GPG_PRIVATE_KEY }}
-          key_id: "${GPG_KEY_ID}"
+          key_id: ${GPG_KEY_ID}
           key_password: ${{ secrets.GPG_KEY_PASSWORD }}
-          password_file: "${GPG_PASSWORD_FILE}"
+          password_file: ${GPG_PASSWORD_FILE}
       - name: Debian build
         run: |
           PASSWORD_FILE_ABS=$( readlink --canonicalize-missing "${GPG_PASSWORD_FILE}" )
