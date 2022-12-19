@@ -125,7 +125,7 @@ jobs:
           echo 'ls -la --color=always' >>"${HOME}/signing-hook-script.sh"
           echo "echo" >>"${HOME}/signing-hook-script.sh"
           chmod +x --verbose "${HOME}/signing-hook-script.sh"
-          echo "y" | debuild --signing-hook="${HOME}/signing-hook-script.sh" -S -i
+          echo "y" | debuild --signing-hook="${HOME}/signing-hook-script.sh" -S -i -us -uc
           ls -lA --color=always ..
           mkdir -pv debian/pkgs/src
           mv -vi ../*.dsc ../*.tar.* ../*.build* ../*.changes debian/pkgs/src
