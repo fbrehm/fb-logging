@@ -62,7 +62,49 @@ runs:
         echo "${KEY_PASSWORD}" > "${PASSWORD_FILE_ABS}"
         chmod --verbose 0600 "${PASSWORD_FILE_ABS}"
         echo
-        ls -l --directory --color auto "${PASSWORD_DIR}" "${PASSWORD_FILE_ABS}"
+        ls -l --directory --color=auto "${PASSWORD_DIR}" "${PASSWORD_FILE_ABS}"
+    - name: Creating GnuPG config
+      shell: bash
+      env:
+        PASSWORD_FILE_REL: ${{ inputs.password_file }}
+        KEY_ID: ${{ inputs.key_id }}
+      run: |
+        PASSWORD_FILE_ABS=$( readlink --canonicalize-missing "${PASSWORD_FILE_REL}" )
+        GPG_DIR="${HOME}/.gnupg"
+        GPG_CONF="${GPG_DIR}/gpg.conf"
+        if [[ ! -d "${GPG_DIR}" ]] ; then
+            echo
+            mkdir --parents --verbose --mode 0700 "${GPG_DIR}"
+        fi
+        if [[ ! -f "${GPG_CONF}" ]] ; then
+            echo
+            touch "${GPG_CONF}"
+            chmod --verbose 0600 "${GPG_CONF}"
+        fi
+        echo
+        echo "Setting default Key-Id ..."
+        if [[ grep -q -P '^\s*default-key\s' "${GPG_CONF}" ]] ; then
+            sed -i -e "s/[ 	]*default-key[ 	].*/default-key ${KEY_ID}/i" "${GPG_CONF}"
+        else
+            echo "default-key ${KEY_ID}" >> "${GPG_CONF}"
+        fi
+        echo
+        echo "Setting Pinentry mode ..."
+        if [[ grep -q -P '^\s*pinentry-mode\s' "${GPG_CONF}" ]] ; then
+            sed -i -e "s/[ 	]*pinentry-mode[ 	].*/pinentry-mode loopback/i" "${GPG_CONF}"
+        else
+            echo "pinentry-mode loopback" >> "${GPG_CONF}"
+        fi
+        echo
+        echo "Setting passphrase-file ..."
+        if [[ grep -q -P '^\s*passphrase-file\s' "${GPG_CONF}" ]] ; then
+            sed -i -e "s/[ 	]*passphrase-file[ 	].*/passphrase-file ${PASSWORD_FILE_ABS}/i" "${GPG_CONF}"
+        else
+            echo "passphrase-file ${PASSWORD_FILE_ABS}" >> "${GPG_CONF}"
+        fi
+        echo
+        echo "Modified '${GPG_CONF}':"
+        grep -P -v '^\s*(#|$)' "${GPG_CONF}"
 
 
 # vim: et tabstop=2 expandtab shiftwidth=2 softtabstop=2 list
