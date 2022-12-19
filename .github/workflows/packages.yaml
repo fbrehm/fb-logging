@@ -116,13 +116,19 @@ jobs:
       - name: Debian build
         run: |
           PASSWORD_FILE_ABS=$( readlink --canonicalize-missing "${GPG_PASSWORD_FILE}" )
+          export PKG_VERSION=$( ./get-debian-version )
+          DSC_FILE="fb-logging_${PKG_VERSION}.dsc"
+          BUILDINFO_FILE="fb-logging_${PKG_VERSION}.buildinfo"
+          CHANGES_FILE="fb-logging_${PKG_VERSION}.changes"
           echo "#!/usr/bin/env bash" > "${HOME}/signing-hook-script.sh"
           echo "echo" >>"${HOME}/signing-hook-script.sh"
           echo "echo 'This is the signig scruipt.'" >>"${HOME}/signing-hook-script.sh"
           echo "echo" >>"${HOME}/signing-hook-script.sh"
           echo 'echo $0 $*' >>"${HOME}/signing-hook-script.sh"
           echo 'pwd' >>"${HOME}/signing-hook-script.sh"
-          echo 'ls -la --color=always' >>"${HOME}/signing-hook-script.sh"
+          echo "ls -la '${DSC_FILE}' '${BUILDINFO_FILE}' '${CHANGES_FILE}'" >>"${HOME}/signing-hook-script.sh"
+          echo "echo" >>"${HOME}/signing-hook-script.sh"
+          echo "echo 'gpg -u \"${GPG_KEY_ID}\" --armor --batch --pinentry-mode loopback --passphrase-file \"${GPG_PASSWORD_FILE}\" \"${DSC_FILE}\" \"${BUILDINFO_FILE}\" \"${CHANGES_FILE}\"'" >>"${HOME}/signing-hook-script.sh"
           echo "echo" >>"${HOME}/signing-hook-script.sh"
           chmod +x --verbose "${HOME}/signing-hook-script.sh"
           echo "y" | debuild --signing-hook="${HOME}/signing-hook-script.sh" -S -i -us -uc
