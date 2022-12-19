@@ -82,24 +82,30 @@ runs:
             chmod --verbose 0600 "${GPG_CONF}"
         fi
         echo
-        echo "Setting default Key-Id ..."
-        if [[ grep -q -P '^\s*default-key\s' "${GPG_CONF}" ]] ; then
+        printf "Setting default Key-Id "
+        if grep -q -P '^\s*default-key\s' "${GPG_CONF}" ; then
+            echo "by substituting old value ..."
             sed -i -e "s/[ 	]*default-key[ 	].*/default-key ${KEY_ID}/i" "${GPG_CONF}"
         else
+            echo "by setting new value ..."
             echo "default-key ${KEY_ID}" >> "${GPG_CONF}"
         fi
         echo
-        echo "Setting Pinentry mode ..."
-        if [[ grep -q -P '^\s*pinentry-mode\s' "${GPG_CONF}" ]] ; then
+        printf "Setting Pinentry mode "
+        if grep -q -P '^\s*pinentry-mode\s' "${GPG_CONF}" ; then
+            echo "by substituting old value ..."
             sed -i -e "s/[ 	]*pinentry-mode[ 	].*/pinentry-mode loopback/i" "${GPG_CONF}"
         else
+            echo "by setting new value ..."
             echo "pinentry-mode loopback" >> "${GPG_CONF}"
         fi
         echo
-        echo "Setting passphrase-file ..."
-        if [[ grep -q -P '^\s*passphrase-file\s' "${GPG_CONF}" ]] ; then
+        printf "Setting passphrase-file "
+        if grep -q -P '^\s*passphrase-file\s' "${GPG_CONF}" ; then
+            echo "by substituting old value ..."
             sed -i -e "s/[ 	]*passphrase-file[ 	].*/passphrase-file ${PASSWORD_FILE_ABS}/i" "${GPG_CONF}"
         else
+            echo "by setting new value ..."
             echo "passphrase-file ${PASSWORD_FILE_ABS}" >> "${GPG_CONF}"
         fi
         echo
