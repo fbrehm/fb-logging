@@ -116,7 +116,12 @@ jobs:
       - name: Debian build
         run: |
           PASSWORD_FILE_ABS=$( readlink --canonicalize-missing "${GPG_PASSWORD_FILE}" )
-          echo "y" | debuild -S -i -p "gpg --batch --pinentry-mode loopback --passphrase-file '${GPG_PASSWORD_FILE}'"
+          echo "#!/usr/bin/env bash" > "${HOME}/signing-hook-script.sh"
+          echo 'echo $0 $*' >>"${HOME}/signing-hook-script.sh"
+          echo 'pwd' >>"${HOME}/signing-hook-script.sh"
+          echo 'ls -la --cplor=always' >>"${HOME}/signing-hook-script.sh"
+          chmod +x --verbose "${HOME}/signing-hook-script.sh"
+          echo "y" | debuild --signing-hook="${HOME}/signing-hook-script.sh" -S -i
           ls -lA --color=always ..
           mkdir -pv debian/pkgs/src
           mv -vi ../*.dsc ../*.tar.* ../*.build* ../*.changes debian/pkgs/src
