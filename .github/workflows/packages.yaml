@@ -117,9 +117,13 @@ jobs:
         run: |
           PASSWORD_FILE_ABS=$( readlink --canonicalize-missing "${GPG_PASSWORD_FILE}" )
           echo "#!/usr/bin/env bash" > "${HOME}/signing-hook-script.sh"
+          echo "echo" >>"${HOME}/signing-hook-script.sh"
+          echo "echo 'This is the signig scruipt.'" >>"${HOME}/signing-hook-script.sh"
+          echo "echo" >>"${HOME}/signing-hook-script.sh"
           echo 'echo $0 $*' >>"${HOME}/signing-hook-script.sh"
           echo 'pwd' >>"${HOME}/signing-hook-script.sh"
-          echo 'ls -la --cplor=always' >>"${HOME}/signing-hook-script.sh"
+          echo 'ls -la --color=always' >>"${HOME}/signing-hook-script.sh"
+          echo "echo" >>"${HOME}/signing-hook-script.sh"
           chmod +x --verbose "${HOME}/signing-hook-script.sh"
           echo "y" | debuild --signing-hook="${HOME}/signing-hook-script.sh" -S -i
           ls -lA --color=always ..
