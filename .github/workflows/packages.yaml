@@ -113,7 +113,7 @@ jobs:
           key_password: ${{ secrets.GPG_KEY_PASSWORD }}
       - name: Debian build
         run: |
-          echo "y" | debuild -S -i -us -uc
+          echo "y" | debuild -S -i
           ls -lA --color=always ..
           mkdir -pv debian/pkgs/src
           mv -vi ../*.dsc ../*.tar.* ../*.build* ../*.changes debian/pkgs/src
