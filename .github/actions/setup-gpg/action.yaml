@@ -11,16 +11,16 @@ inputs:
   private_key:
     description: "This is the exported private key"
     required: true
-  key_id:
-    description: "This is the id of the imported private key"
-    required: true
+#  key_id:
+#    description: "This is the id of the imported private key"
+#    required: true
   key_password:
     description: "This is the password of the imported private key"
     required: true
-  password_file:
-    description: "The filename to store the password relative to the home directory."
-    required: true
-    default: '.private/uhu.txt'
+#  password_file:
+#    description: "The filename to store the password relative to the home directory."
+#    required: true
+#    default: '.private/uhu.txt'
 
 runs:
   using: "composite"
@@ -49,8 +49,9 @@ runs:
       shell: bash
       env:
         KEY_PASSWORD: ${{ inputs.key_password }}
-        PASSWORD_FILE_REL: ${{ inputs.password_file }}
+        # PASSWORD_FILE_REL: ${{ inputs.password_file }}
       run: |
+        PASSWORD_FILE_REL="${GPG_PASSWORD_FILE:-.private/uhu.txt}"
         PASSWORD_FILE_ABS=$( readlink --canonicalize-missing "${PASSWORD_FILE_REL}" )
         PASSWORD_DIR=$( dirname "${PASSWORD_FILE_ABS}" )
         if [[ ! -d "${PASSWORD_DIR}" ]] ; then
@@ -65,10 +66,11 @@ runs:
         ls -l --directory --color=auto "${PASSWORD_DIR}" "${PASSWORD_FILE_ABS}"
     - name: Creating GnuPG config
       shell: bash
-      env:
-        PASSWORD_FILE_REL: ${{ inputs.password_file }}
-        KEY_ID: ${{ inputs.key_id }}
+#      env:
+#        PASSWORD_FILE_REL: ${{ inputs.password_file }}
+#        KEY_ID: ${{ inputs.key_id }}
       run: |
+        PASSWORD_FILE_REL="${GPG_PASSWORD_FILE:-.private/uhu.txt}"
         PASSWORD_FILE_ABS=$( readlink --canonicalize-missing "${PASSWORD_FILE_REL}" )
         GPG_DIR="${HOME}/.gnupg"
         GPG_CONF="${GPG_DIR}/gpg.conf"
@@ -85,10 +87,10 @@ runs:
         printf "Setting default Key-Id "
         if grep -q -P '^\s*default-key\s' "${GPG_CONF}" ; then
             echo "by substituting old value ..."
-            sed -i -e "s/[ 	]*default-key[ 	].*/default-key ${KEY_ID}/i" "${GPG_CONF}"
+            sed -i -e "s/[ 	]*default-key[ 	].*/default-key ${GPG_KEY_ID}/i" "${GPG_CONF}"
         else
             echo "by setting new value ..."
-            echo "default-key ${KEY_ID}" >> "${GPG_CONF}"
+            echo "default-key ${GPG_KEY_ID}" >> "${GPG_CONF}"
         fi
         echo
         printf "Setting Pinentry mode "
