@@ -82,6 +82,13 @@ runs:
             echo "default-key ${GPG_KEY_ID}" >> "${GPG_CONF}"
         fi
         echo
+        printf "Setting batch mode "
+        if grep -q -P '^\s*batch\s*$' "${GPG_CONF}" ; then
+            echo "- already set."
+        else
+            echo "by setting mode."
+            echo "batch" >> "${GPG_CONF}"
+        fi
         printf "Setting Pinentry mode "
         if grep -q -P '^\s*pinentry-mode\s' "${GPG_CONF}" ; then
             echo "by substituting old value ..."

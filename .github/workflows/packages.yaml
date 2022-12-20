@@ -138,7 +138,8 @@ jobs:
           echo "Generated '${HOME}/signing-hook-script.sh':"
           cat "${HOME}/signing-hook-script.sh"
           echo
-          echo "y" | debuild --signing-hook="${HOME}/signing-hook-script.sh" -S -i -us -uc
+          # echo "y" | debuild --signing-hook="${HOME}/signing-hook-script.sh" -S -i -us -uc
+          echo "y" | debuild -S -i
           ls -lA --color=always ..
           mkdir -pv debian/pkgs/src
           mv -vi ../*.dsc ../*.tar.* ../*.build* ../*.changes debian/pkgs/src
