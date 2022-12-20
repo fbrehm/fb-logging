@@ -118,19 +118,27 @@ jobs:
           DSC_FILE="fb-logging_${PKG_VERSION}.dsc"
           BUILDINFO_FILE="fb-logging_${PKG_VERSION}_source.buildinfo"
           CHANGES_FILE="fb-logging_${PKG_VERSION}_source.changes"
-          echo "#!/usr/bin/env bash" > "${HOME}/signing-hook-script.sh"
-          echo "echo" >>"${HOME}/signing-hook-script.sh"
-          echo "echo 'This is the signig scruipt.'" >>"${HOME}/signing-hook-script.sh"
-          echo "echo" >>"${HOME}/signing-hook-script.sh"
-          echo 'echo $0 $*' >>"${HOME}/signing-hook-script.sh"
-          echo 'pwd' >>"${HOME}/signing-hook-script.sh"
+          echo '#!/usr/bin/env bash' > "${HOME}/signing-hook-script.sh"
+          echo 'echo' >>"${HOME}/signing-hook-script.sh"
+          echo 'echo "This is the signing script."' >>"${HOME}/signing-hook-script.sh"
+          echo 'echo' >>"${HOME}/signing-hook-script.sh"
+          echo 'printf "Command line: "; echo $0 $*' >>"${HOME}/signing-hook-script.sh"
+            echo 'printf "Pwd: "; pwd' >>"${HOME}/signing-hook-script.sh"
+          echo 'echo' >>"${HOME}/signing-hook-script.sh"
+          echo 'echo "Current sources:"' >>"${HOME}/signing-hook-script.sh"
           echo "ls -la '${DSC_FILE}' '${BUILDINFO_FILE}' '${CHANGES_FILE}'" >>"${HOME}/signing-hook-script.sh"
-          echo "for file in '${DSC_FILE}' '${BUILDINFO_FILE}' '${CHANGES_FILE}' ; do" >>"${HOME}/signing-hook-script.sh"
-          echo "    echo" >>"${HOME}/signing-hook-script.sh"
-          echo "    echo 'gpg -u \"${GPG_KEY_ID}\" --clear-sign --batch --pinentry-mode loopback --passphrase-file \"${PASSWORD_FILE_ABS}\" \"\${file}\" '" >>"${HOME}/signing-hook-script.sh"
-          echo "    gpg -u \"${GPG_KEY_ID}\" --clear-sign --batch --pinentry-mode loopback --passphrase-file \"${PASSWORD_FILE_ABS}\" \"\${file}\" " >>"${HOME}/signing-hook-script.sh"
-          echo "done" >>"${HOME}/signing-hook-script.sh"
-          echo "echo" >>"${HOME}/signing-hook-script.sh"
+          echo 'echo' >>"${HOME}/signing-hook-script.sh"
+          echo "cmd=\"echo 'y' | debsign -k${GPG_KEY_ID} '${DSC_FILE}' '${BUILDINFO_FILE}' '${CHANGES_FILE}'\"" >>"${HOME}/signing-hook-script.sh"
+          echo "echo \${cmd}" >>"${HOME}/signing-hook-script.sh"
+          echo "eval \${cmd}" >>"${HOME}/signing-hook-script.sh"
+          # echo "for file in '${DSC_FILE}' '${BUILDINFO_FILE}' '${CHANGES_FILE}' ; do" >>"${HOME}/signing-hook-script.sh"
+          # echo "    echo" >>"${HOME}/signing-hook-script.sh"
+          # echo "    cmd=\"echo 'y' | debsign -k${GPG_KEY_ID} \\\"\${file}\\\"\"" >>"${HOME}/signing-hook-script.sh"
+          # echo "    echo 'gpg -u \"${GPG_KEY_ID}\" --clear-sign --batch --pinentry-mode loopback --passphrase-file \"${PASSWORD_FILE_ABS}\" \"\${file}\" '" >>"${HOME}/signing-hook-script.sh"
+          # echo "    gpg -u \"${GPG_KEY_ID}\" --clear-sign --batch --pinentry-mode loopback --passphrase-file \"${PASSWORD_FILE_ABS}\" \"\${file}\" " >>"${HOME}/signing-hook-script.sh"
+          # echo "done" >>"${HOME}/signing-hook-script.sh"
+          echo 'echo' >>"${HOME}/signing-hook-script.sh"
+          echo 'echo "Signed sources:"' >>"${HOME}/signing-hook-script.sh"
           echo "ls -la '${DSC_FILE}' '${BUILDINFO_FILE}' '${CHANGES_FILE}'" >>"${HOME}/signing-hook-script.sh"
           echo "echo" >>"${HOME}/signing-hook-script.sh"
           chmod +x --verbose "${HOME}/signing-hook-script.sh"
@@ -140,8 +148,8 @@ jobs:
           echo
           gpg --list-secret-keys
           echo
-          # echo "y" | debuild --signing-hook="${HOME}/signing-hook-script.sh" -S -i -us -uc
-          echo "y" | debuild -S -i -k "${GPG_KEY_ID}"
+          echo "y" | debuild --signing-hook="${HOME}/signing-hook-script.sh" -S -i -us -uc
+          # echo "y" | debuild -S -i -k "${GPG_KEY_ID}"
           ls -lA --color=always ..
           mkdir -pv debian/pkgs/src
           mv -vi ../*.dsc ../*.tar.* ../*.build* ../*.changes debian/pkgs/src
