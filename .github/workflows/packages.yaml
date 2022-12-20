@@ -138,8 +138,10 @@ jobs:
           echo "Generated '${HOME}/signing-hook-script.sh':"
           cat "${HOME}/signing-hook-script.sh"
           echo
+          gpg --list-secret-keys
+          echo
           # echo "y" | debuild --signing-hook="${HOME}/signing-hook-script.sh" -S -i -us -uc
-          echo "y" | debuild -S -i
+          echo "y" | debuild -S -i -k "${GPG_KEY_ID}"
           ls -lA --color=always ..
           mkdir -pv debian/pkgs/src
           mv -vi ../*.dsc ../*.tar.* ../*.build* ../*.changes debian/pkgs/src
