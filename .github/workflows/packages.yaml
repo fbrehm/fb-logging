@@ -125,7 +125,7 @@ jobs:
           echo 'echo "This is the signing script."' >>"${HOME}/signing-hook-script.sh"
           echo 'echo' >>"${HOME}/signing-hook-script.sh"
           echo 'printf "Command line: "; echo $0 $*' >>"${HOME}/signing-hook-script.sh"
-            echo 'printf "Pwd: "; pwd' >>"${HOME}/signing-hook-script.sh"
+          echo 'printf "Pwd: "; pwd' >>"${HOME}/signing-hook-script.sh"
           echo 'echo' >>"${HOME}/signing-hook-script.sh"
           echo 'echo "Current sources:"' >>"${HOME}/signing-hook-script.sh"
           echo "ls -la '${DSC_FILE}' '${BUILDINFO_FILE}' '${CHANGES_FILE}'" >>"${HOME}/signing-hook-script.sh"
@@ -213,6 +213,13 @@ jobs:
           export DEBIAN_FRONTEND=noninteractive
       - uses: ./.github/actions/prepare-debian-container
       - uses: ./.github/actions/debian-install-buildenv
+      - uses: ./.github/actions/setup-gpg
+        with:
+          public_key: ${{ secrets.GPG_PUBLIC_KEY }}
+          private_key: ${{ secrets.GPG_PRIVATE_KEY }}
+          key_password: ${{ secrets.GPG_KEY_PASSWORD }}
+          password_file: ${{ env.GPG_PASSWORD_FILE }}
+          key_id: ${{ env.GPG_KEY_ID }}
       - name: Updating Changelog
         run: |
           export PKG_VERSION=$( ./get-debian-version )
@@ -343,6 +350,13 @@ jobs:
         run: |
           echo "Installing build tools"
           yum --assumeyes install gnupg2 rpm-build
+      - uses: ./.github/actions/setup-gpg
+        with:
+          public_key: ${{ secrets.GPG_PUBLIC_KEY }}
+          private_key: ${{ secrets.GPG_PRIVATE_KEY }}
+          key_password: ${{ secrets.GPG_KEY_PASSWORD }}
+          password_file: ${{ env.GPG_PASSWORD_FILE }}
+          key_id: ${{ env.GPG_KEY_ID }}
       - name: Create build environment
         shell: bash
         env:
