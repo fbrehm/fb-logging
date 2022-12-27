@@ -38,7 +38,22 @@ runs:
         KEY_PASSWORD: ${{ inputs.key_password }}
       run: |
         echo "Importing private GPG key ..."
-        echo "${{ inputs.private_key }}" | gpg --import --batch --pinentry-mode loopback --passphrase "${KEY_PASSWORD}"
+        GPG_VERSION=$( gpg --version | head -n 1 | sed -e 's/[^0-9]*//' )
+        GPG_MAJOR_VERSION=$( echo "${GPG_VERSION}" | awk -F. '{print $1}' )
+        GPG_MINOR_VERSION=$( echo "${GPG_VERSION}" | awk -F. '{print $2}' )
+        GPG_HAS_PINENTRY="y"
+        if [[ "${GPG_MAJOR_VERSION}" -lt "2" ]] ; then
+            GPG_HAS_PINENTRY="n"
+        elif [[ "${GPG_MAJOR_VERSION}" == "2" ]] ; then
+            if [[ "${GPG_MINOR_VERSION}" -lt "1" ]] ; then
+                GPG_HAS_PINENTRY="n"
+            fi
+        fi
+        if [[ "${GPG_HAS_PINENTRY}" == "y" ]] ; then
+            echo "${{ inputs.private_key }}" | gpg --import --batch --pinentry-mode loopback --passphrase "${KEY_PASSWORD}"
+        else
+            echo "${{ inputs.private_key }}" | gpg --import --batch --passphrase "${KEY_PASSWORD}"
+        fi
         echo
         gpg --list-secret-keys
     - name: Creating GPG key file
@@ -65,10 +80,22 @@ runs:
       env:
         GPG_PASSWORD_FILE: ${{ inputs.password_file }}
       run: |
+        echo "Creating GnuPG config ..."
         PASSWORD_FILE_REL="${GPG_PASSWORD_FILE:-.private/uhu.txt}"
         PASSWORD_FILE_ABS=$( readlink --canonicalize-missing "${PASSWORD_FILE_REL}" )
         GPG_DIR="${HOME}/.gnupg"
         GPG_CONF="${GPG_DIR}/gpg.conf"
+        GPG_VERSION=$( gpg --version | head -n 1 | sed -e 's/[^0-9]*//' )
+        GPG_MAJOR_VERSION=$( echo "${GPG_VERSION}" | awk -F. '{print $1}' )
+        GPG_MINOR_VERSION=$( echo "${GPG_VERSION}" | awk -F. '{print $2}' )
+        GPG_HAS_PINENTRY="y"
+        if [[ "${GPG_MAJOR_VERSION}" -lt "2" ]] ; then
+            GPG_HAS_PINENTRY="n"
+        elif [[ "${GPG_MAJOR_VERSION}" == "2" ]] ; then
+            if [[ "${GPG_MINOR_VERSION}" -lt "1" ]] ; then
+                GPG_HAS_PINENTRY="n"
+            fi
+        fi
         if [[ ! -d "${GPG_DIR}" ]] ; then
             echo
             mkdir --parents --verbose --mode 0700 "${GPG_DIR}"
@@ -95,13 +122,16 @@ runs:
             echo "by setting mode."
             echo "batch" >> "${GPG_CONF}"
         fi
-        printf "Setting Pinentry mode "
-        if grep -q -P '^\s*pinentry-mode\s' "${GPG_CONF}" ; then
-            echo "by substituting old value ..."
-            sed -i -e "s/[ 	]*pinentry-mode[ 	].*/pinentry-mode loopback/i" "${GPG_CONF}"
-        else
-            echo "by setting new value ..."
-            echo "pinentry-mode loopback" >> "${GPG_CONF}"
+        if [[ "${GPG_HAS_PINENTRY}" == "y" ]] ; then
+            echo
+            printf "Setting Pinentry mode "
+            if grep -q -P '^\s*pinentry-mode\s' "${GPG_CONF}" ; then
+                echo "by substituting old value ..."
+                sed -i -e "s/[ 	]*pinentry-mode[ 	].*/pinentry-mode loopback/i" "${GPG_CONF}"
+            else
+                echo "by setting new value ..."
+                echo "pinentry-mode loopback" >> "${GPG_CONF}"
+            fi
         fi
         echo
         printf "Setting passphrase-file "
