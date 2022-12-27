@@ -371,7 +371,7 @@ jobs:
           LC_ALL: "en_US.utf8"
         run: |
           echo "Installing build tools"
-          yum --assumeyes install gnupg2 rpm-build
+          yum --assumeyes install gnupg2 rpm-build rpm-sign
       - uses: ./.github/actions/setup-gpg
         with:
           public_key: ${{ secrets.GPG_PUBLIC_KEY }}
