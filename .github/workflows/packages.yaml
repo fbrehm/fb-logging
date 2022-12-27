@@ -230,9 +230,31 @@ jobs:
           head -n 5 debian/changelog
       - name: Debian build
         run: |
+          echo '#!/usr/bin/env bash' > "${HOME}/signing-hook-script.sh"
+          echo 'echo' >>"${HOME}/signing-hook-script.sh"
+          echo 'echo "This is the signing script."' >>"${HOME}/signing-hook-script.sh"
+          echo 'echo' >>"${HOME}/signing-hook-script.sh"
+          echo 'printf "Command line: "; echo $0 $*' >>"${HOME}/signing-hook-script.sh"
+          echo 'printf "Pwd: "; pwd' >>"${HOME}/signing-hook-script.sh"
+          echo 'echo' >>"${HOME}/signing-hook-script.sh"
+          echo 'echo "Current packages:"' >>"${HOME}/signing-hook-script.sh"
+          echo "ls -la *.deb" >>"${HOME}/signing-hook-script.sh"
+          echo "cmd=\"debsigs --sign=origin --default-key=${GPG_KEY_ID} *.deb\"" >>"${HOME}/signing-hook-script.sh"
+          echo "echo \${cmd}" >>"${HOME}/signing-hook-script.sh"
+          # echo "eval \${cmd}" >>"${HOME}/signing-hook-script.sh"
+          echo 'echo' >>"${HOME}/signing-hook-script.sh"
+          echo 'echo "Signed packages:"' >>"${HOME}/signing-hook-script.sh"
+          echo "ls -la *.deb" >>"${HOME}/signing-hook-script.sh"
+          chmod +x --verbose "${HOME}/signing-hook-script.sh"
+          echo
+          echo "Generated '${HOME}/signing-hook-script.sh':"
+          cat "${HOME}/signing-hook-script.sh"
+          echo
+          gpg --list-secret-keys
+          echo
           echo "Setting debian/compat to ${COMPAT}"
           echo "${COMPAT}" > debian/compat
-          echo "y" | debuild -b -i -us -uc
+          echo "y" | debuild --signing-hook="${HOME}/signing-hook-script.sh" -b -i -us -uc
           ls -lA --color=always ..
           mkdir -pv debian/pkgs/${VERSION_PREFIX}
           mv -vi ../*.deb ../*.build* debian/pkgs/${VERSION_PREFIX}
