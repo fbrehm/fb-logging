@@ -29,7 +29,7 @@ runs:
         KEY_PASSWORD: ${{ inputs.key_password }}
       run: |
         echo
-        echo "Testing parameter 'uhu': '${{ uhu }}'."
+        echo "Testing parameter 'uhu': '${{ inputs.uhu }}'."
         echo
         echo "Importing public GPG key ..."
         echo "${PUBLIC_KEY}" | gpg --import
