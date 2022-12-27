@@ -14,6 +14,10 @@ inputs:
   key_password:
     description: "This is the password of the imported private key"
     required: true
+  uhu:
+    description: "Testin parameter by env"
+    required: true
+    default: 'testtest'
 
 runs:
   using: "composite"
@@ -24,6 +28,9 @@ runs:
         PUBLIC_KEY: ${{ inputs.public_key }}
         KEY_PASSWORD: ${{ inputs.key_password }}
       run: |
+        echo
+        echo "Testing parameter 'uhu': '${{ uhu }}'."
+        echo
         echo "Importing public GPG key ..."
         echo "${PUBLIC_KEY}" | gpg --import
         echo
