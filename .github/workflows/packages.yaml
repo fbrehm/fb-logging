@@ -27,7 +27,6 @@ env:
   SMTP_SERVER_PORT: 587
   USED_TIMEZONE: 'Europe/Berlin'
   GPG_PASSWORD_FILE: '.private/uhu.txt'
-  UHU: 'banane'
 
 jobs:
 
@@ -112,7 +111,8 @@ jobs:
           public_key: ${{ secrets.GPG_PUBLIC_KEY }}
           private_key: ${{ secrets.GPG_PRIVATE_KEY }}
           key_password: ${{ secrets.GPG_KEY_PASSWORD }}
-          uhu: ${{ env.UHU }}
+          password_file: ${{ env.GPG_PASSWORD_FILE }}
+          key_id: ${{ env.GPG_KEY_ID }}
       - name: Debian build
         run: |
           PASSWORD_FILE_ABS=$( readlink --canonicalize-missing "${GPG_PASSWORD_FILE}" )
