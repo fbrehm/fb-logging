@@ -131,7 +131,7 @@ jobs:
           echo "ls -la '${DSC_FILE}' '${BUILDINFO_FILE}' '${CHANGES_FILE}'" >>"${HOME}/signing-hook-script.sh"
           echo 'echo' >>"${HOME}/signing-hook-script.sh"
           echo "cmd=\"echo 'y' | debsign -k${GPG_KEY_ID} '${DSC_FILE}' '${BUILDINFO_FILE}' '${CHANGES_FILE}'\"" >>"${HOME}/signing-hook-script.sh"
-          echo "echo \${cmd}" >>"${HOME}/signing-hook-script.sh"
+          echo "echo \"Executing: \${cmd}\"" >>"${HOME}/signing-hook-script.sh"
           echo "eval \${cmd}" >>"${HOME}/signing-hook-script.sh"
           echo 'echo' >>"${HOME}/signing-hook-script.sh"
           echo 'echo "Signed sources:"' >>"${HOME}/signing-hook-script.sh"
@@ -240,8 +240,8 @@ jobs:
           echo 'echo "Current packages:"' >>"${HOME}/signing-hook-script.sh"
           echo "ls -la *.deb" >>"${HOME}/signing-hook-script.sh"
           echo "cmd=\"debsigs --sign=origin --default-key=${GPG_KEY_ID} *.deb\"" >>"${HOME}/signing-hook-script.sh"
-          echo "echo \${cmd}" >>"${HOME}/signing-hook-script.sh"
-          # echo "eval \${cmd}" >>"${HOME}/signing-hook-script.sh"
+          echo "echo \"Executing: \${cmd}\"" >>"${HOME}/signing-hook-script.sh"
+          echo "eval \${cmd}" >>"${HOME}/signing-hook-script.sh"
           echo 'echo' >>"${HOME}/signing-hook-script.sh"
           echo 'echo "Signed packages:"' >>"${HOME}/signing-hook-script.sh"
           echo "ls -la *.deb" >>"${HOME}/signing-hook-script.sh"
@@ -437,6 +437,19 @@ jobs:
           rpmbuild -ba --nocheck --verbose \
               --define "_topdir $(pwd)/rpmdir" \
               fb_logging.spec
+          echo
+          echo "Results:"
+          find rpmdir/*RPMS -type f -print0 | xargs --null --no-run-if-empty ls -l -d --color=always
+      - name: Signing RPMs
+        shell: bash
+        env:
+          LC_ALL: "en_US.utf8"
+        run: |
+          echo "Signing all packages ..."
+          for f in $( find rpmdir -type f -iname "*.rpm" ) ; do
+              echo " * $f"
+              rpm --addsign "$f"
+          done
           echo
           echo "Results:"
           find rpmdir/*RPMS -type f -print0 | xargs --null --no-run-if-empty ls -l -d --color=always
