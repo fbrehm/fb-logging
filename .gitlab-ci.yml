@@ -340,7 +340,7 @@ build CentOS 9 with Python 3:
     - |
       echo "Generating $HOME/.rpmmacros ..."
       echo -e "%_signature gpg\n%_gpg_name ${YUM_REPO_GPG_ID}" >$HOME/.rpmmacros
-      echo -e "%__gpg_sign_cmd   %{__gpg} gpg --no-verbose --no-armor --batch --pinentry-mode loopback --passphrase '${YUM_REPO_GPG_PASSWD}' --no-secmem-warning -u \"%{_gpg_name}\" -sbo %{__signature_filename} %{__plaintext_filename}" >>$HOME/.rpmmacros
+      echo -e "%__gpg_sign_cmd   %{__gpg} gpg --verbose --no-armor --batch --pinentry-mode loopback --passphrase '${YUM_REPO_GPG_PASSWD}' --no-secmem-warning -u \"%{_gpg_name}\" -sbo %{__signature_filename} %{__plaintext_filename}" >>$HOME/.rpmmacros
       echo "Generated $HOME/.rpmmacros:"
       echo "--------->"
       cat $HOME/.rpmmacros
@@ -381,8 +381,13 @@ build CentOS 9 with Python 3:
       echo "Signing packages ..."
       for f in $( find rpmdir -type f -iname "*.rpm" ) ; do
           echo "  * ${f} ..."
+          echo "Checking existing signature:"
+          rpm --checksig "${f}" || true
           rpmsign --addsign "${f}"
-          # ./rpm-addsign-wrapper.expect "${f}" "${YUM_REPO_GPG_PASSWD}"
+          echo "Checking new signature:"
+          rpm --checksig "${f}" || true
+          echo "Show signature:"
+          rpm -q --qf '%{SIGPGP:pgpsig} %{SIGGPG:pgpsig}\n' -p "${f}" || true
       done
     - |
       echo "Results:"
