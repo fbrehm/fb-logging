@@ -37,23 +37,19 @@ jobs:
       fail-fast: false
       matrix:
         python_version: [ '3.6', '3.7', '3.8', '3.9', '3.10', '3.11' ]
-    uses: fbrehm/actions/.github/workflows/pytest.yaml@v0.1
-    with:
-      python_version: ${{ matrix.python_version }}
-#    container: python:${{ matrix.python_version }}
-#    steps:
-#      - uses: actions/checkout@v3
-#      - name: Show Environment
-#        run: python --version
-#      # - uses: ./.github/actions/prepare-debian-container
-#      - uses: fbrehm/actions/prepare-debian-container@main
-#      - uses: ./.github/actions/install-pip-modules
-#      - name: Install PyTest with pip
-#        run: |
-#          pip install --upgrade --upgrade-strategy eager pytest
-#          pip list --format columns
-#      - name: Executing PyTest
-#        run: pytest --verbose
+    container: python:${{ matrix.python_version }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: Show Environment
+        run: python --version
+      - uses: ./.github/actions/prepare-debian-container
+      - uses: ./.github/actions/install-pip-modules
+      - name: Install PyTest with pip
+        run: |
+          pip install --upgrade --upgrade-strategy eager pytest
+          pip list --format columns
+      - name: Executing PyTest
+        run: pytest --verbose
 
   linter:
     runs-on: ubuntu-latest
@@ -63,8 +59,7 @@ jobs:
       - test
     steps:
       - uses: actions/checkout@v3
-      # - uses: ./.github/actions/prepare-debian-container
-      - uses: fbrehm/actions/prepare-debian-container
+      - uses: ./.github/actions/prepare-debian-container
       - uses: ./.github/actions/install-pip-modules
 #      - name: Install shellcheck and yamllint
 #        run: apt install --yes shellcheck yamllint
