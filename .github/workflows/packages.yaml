@@ -37,7 +37,7 @@ jobs:
       fail-fast: false
       matrix:
         python_version: [ '3.6', '3.7', '3.8', '3.9', '3.10', '3.11' ]
-    uses: fbrehm/actions/.github/workflows/pytest.yaml@main
+    uses: fbrehm/actions/.github/workflows/pytest.yaml@v0.1
     with:
       python_version: ${{ matrix.python_version }}
 #    container: python:${{ matrix.python_version }}
