@@ -441,6 +441,20 @@ jobs:
           echo
           echo "Generated '${RPM_MACROS}':"
           cat "${RPM_MACROS}"
+      - name: Tweaking rpmopts
+        shell: bash
+        run: |
+          echo "Tweaking /usr/lib/rpm/rpmpopt-* ..."
+          ls -l /usr/lib/rpm/rpmpopt-*
+          RPMOPTFILE=$( ls -1 /usr/lib/rpm/rpmpopt-* | head -n 1 )
+          RPMOPTFILE_BASE=$( basename "${RPMOPTFILE}" )
+          RPMOPTFILE_DIR=$( dirname "${RPMOPTFILE}" )
+          RPMOPTFILE_BAK="${RPMOPTFILE_DIR}/.~${RPMOPTFILE_BASE}.bak"
+          cp -v -i "${RPMOPTFILE}" "${RPMOPTFILE_BAK}"
+          sed -i -e 's/\(--addsign.*\) <.*/\1\x27 \\/' "${RPMOPTFILE}"
+          ls -l "${RPMOPTFILE}" "${RPMOPTFILE_BAK}"
+          diff -u "${RPMOPTFILE_BAK}" "${RPMOPTFILE}" || true
+          echo
       - name: Creating RPMs
         shell: bash
         env:
