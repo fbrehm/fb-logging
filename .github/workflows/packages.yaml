@@ -461,11 +461,13 @@ jobs:
           echo "Signing all packages ..."
           for f in $( find rpmdir -type f -iname "*.rpm" ) ; do
               echo " * $f"
+              echo "Checking existing signature:"
+              rpm --checksig "$f" || true
               rpm --addsign "$f"
               echo "Checking signature:"
-              rpm --checksig "$f"
+              rpm --checksig "$f" || true
               echo "Show signature:"
-              rpm -q --qf '%{SIGPGP:pgpsig} %{SIGGPG:pgpsig}\n' -p "$f"
+              rpm -q --qf '%{SIGPGP:pgpsig} %{SIGGPG:pgpsig}\n' -p "$f" || true
           done
           echo
           echo "Results:"
