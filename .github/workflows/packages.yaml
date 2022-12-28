@@ -37,20 +37,23 @@ jobs:
       fail-fast: false
       matrix:
         python_version: [ '3.6', '3.7', '3.8', '3.9', '3.10', '3.11' ]
-    container: python:${{ matrix.python_version }}
-    steps:
-      - uses: actions/checkout@v3
-      - name: Show Environment
-        run: python --version
-      # - uses: ./.github/actions/prepare-debian-container
-      - uses: fbrehm/actions/prepare-debian-container@main
-      - uses: ./.github/actions/install-pip-modules
-      - name: Install PyTest with pip
-        run: |
-          pip install --upgrade --upgrade-strategy eager pytest
-          pip list --format columns
-      - name: Executing PyTest
-        run: pytest --verbose
+    uses: fbrehm/actions/.github/workflows/pytest.yaml@main
+    with:
+      python_version: ${{ matrix.python_version }}
+#    container: python:${{ matrix.python_version }}
+#    steps:
+#      - uses: actions/checkout@v3
+#      - name: Show Environment
+#        run: python --version
+#      # - uses: ./.github/actions/prepare-debian-container
+#      - uses: fbrehm/actions/prepare-debian-container@main
+#      - uses: ./.github/actions/install-pip-modules
+#      - name: Install PyTest with pip
+#        run: |
+#          pip install --upgrade --upgrade-strategy eager pytest
+#          pip list --format columns
+#      - name: Executing PyTest
+#        run: pytest --verbose
 
   linter:
     runs-on: ubuntu-latest
