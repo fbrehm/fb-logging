@@ -283,6 +283,7 @@ jobs:
             py_version_nodot: '36'
             image: centos:7
             epel_package: epel-release
+            gpg_has_pinentry: 'n'
           - el_version: '8'
             yum: 'dnf'
             py_minor_version: '8'
@@ -290,6 +291,7 @@ jobs:
             py_version_nodot: '38'
             image: dokken/centos-stream-8
             epel_package: epel-release
+            gpg_has_pinentry: 'y'
           - el_version: '9'
             yum: 'dnf'
             py_minor_version: '9'
@@ -297,6 +299,7 @@ jobs:
             py_version_nodot: '3'
             image: dokken/centos-stream-9
             epel_package: https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm
+            gpg_has_pinentry: 'y'
     container: ${{ matrix.image }}
     env:
       EL_VERSION: ${{ matrix.el_version }}
@@ -308,6 +311,7 @@ jobs:
       USED_LOCALE: 'en_US'
       USED_LC: 'en_US.utf8'
       YUM: ${{ matrix.yum }}
+      GPG_HAS_PINENTRY: ${{ matrix.gpg_has_pinentry }}
     steps:
       - uses: actions/checkout@v3
       - name: Checking locales
@@ -423,9 +427,17 @@ jobs:
           cat fb_logging.spec
           echo
           RPM_MACROS="${HOME}/.rpmmacros"
+          GPG_CMD="gpg --no-verbose --no-armor --batch"
+          if [[ "${GPG_HAS_PINENTRY}" == "y" ]] ; then
+              GPG_CMD+=" --pinentry-mode loopback"
+          fi
+          GPG_CMD+=" --passphrase '${{ secrets.GPG_KEY_PASSWORD }}'"
+          GPG_CMD+=" --no-secmem-warning -u \"%{_gpg_name}\" -sbo %{__signature_filename} %{__plaintext_filename}"
           echo "Creating '${RPM_MACROS}' ..."
-          echo "%__python3 /bin/python${PY_VERSION_DOT}" >"${RPM_MACROS}"
-          echo "%_signature gpg" >>"${RPM_MACROS}"
+          echo "%__python3 /bin/python${PY_VERSION_DOT}" >  "${RPM_MACROS}"
+          echo "%_signature gpg"                         >> "${RPM_MACROS}"
+          echo "%_gpg_name ${GPG_KEY_ID}"                >> "${RPM_MACROS}"
+          echo "%__gpg_sign_cmd %{__gpg} ${GPG_CMD}"     >> "${RPM_MACROS}"
           echo
           echo "Generated '${RPM_MACROS}':"
           cat "${RPM_MACROS}"
@@ -445,6 +457,7 @@ jobs:
         env:
           LC_ALL: "en_US.utf8"
         run: |
+          echo
           echo "Signing all packages ..."
           for f in $( find rpmdir -type f -iname "*.rpm" ) ; do
               echo " * $f"
