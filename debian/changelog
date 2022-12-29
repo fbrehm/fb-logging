@@ -1,3 +1,9 @@
+fb-logging (0.5.4) all; urgency=medium
+
+  * Fixing .gitlab-ci.yml
+
+ -- Frank Brehm <frank.brehm@pixelpark.com>  Thu, 29 Dec 2022 18:49:05 +0100
+
 fb-logging (0.5.3) all; urgency=medium
 
   * Changing .gitlab-ci.yml to use shared CI scripts
