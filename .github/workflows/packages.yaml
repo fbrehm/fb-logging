@@ -2,6 +2,7 @@
 
 name: "Building OS packages"
 
+# yamllint disable-line rule:truthy
 on:
   push:
     branches:
@@ -19,12 +20,14 @@ env:
   DEBEMAIL: 'frank@brehm-online.com'
   FB_REPO_IN_DIR: '/var/www/incoming'
   GITREF: ${{ github.ref }}
+  GPG_KEY_ID: '87A8DBD6B796E12A'
   NOTIFY_ADDRESS: 'frank@brehm-online.com,frank.brehm@pixelpark.com'
   PKG_NAME: 'fb_logging'
   SENDER_ADDRESS: 'Frank Brehm <frank@brehm-online.com>'
   SMTP_SERVER_ADDRESS: 'mail.uhu-banane.net'
   SMTP_SERVER_PORT: 587
   USED_TIMEZONE: 'Europe/Berlin'
+  GPG_PASSWORD_FILE: '.private/uhu.txt'
 
 jobs:
 
@@ -53,10 +56,6 @@ jobs:
     runs-on: ubuntu-latest
     name: Executing Linters
     container: python:3.9
-    env:
-      FLAKE8_MAX_LINE_LENGTH: 99
-      FLAKE8_MAX_COMPLEXITY: 20
-      FLAKE8_IGNORE_ERRORS: 'E226,E41,E402,W503'
     needs:
       - test
     steps:
@@ -86,12 +85,9 @@ jobs:
           pip list --format columns
       - name: Execute Flake 8
         shell: bash
-        run: >
-          flake8
-          --max-line-length=$FLAKE8_MAX_LINE_LENGTH
-          --max-complexity=$FLAKE8_MAX_COMPLEXITY
-          --ignore=$FLAKE8_IGNORE_ERRORS
-          lib
+        run: |
+          flake8 --version
+          flake8 lib
 #          bin
 #      - name: Execute Shellcheck
 #        run: >
@@ -111,9 +107,45 @@ jobs:
       - uses: actions/checkout@v3
       - uses: ./.github/actions/prepare-debian-container
       - uses: ./.github/actions/debian-install-buildenv
+      - uses: ./.github/actions/setup-gpg
+        with:
+          public_key: ${{ secrets.GPG_PUBLIC_KEY }}
+          private_key: ${{ secrets.GPG_PRIVATE_KEY }}
+          key_password: ${{ secrets.GPG_KEY_PASSWORD }}
+          password_file: ${{ env.GPG_PASSWORD_FILE }}
+          key_id: ${{ env.GPG_KEY_ID }}
       - name: Debian build
         run: |
-          echo "y" | debuild -S -i -us -uc
+          PASSWORD_FILE_ABS=$( readlink --canonicalize-missing "${GPG_PASSWORD_FILE}" )
+          export PKG_VERSION=$( ./get-debian-version )
+          DSC_FILE="fb-logging_${PKG_VERSION}.dsc"
+          BUILDINFO_FILE="fb-logging_${PKG_VERSION}_source.buildinfo"
+          CHANGES_FILE="fb-logging_${PKG_VERSION}_source.changes"
+          echo '#!/usr/bin/env bash' > "${HOME}/signing-hook-script.sh"
+          echo 'echo' >>"${HOME}/signing-hook-script.sh"
+          echo 'echo "This is the signing script."' >>"${HOME}/signing-hook-script.sh"
+          echo 'echo' >>"${HOME}/signing-hook-script.sh"
+          echo 'printf "Command line: "; echo $0 $*' >>"${HOME}/signing-hook-script.sh"
+          echo 'printf "Pwd: "; pwd' >>"${HOME}/signing-hook-script.sh"
+          echo 'echo' >>"${HOME}/signing-hook-script.sh"
+          echo 'echo "Current sources:"' >>"${HOME}/signing-hook-script.sh"
+          echo "ls -la '${DSC_FILE}' '${BUILDINFO_FILE}' '${CHANGES_FILE}'" >>"${HOME}/signing-hook-script.sh"
+          echo 'echo' >>"${HOME}/signing-hook-script.sh"
+          echo "cmd=\"echo 'y' | debsign -k${GPG_KEY_ID} '${DSC_FILE}' '${BUILDINFO_FILE}' '${CHANGES_FILE}'\"" >>"${HOME}/signing-hook-script.sh"
+          echo "echo \"Executing: \${cmd}\"" >>"${HOME}/signing-hook-script.sh"
+          echo "eval \${cmd}" >>"${HOME}/signing-hook-script.sh"
+          echo 'echo' >>"${HOME}/signing-hook-script.sh"
+          echo 'echo "Signed sources:"' >>"${HOME}/signing-hook-script.sh"
+          echo "ls -la '${DSC_FILE}' '${BUILDINFO_FILE}' '${CHANGES_FILE}'" >>"${HOME}/signing-hook-script.sh"
+          echo "echo" >>"${HOME}/signing-hook-script.sh"
+          chmod +x --verbose "${HOME}/signing-hook-script.sh"
+          echo
+          echo "Generated '${HOME}/signing-hook-script.sh':"
+          cat "${HOME}/signing-hook-script.sh"
+          echo
+          gpg --list-secret-keys
+          echo
+          echo "y" | debuild --signing-hook="${HOME}/signing-hook-script.sh" -S -i -us -uc
           ls -lA --color=always ..
           mkdir -pv debian/pkgs/src
           mv -vi ../*.dsc ../*.tar.* ../*.build* ../*.changes debian/pkgs/src
@@ -182,6 +214,13 @@ jobs:
           export DEBIAN_FRONTEND=noninteractive
       - uses: ./.github/actions/prepare-debian-container
       - uses: ./.github/actions/debian-install-buildenv
+      - uses: ./.github/actions/setup-gpg
+        with:
+          public_key: ${{ secrets.GPG_PUBLIC_KEY }}
+          private_key: ${{ secrets.GPG_PRIVATE_KEY }}
+          key_password: ${{ secrets.GPG_KEY_PASSWORD }}
+          password_file: ${{ env.GPG_PASSWORD_FILE }}
+          key_id: ${{ env.GPG_KEY_ID }}
       - name: Updating Changelog
         run: |
           export PKG_VERSION=$( ./get-debian-version )
@@ -192,9 +231,31 @@ jobs:
           head -n 5 debian/changelog
       - name: Debian build
         run: |
+          echo '#!/usr/bin/env bash' > "${HOME}/signing-hook-script.sh"
+          echo 'echo' >>"${HOME}/signing-hook-script.sh"
+          echo 'echo "This is the signing script."' >>"${HOME}/signing-hook-script.sh"
+          echo 'echo' >>"${HOME}/signing-hook-script.sh"
+          echo 'printf "Command line: "; echo $0 $*' >>"${HOME}/signing-hook-script.sh"
+          echo 'printf "Pwd: "; pwd' >>"${HOME}/signing-hook-script.sh"
+          echo 'echo' >>"${HOME}/signing-hook-script.sh"
+          echo 'echo "Current packages:"' >>"${HOME}/signing-hook-script.sh"
+          echo "ls -la *.deb" >>"${HOME}/signing-hook-script.sh"
+          echo "cmd=\"debsigs --sign=origin --default-key=${GPG_KEY_ID} *.deb\"" >>"${HOME}/signing-hook-script.sh"
+          echo "echo \"Executing: \${cmd}\"" >>"${HOME}/signing-hook-script.sh"
+          echo "eval \${cmd}" >>"${HOME}/signing-hook-script.sh"
+          echo 'echo' >>"${HOME}/signing-hook-script.sh"
+          echo 'echo "Signed packages:"' >>"${HOME}/signing-hook-script.sh"
+          echo "ls -la *.deb" >>"${HOME}/signing-hook-script.sh"
+          chmod +x --verbose "${HOME}/signing-hook-script.sh"
+          echo
+          echo "Generated '${HOME}/signing-hook-script.sh':"
+          cat "${HOME}/signing-hook-script.sh"
+          echo
+          gpg --list-secret-keys
+          echo
           echo "Setting debian/compat to ${COMPAT}"
           echo "${COMPAT}" > debian/compat
-          echo "y" | debuild -b -i -us -uc
+          echo "y" | debuild --signing-hook="${HOME}/signing-hook-script.sh" -b -i -us -uc
           ls -lA --color=always ..
           mkdir -pv debian/pkgs/${VERSION_PREFIX}
           mv -vi ../*.deb ../*.build* debian/pkgs/${VERSION_PREFIX}
@@ -311,7 +372,7 @@ jobs:
           LC_ALL: "en_US.utf8"
         run: |
           echo "Installing build tools"
-          yum --assumeyes install gnupg2 rpm-build
+          yum --assumeyes install gnupg2 rpm-build rpm-sign
       - name: Create build environment
         shell: bash
         env:
@@ -357,8 +418,9 @@ jobs:
           echo
           RPM_MACROS="${HOME}/.rpmmacros"
           echo "Creating '${RPM_MACROS}' ..."
-          echo "%__python3 /bin/python${PY_VERSION_DOT}" >"${RPM_MACROS}"
-          echo "%_signature gpg" >>"${RPM_MACROS}"
+          echo "%__python3 /bin/python${PY_VERSION_DOT}" >  "${RPM_MACROS}"
+          echo "%_signature gpg"                         >> "${RPM_MACROS}"
+          echo "%_gpg_name ${GPG_KEY_ID}"                >> "${RPM_MACROS}"
           echo
           echo "Generated '${RPM_MACROS}':"
           cat "${RPM_MACROS}"
