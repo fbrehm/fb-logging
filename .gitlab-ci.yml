@@ -14,6 +14,9 @@ include:
   - project: 'python/packaging'
     ref: main
     file: 'gitlab/linter.yaml'
+  - project: 'python/packaging'
+    ref: main
+    file: 'build-python-packages.yaml'
 
 # ---------------------------
 # Global variables
@@ -24,6 +27,7 @@ variables:
   FB_REPOSERVER_URL: 'http://repo.uhu-banane.de'
   FB_REPOSERVER_GPGKEY_URL: 'http://repo.uhu-banane.de/public/repo.uhu-banane.de.gpg-key2.asc'
   NOTIFY_ADDRESS: 'frank.brehm@pixelpark.com'
+  PKG_NAME: 'fb_logging'
   PYTHON_INIT_FILE: 'lib/fb_logging/__init__.py'
   PYTHON_TEST_PATHS: 'bin lib setup.py'
   SENDER_ADDRESS: 'gitlab-ci@pixelpark.com'
@@ -41,52 +45,6 @@ variables:
   YUM_REPO_DIR: "/srv/www/repo${YUM_REPO_DIR_HTTP}"
   YUM_REPO_GPG_KEY_PUB: 'nada'
   YUM_REPO_GPG_KEY_SEC: ''
-
-# # ---------------------------
-# .docker_job_definition:
-#   before_script:
-#     - locale -a
-#     - apt update && apt install --yes sudo locales gettext
-#     - >
-#       if test -f /etc/locale.gen; then
-#         echo "/etc/locale.gen:"
-#         grep -P -v '^\s*(#.*)?$' /etc/locale.gen || true
-#         echo "<-- EOF"
-#       fi
-#     - >
-#       if grep 'en_US.UTF-8' /etc/locale.gen; then
-#         sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen
-#       else
-#         echo 'en_US.UTF-8 UTF-8' >> /etc/locale.gen
-#       fi
-#     - >
-#       if grep 'de_DE.UTF-8' /etc/locale.gen; then
-#         sed -i -e 's/# de_DE.UTF-8 UTF-8/de_DE.UTF-8 UTF-8/' /etc/locale.gen
-#       else
-#         echo 'de_DE.UTF-8 UTF-8' >> /etc/locale.gen
-#       fi
-#     - locale-gen
-#     - locale -a
-#     - pip install --upgrade pip
-#     - pip install -r requirements.txt --upgrade --upgrade-strategy eager
-
-# # ---------------------------
-# .test-rules:
-#   stage: test
-#   rules:
-#     - if: '$CI_COMMIT_TAG'
-#     - if: $CI_COMMIT_BRANCH == "master"
-#     - if: $CI_COMMIT_BRANCH == "main"
-#     - if: $CI_COMMIT_BRANCH == "test"
-#     - if: $CI_COMMIT_BRANCH =~ /test-.*/
-#     - if: $CI_COMMIT_BRANCH =~ /build.*/
-#     - if: $CI_COMMIT_BRANCH == "develop"
-#   tags:
-#     - docker
-#   script:
-#     - pip install --upgrade --upgrade-strategy eager pytest
-#     - pip list --format columns
-#     - pytest --verbose
 
 # ---------------------------
 .pkg-build-rules:
@@ -201,45 +159,45 @@ variables:
       echo "Results:"
       find rpmdir/*RPMS -type f -print0 | xargs --null --no-run-if-empty ls -l -d --color=always
 
-# ---------------------------
-build CentOS 7 with Python 3.6:
-  variables:
-    EL_MAJOR_VERSION: '7'
-    YUM: yum
-    PYTHON_PACKAGES: >
-      python36 python36-six python36-pip python36-devel python3-setuptools
-    PYTHON_VERSION_DOT: '3.6'
-    PYTHON_VERSION_NODOT: '36'
-  extends:
-    - '.pkg-build-rules'
-  image: centos:7
+# # ---------------------------
+# build CentOS 7 with Python 3.6:
+#   variables:
+#     EL_MAJOR_VERSION: '7'
+#     YUM: yum
+#     PYTHON_PACKAGES: >
+#       python36 python36-six python36-pip python36-devel python3-setuptools
+#     PYTHON_VERSION_DOT: '3.6'
+#     PYTHON_VERSION_NODOT: '36'
+#   extends:
+#     - '.pkg-build-rules'
+#   image: centos:7
 
-# ---------------------------
-build CentOS 8 with Python 3.8:
-  variables:
-    EL_MAJOR_VERSION: '8'
-    YUM: dnf
-    PYTHON_PACKAGES: >
-      python38 python38-six python38-pip python38-devel python38-setuptools
-      platform-python-devel
-    PYTHON_VERSION_DOT: '3.8'
-    PYTHON_VERSION_NODOT: '38'
-  extends:
-    - '.pkg-build-rules'
-  image: dokken/centos-stream-8
+# # ---------------------------
+# build CentOS 8 with Python 3.8:
+#   variables:
+#     EL_MAJOR_VERSION: '8'
+#     YUM: dnf
+#     PYTHON_PACKAGES: >
+#       python38 python38-six python38-pip python38-devel python38-setuptools
+#       platform-python-devel
+#     PYTHON_VERSION_DOT: '3.8'
+#     PYTHON_VERSION_NODOT: '38'
+#   extends:
+#     - '.pkg-build-rules'
+#   image: dokken/centos-stream-8
 
-# ---------------------------
-build CentOS 9 with Python 3:
-  variables:
-    EL_MAJOR_VERSION: '9'
-    YUM: dnf
-    PYTHON_PACKAGES: >
-      python3 python3-six python3-pip python3-devel python3-setuptools
-    PYTHON_VERSION_DOT: '3'
-    PYTHON_VERSION_NODOT: '3'
-  extends:
-    - '.pkg-build-rules'
-  image: dokken/centos-stream-9
+# # ---------------------------
+# build CentOS 9 with Python 3:
+#   variables:
+#     EL_MAJOR_VERSION: '9'
+#     YUM: dnf
+#     PYTHON_PACKAGES: >
+#       python3 python3-six python3-pip python3-devel python3-setuptools
+#     PYTHON_VERSION_DOT: '3'
+#     PYTHON_VERSION_NODOT: '3'
+#   extends:
+#     - '.pkg-build-rules'
+#   image: dokken/centos-stream-9
 
 # ---------------------------
 .pkg-sign-rules:
