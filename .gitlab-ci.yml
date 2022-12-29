@@ -16,7 +16,7 @@ include:
     file: 'gitlab/linter.yaml'
   - project: 'python/packaging'
     ref: main
-    file: 'build-python-packages.yaml'
+    file: 'gitlab/build-python-packages.yaml'
 
 # ---------------------------
 # Global variables
