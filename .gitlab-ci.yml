@@ -25,6 +25,7 @@ variables:
   FB_REPOSERVER_GPGKEY_URL: 'http://repo.uhu-banane.de/public/repo.uhu-banane.de.gpg-key2.asc'
   NOTIFY_ADDRESS: 'frank.brehm@pixelpark.com'
   PYTHON_INIT_FILE: 'lib/fb_logging/__init__.py'
+  PYTHON_TEST_PATHS: 'bin lib setup.py'
   SENDER_ADDRESS: 'gitlab-ci@pixelpark.com'
   SSH_PRIV_KEY_YUM_REPO: 'nada'
   UPDATE_ALL_PIP_MODULES: 'y'
