@@ -83,6 +83,7 @@ variables:
     - pytest --verbose
 
 # # ---------------------------
+# # Removing when finished
 # Linter:
 #   stage: linter
 #   extends:
