@@ -46,6 +46,7 @@ variables:
   YUM_REPO_GPG_KEY_PUB: 'nada'
   YUM_REPO_GPG_KEY_SEC: ''
 
+
 # # ---------------------------
 # .pkg-build-rules:
 #   stage: build
