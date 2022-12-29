@@ -29,7 +29,7 @@ variables:
   SENDER_ADDRESS: 'gitlab-ci@pixelpark.com'
   SHELLSCRIPTS: 'get-debian-version get-rpm-release get-rpm-version'
   SSH_PRIV_KEY_YUM_REPO: 'nada'
-  # TEST_LOCALES: 'en_US.UTF-8'
+  TEST_LOCALES: 'en_US.UTF-8'
   UPDATE_ALL_PIP_MODULES: 'y'
   USED_TIMEZONE: 'Europe/Berlin'
   VERSION_PREFIX: 'unknown'
