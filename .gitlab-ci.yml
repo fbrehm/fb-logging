@@ -83,48 +83,6 @@ variables:
     - pytest --verbose
 
 # # ---------------------------
-# test Python 3.6:
-#   extends:
-#     - .docker_job_definition
-#     - .test-rules
-#   image: python:3.6
-
-# # ---------------------------
-# test Python 3.7:
-#   extends:
-#     - .docker_job_definition
-#     - .test-rules
-#   image: python:3.7
-
-# # ---------------------------
-# test Python 3.8:
-#   extends:
-#     - .docker_job_definition
-#     - .test-rules
-#   image: python:3.8
-
-# # ---------------------------
-# test Python 3.9:
-#   extends:
-#     - .docker_job_definition
-#     - .test-rules
-#   image: python:3.9
-
-# # ---------------------------
-# test Python 3.10:
-#   extends:
-#     - .docker_job_definition
-#     - .test-rules
-#   image: python:3.10
-
-# # ---------------------------
-# test Python 3.11:
-#   extends:
-#     - .docker_job_definition
-#     - .test-rules
-#   image: python:3.11
-
-# # ---------------------------
 # Linter:
 #   stage: linter
 #   extends:
