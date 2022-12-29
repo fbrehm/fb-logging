@@ -41,71 +41,37 @@ variables:
   YUM_REPO_GPG_KEY_PUB: 'nada'
   YUM_REPO_GPG_KEY_SEC: ''
 
-# ---------------------------
-.docker_job_definition:
-  before_script:
-    - locale -a
-    - apt update && apt install --yes sudo locales gettext
-    - >
-      if test -f /etc/locale.gen; then
-        echo "/etc/locale.gen:"
-        grep -P -v '^\s*(#.*)?$' /etc/locale.gen || true
-        echo "<-- EOF"
-      fi
-    - >
-      if grep 'en_US.UTF-8' /etc/locale.gen; then
-        sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen
-      else
-        echo 'en_US.UTF-8 UTF-8' >> /etc/locale.gen
-      fi
-    - >
-      if grep 'de_DE.UTF-8' /etc/locale.gen; then
-        sed -i -e 's/# de_DE.UTF-8 UTF-8/de_DE.UTF-8 UTF-8/' /etc/locale.gen
-      else
-        echo 'de_DE.UTF-8 UTF-8' >> /etc/locale.gen
-      fi
-    - locale-gen
-    - locale -a
-    - pip install --upgrade pip
-    - pip install -r requirements.txt --upgrade --upgrade-strategy eager
-
-# ---------------------------
-.test-rules:
-  stage: test
-  rules:
-    - if: '$CI_COMMIT_TAG'
-    - if: $CI_COMMIT_BRANCH == "master"
-    - if: $CI_COMMIT_BRANCH == "main"
-    - if: $CI_COMMIT_BRANCH == "test"
-    - if: $CI_COMMIT_BRANCH =~ /test-.*/
-    - if: $CI_COMMIT_BRANCH =~ /build.*/
-    - if: $CI_COMMIT_BRANCH == "develop"
-  tags:
-    - docker
-  script:
-    - pip install --upgrade --upgrade-strategy eager pytest
-    - pip list --format columns
-    - pytest --verbose
+# # ---------------------------
+# .docker_job_definition:
+#   before_script:
+#     - locale -a
+#     - apt update && apt install --yes sudo locales gettext
+#     - >
+#       if test -f /etc/locale.gen; then
+#         echo "/etc/locale.gen:"
+#         grep -P -v '^\s*(#.*)?$' /etc/locale.gen || true
+#         echo "<-- EOF"
+#       fi
+#     - >
+#       if grep 'en_US.UTF-8' /etc/locale.gen; then
+#         sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen
+#       else
+#         echo 'en_US.UTF-8 UTF-8' >> /etc/locale.gen
+#       fi
+#     - >
+#       if grep 'de_DE.UTF-8' /etc/locale.gen; then
+#         sed -i -e 's/# de_DE.UTF-8 UTF-8/de_DE.UTF-8 UTF-8/' /etc/locale.gen
+#       else
+#         echo 'de_DE.UTF-8 UTF-8' >> /etc/locale.gen
+#       fi
+#     - locale-gen
+#     - locale -a
+#     - pip install --upgrade pip
+#     - pip install -r requirements.txt --upgrade --upgrade-strategy eager
 
 # # ---------------------------
-# # Removing when finished
-# Linter:
-#   stage: linter
-#   extends:
-#     - .docker_job_definition
-#   image: python:3.10
-#   tags:
-#     - docker
-#   script:
-#     - apt install --yes shellcheck yamllint
-#     - pip install --upgrade --upgrade-strategy eager flake8 pylint
-#     - pip list --format columns
-#     - 'echo; echo -e "flake8 bin lib setup.py"'
-#     - flake8 bin lib setup.py
-#     # - 'echo; echo -e "shellcheck -x compile-xlate-msgs.sh xtract-xlate-msgs.sh"'
-#     # - shellcheck -x compile-xlate-msgs.sh xtract-xlate-msgs.sh
-#     - 'echo; echo -e "yamllint -c .yamllint.yaml .gitlab-ci.yml"'
-#     - yamllint -c .yamllint.yaml .gitlab-ci.yml
+# .test-rules:
+#   stage: test
 #   rules:
 #     - if: '$CI_COMMIT_TAG'
 #     - if: $CI_COMMIT_BRANCH == "master"
@@ -114,13 +80,12 @@ variables:
 #     - if: $CI_COMMIT_BRANCH =~ /test-.*/
 #     - if: $CI_COMMIT_BRANCH =~ /build.*/
 #     - if: $CI_COMMIT_BRANCH == "develop"
-#   needs:
-#     - 'test Python 3.6'
-#     - 'test Python 3.7'
-#     - 'test Python 3.8'
-#     - 'test Python 3.9'
-#     - 'test Python 3.10'
-#     - 'test Python 3.11'
+#   tags:
+#     - docker
+#   script:
+#     - pip install --upgrade --upgrade-strategy eager pytest
+#     - pip list --format columns
+#     - pytest --verbose
 
 # ---------------------------
 .pkg-build-rules:
