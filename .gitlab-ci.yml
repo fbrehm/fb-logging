@@ -20,20 +20,23 @@ include:
   - project: 'python/packaging'
     ref: main
     file: 'gitlab/sign-packages.yaml'
+  - project: 'python/packaging'
+    ref: main
+    file: 'gitlab/deploy-packages.yaml'
 
 # ---------------------------
 # Global variables
 variables:
-  DEBFULLNAME: 'Frank Brehm'
-  DEBEMAIL: 'frank@brehm-online.com'
+  # DEBFULLNAME: 'Frank Brehm'
+  # DEBEMAIL: 'frank@brehm-online.com'
   EXPIRE_ARTIFACTS_IN: '1 week'
-  FB_REPOSERVER_URL: 'http://repo.uhu-banane.de'
-  FB_REPOSERVER_GPGKEY_URL: 'http://repo.uhu-banane.de/public/repo.uhu-banane.de.gpg-key2.asc'
-  NOTIFY_ADDRESS: 'frank.brehm@pixelpark.com'
+  # FB_REPOSERVER_URL: 'http://repo.uhu-banane.de'
+  # FB_REPOSERVER_GPGKEY_URL: 'http://repo.uhu-banane.de/public/repo.uhu-banane.de.gpg-key2.asc'
+  # NOTIFY_ADDRESS: 'frank.brehm@pixelpark.com'
   PKG_NAME: 'fb_logging'
   PYTHON_INIT_FILE: 'lib/fb_logging/__init__.py'
   PYTHON_TEST_PATHS: 'bin lib setup.py'
-  SENDER_ADDRESS: 'gitlab-ci@pixelpark.com'
+  # SENDER_ADDRESS: 'gitlab-ci@pixelpark.com'
   SHELLSCRIPTS: 'get-debian-version get-rpm-release get-rpm-version'
   SSH_PRIV_KEY_YUM_REPO: 'nada'
   TEST_LOCALES: 'en_US.UTF-8'
@@ -42,7 +45,7 @@ variables:
   USED_YUM_REPO_GPG_KEY_PUB: "${YUM_REPO_GPG_KEY_PUB}"
   USED_YUM_REPO_GPG_KEY_SEC: "${YUM_REPO_GPG_KEY_SEC}"
   USED_TIMEZONE: 'Europe/Berlin'
-  VERSION_PREFIX: 'unknown'
+  # VERSION_PREFIX: 'unknown'
   YUM_REPO_GPG_ID: 'C0E73F70'
   YUM_REPO_GPG_PASSWD: ''
   YUM_REPO_HOST: 'repo02.pixelpark.com'
@@ -52,211 +55,85 @@ variables:
   YUM_REPO_GPG_KEY_PUB: 'nada'
   YUM_REPO_GPG_KEY_SEC: ''
 
-# ---------------------------
-.pkg-sign-rules:
-  rules:
-    - if: '$CI_COMMIT_TAG'
-    - if: $CI_COMMIT_BRANCH == "master"
-    - if: $CI_COMMIT_BRANCH == "main"
-    - if: $CI_COMMIT_BRANCH == "test"
-    - if: $CI_COMMIT_BRANCH =~ /test-.*/
-    - if: $CI_COMMIT_BRANCH =~ /build.*/
-  stage: sign
-  tags:
-    - docker
-  image: dokken/centos-stream-8
-  before_script:
-    - |
-      echo "All locales"
-      locale -a
-    - |
-      echo "Installing locales ..."
-      dnf --assumeyes install langpacks-en glibc-all-langpacks
-    - |
-      echo "All locales"
-      locale -a
-      echo
-      echo "locales:"
-      locale
-    - |
-      echo "Exporting LC_ALL ..."
-      export LC_ALL="${USED_LC}"
-      echo
-      echo "locales:"
-      locale
-    - yum makecache
-    - yum --assumeyes upgrade
-    - yum --assumeyes install rpm-sign expect
-  script:
-    - ls -lA rpmdir/RPMS/*/* rpmdir/SRPMS/*
-    - |
-      echo "Generating $HOME/.rpmmacros ..."
-      echo -e "%_signature gpg\n%_gpg_name ${YUM_REPO_GPG_ID}" >$HOME/.rpmmacros
-      echo -e "%__gpg_sign_cmd   %{__gpg} gpg --verbose --no-armor --batch --pinentry-mode loopback --passphrase '${YUM_REPO_GPG_PASSWD}' --no-secmem-warning -u \"%{_gpg_name}\" -sbo %{__signature_filename} %{__plaintext_filename}" >>$HOME/.rpmmacros
-      echo "Generated $HOME/.rpmmacros:"
-      echo "--------->"
-      cat $HOME/.rpmmacros
-      echo "<---------"
-      echo
-    - |
-      echo "Tweaking /usr/lib/rpm/rpmpopt-* ..."
-      ls -l /usr/lib/rpm/rpmpopt-*
-      rpmoptfile=$( ls -1 /usr/lib/rpm/rpmpopt-* | head -n 1 )
-      rpmoptfile_base=$( basename "${rpmoptfile}" )
-      rpmoptfile_dir=$( dirname "${rpmoptfile}" )
-      rpmoptfile_bak="${rpmoptfile_dir}/.~${rpmoptfile_base}.bak"
-      cp -v -i "${rpmoptfile}" "${rpmoptfile_bak}"
-      sed -i -e 's/\(--addsign.*\) <.*/\1\x27 \\/' "${rpmoptfile}"
-      ls -l "${rpmoptfile}" "${rpmoptfile_bak}"
-      diff -u "${rpmoptfile_bak}" "${rpmoptfile}" || true
-      echo
-    - |
-      echo
-      echo "Importing public GPG key ..."
-      echo "$YUM_REPO_GPG_KEY_PUB" | gpg --import
-      gpg --list-public-keys
-      echo
-      echo "Importing secret GPG key ..."
-      pw='******'
-      sec_key='******** Secret key ********'
-      if [[ -z "${YUM_REPO_GPG_PASSWD}" ]] ; then
-        pw=''
-      fi
-      if [[ -z "${YUM_REPO_GPG_KEY_SEC}" ]] ; then
-        sec_key=''
-      fi
-      echo "echo '${sec_key}' | gpg --import --batch --pinentry-mode loopback --passphrase '${pw}'"
-      echo "${YUM_REPO_GPG_KEY_SEC}" | gpg --import --batch --pinentry-mode loopback --passphrase "${YUM_REPO_GPG_PASSWD}"
-      gpg --list-secret-keys
-    - |
-      echo
-      echo "Signing packages ..."
-      for f in $( find rpmdir -type f -iname "*.rpm" ) ; do
-          echo "  * ${f} ..."
-          echo "Checking existing signature:"
-          rpm --checksig "${f}" || true
-          rpmsign --addsign "${f}"
-          echo "Checking new signature:"
-          rpm --checksig "${f}" || true
-          echo "Show signature:"
-          rpm -q --qf '%{SIGPGP:pgpsig} %{SIGGPG:pgpsig}\n' -p "${f}" || true
-      done
-    - |
-      echo "Results:"
-      find rpmdir/*RPMS -type f -print0 | xargs --null --no-run-if-empty ls -l -d --color=always
-  artifacts:
-    name: "$CI_JOB_NAME-$CI_COMMIT_REF_NAME"
-    paths:
-      - rpmdir/RPMS/*/*.rpm
-      - rpmdir/SRPMS/*.src.rpm
-    expire_in: '1 week'
+# # ---------------------------
+# .rpm-pkg-deploy:
+#   rules:
+#     - if: '$CI_COMMIT_TAG'
+#       when: manual
+#       allow_failure: true
+#   stage: deploy
+#   tags:
+#     - deploy_v2
+#   before_script:
+#     - hostname -f
+#     - whoami
+#     - pwd
+#     - ls -lA --color=always
+#     - find rpmdir/*RPMS -type f -print0 | xargs --null --no-run-if-empty ls -l -d --color=always
+#     - 'echo -e "YUM_REPO_USER: ${YUM_REPO_USER}"'
+#     - 'echo -e "YUM_REPO_HOST: ${YUM_REPO_HOST}"'
+#     - 'echo -e "YUM_REPO_DIR: ${YUM_REPO_DIR}"'
+#     - 'mkdir -pv "${HOME}/.ssh"'
+#     - 'chmod -v 0700 "${HOME}/.ssh"'
+#     - '/bin/echo "${SSH_PRIV_KEY_YUM_REPO}" > "${HOME}/.ssh/id_rsa"'
+#     - 'chmod -v 0600 "${HOME}/.ssh/id_rsa"'
+#     - 'ls -lA --color=always "${HOME}/.ssh"'
+#     - |
+#       if [[ -f "${HOME}/.ssh/config" ]] ; then
+#         echo "Content of ${HOME}/.ssh/config:"
+#         cat "${HOME}/.ssh/config"
+#         echo
+#       fi
+#   script:
+#     - echo "Packages to deploy:"; find rpmdir/*RPMS -type f -print0 | xargs --null --no-run-if-empty ls -l -d --color=always
+#     - |
+#       src_repo_dir="${YUM_REPO_DIR}/${EL_MAJOR_VERSION}-src"
+#       echo "Deploying source packages to ${YUM_REPO_HOST}:${src_repo_dir}/ ..."
+#       ssh -o StrictHostKeyChecking=no "${YUM_REPO_USER}@${YUM_REPO_HOST}" "if [ ! -d ${src_repo_dir} ] ; then mkdir -pv ${src_repo_dir} ; fi"
+#       scp -p -o StrictHostKeyChecking=no rpmdir/SRPMS/*.rpm "${YUM_REPO_USER}@${YUM_REPO_HOST}:${src_repo_dir}/"
+#       ssh -o StrictHostKeyChecking=no "${YUM_REPO_USER}@${YUM_REPO_HOST}" "cd ${src_repo_dir}/ && createrepo --update . && chmod -v a+x repodata && chmod -Rv a+r repodata"
+#     - |
+#       bin_repo_dir="${YUM_REPO_DIR}/${EL_MAJOR_VERSION}"
+#       echo "Deploying binary packages to ${YUM_REPO_HOST}:${bin_repo_dir}/ ..."
+#       ssh -o StrictHostKeyChecking=no "${YUM_REPO_USER}@${YUM_REPO_HOST}" "if [ ! -d ${bin_repo_dir} ] ; then mkdir -pv ${bin_repo_dir} ; fi"
+#       scp -p -o StrictHostKeyChecking=no rpmdir/RPMS/*/*.rpm "${YUM_REPO_USER}@${YUM_REPO_HOST}:${bin_repo_dir}/"
+#       ssh -o StrictHostKeyChecking=no "${YUM_REPO_USER}@${YUM_REPO_HOST}" "cd ${bin_repo_dir}/ && createrepo --update . && chmod -v a+x repodata && chmod -Rv a+r repodata"
+#   after_script:
+#     - rm -rf rpmdir
+#   environment:
+#     name: production
 
 # # ---------------------------
-# Sign EL 7 packages:
+# Deploy packages EL7:
 #   extends:
-#     - '.pkg-sign-rules'
+#     - '.rpm-pkg-deploy'
+#   variables:
+#     EL_MAJOR_VERSION: '7'
 #   needs:
-#     - 'build CentOS 7 with Python 3.6'
+#     - 'Sign EL 7 packages'
 #   dependencies:
-#     - 'build CentOS 7 with Python 3.6'
+#     - 'Sign EL 7 packages'
 
 # # ---------------------------
-# Sign EL 8 packages:
+# Deploy packages EL8:
 #   extends:
-#     - '.pkg-sign-rules'
+#     - '.rpm-pkg-deploy'
+#   variables:
+#     EL_MAJOR_VERSION: '8'
 #   needs:
-#     - 'build CentOS 8 with Python 3.8'
+#     - 'Sign EL 8 packages'
 #   dependencies:
-#     - 'build CentOS 8 with Python 3.8'
+#     - 'Sign EL 8 packages'
 
 # # ---------------------------
-# Sign EL 9 packages:
+# Deploy packages EL9:
 #   extends:
-#     - '.pkg-sign-rules'
+#     - '.rpm-pkg-deploy'
+#   variables:
+#     EL_MAJOR_VERSION: '9'
 #   needs:
-#     - 'build CentOS 9 with Python 3'
+#     - 'Sign EL 9 packages'
 #   dependencies:
-#     - 'build CentOS 9 with Python 3'
-
-# ---------------------------
-.rpm-pkg-deploy:
-  rules:
-    - if: '$CI_COMMIT_TAG'
-      when: manual
-      allow_failure: true
-  stage: deploy
-  tags:
-    - deploy_v2
-  before_script:
-    - hostname -f
-    - whoami
-    - pwd
-    - ls -lA --color=always
-    - find rpmdir/*RPMS -type f -print0 | xargs --null --no-run-if-empty ls -l -d --color=always
-    - 'echo -e "YUM_REPO_USER: ${YUM_REPO_USER}"'
-    - 'echo -e "YUM_REPO_HOST: ${YUM_REPO_HOST}"'
-    - 'echo -e "YUM_REPO_DIR: ${YUM_REPO_DIR}"'
-    - 'mkdir -pv "${HOME}/.ssh"'
-    - 'chmod -v 0700 "${HOME}/.ssh"'
-    - '/bin/echo "${SSH_PRIV_KEY_YUM_REPO}" > "${HOME}/.ssh/id_rsa"'
-    - 'chmod -v 0600 "${HOME}/.ssh/id_rsa"'
-    - 'ls -lA --color=always "${HOME}/.ssh"'
-    - |
-      if [[ -f "${HOME}/.ssh/config" ]] ; then
-        echo "Content of ${HOME}/.ssh/config:"
-        cat "${HOME}/.ssh/config"
-        echo
-      fi
-  script:
-    - echo "Packages to deploy:"; find rpmdir/*RPMS -type f -print0 | xargs --null --no-run-if-empty ls -l -d --color=always
-    - |
-      src_repo_dir="${YUM_REPO_DIR}/${EL_MAJOR_VERSION}-src"
-      echo "Deploying source packages to ${YUM_REPO_HOST}:${src_repo_dir}/ ..."
-      ssh -o StrictHostKeyChecking=no "${YUM_REPO_USER}@${YUM_REPO_HOST}" "if [ ! -d ${src_repo_dir} ] ; then mkdir -pv ${src_repo_dir} ; fi"
-      scp -p -o StrictHostKeyChecking=no rpmdir/SRPMS/*.rpm "${YUM_REPO_USER}@${YUM_REPO_HOST}:${src_repo_dir}/"
-      ssh -o StrictHostKeyChecking=no "${YUM_REPO_USER}@${YUM_REPO_HOST}" "cd ${src_repo_dir}/ && createrepo --update . && chmod -v a+x repodata && chmod -Rv a+r repodata"
-    - |
-      bin_repo_dir="${YUM_REPO_DIR}/${EL_MAJOR_VERSION}"
-      echo "Deploying binary packages to ${YUM_REPO_HOST}:${bin_repo_dir}/ ..."
-      ssh -o StrictHostKeyChecking=no "${YUM_REPO_USER}@${YUM_REPO_HOST}" "if [ ! -d ${bin_repo_dir} ] ; then mkdir -pv ${bin_repo_dir} ; fi"
-      scp -p -o StrictHostKeyChecking=no rpmdir/RPMS/*/*.rpm "${YUM_REPO_USER}@${YUM_REPO_HOST}:${bin_repo_dir}/"
-      ssh -o StrictHostKeyChecking=no "${YUM_REPO_USER}@${YUM_REPO_HOST}" "cd ${bin_repo_dir}/ && createrepo --update . && chmod -v a+x repodata && chmod -Rv a+r repodata"
-  after_script:
-    - rm -rf rpmdir
-  environment:
-    name: production
-
-# ---------------------------
-Deploy packages EL7:
-  extends:
-    - '.rpm-pkg-deploy'
-  variables:
-    EL_MAJOR_VERSION: '7'
-  needs:
-    - 'Sign EL 7 packages'
-  dependencies:
-    - 'Sign EL 7 packages'
-
-# ---------------------------
-Deploy packages EL8:
-  extends:
-    - '.rpm-pkg-deploy'
-  variables:
-    EL_MAJOR_VERSION: '8'
-  needs:
-    - 'Sign EL 8 packages'
-  dependencies:
-    - 'Sign EL 8 packages'
-
-# ---------------------------
-Deploy packages EL9:
-  extends:
-    - '.rpm-pkg-deploy'
-  variables:
-    EL_MAJOR_VERSION: '9'
-  needs:
-    - 'Sign EL 9 packages'
-  dependencies:
-    - 'Sign EL 9 packages'
+#     - 'Sign EL 9 packages'
 
 # vim: et tabstop=2 expandtab shiftwidth=2 softtabstop=2 list
