@@ -27,6 +27,7 @@ variables:
   PYTHON_INIT_FILE: 'lib/fb_logging/__init__.py'
   PYTHON_TEST_PATHS: 'bin lib setup.py'
   SENDER_ADDRESS: 'gitlab-ci@pixelpark.com'
+  SHELLSCRIPTS: 'get-debian-version get-rpm-release get-rpm-version'
   SSH_PRIV_KEY_YUM_REPO: 'nada'
   UPDATE_ALL_PIP_MODULES: 'y'
   USED_TIMEZONE: 'Europe/Berlin'
