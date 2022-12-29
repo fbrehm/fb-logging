@@ -7,6 +7,11 @@ stages:
   - sign
   - deploy
 
+include:
+  - project: 'python/packaging'
+    ref: main
+    file: 'gitlab/python-tests.yaml'
+
 variables:
   DEBFULLNAME: 'Frank Brehm'
   DEBEMAIL: 'frank@brehm-online.com'
@@ -16,6 +21,7 @@ variables:
   NOTIFY_ADDRESS: 'frank.brehm@pixelpark.com'
   SENDER_ADDRESS: 'gitlab-ci@pixelpark.com'
   SSH_PRIV_KEY_YUM_REPO: 'nada'
+  UHU: "Banane in .gitlab-ci.yml"
   USED_TIMEZONE: 'Europe/Berlin'
   VERSION_PREFIX: 'unknown'
   YUM_REPO_GPG_ID: 'C0E73F70'
@@ -73,47 +79,47 @@ variables:
     - pip list --format columns
     - pytest --verbose
 
-# ---------------------------
-test Python 3.6:
-  extends:
-    - .docker_job_definition
-    - .test-rules
-  image: python:3.6
+# # ---------------------------
+# test Python 3.6:
+#   extends:
+#     - .docker_job_definition
+#     - .test-rules
+#   image: python:3.6
 
-# ---------------------------
-test Python 3.7:
-  extends:
-    - .docker_job_definition
-    - .test-rules
-  image: python:3.7
+# # ---------------------------
+# test Python 3.7:
+#   extends:
+#     - .docker_job_definition
+#     - .test-rules
+#   image: python:3.7
 
-# ---------------------------
-test Python 3.8:
-  extends:
-    - .docker_job_definition
-    - .test-rules
-  image: python:3.8
+# # ---------------------------
+# test Python 3.8:
+#   extends:
+#     - .docker_job_definition
+#     - .test-rules
+#   image: python:3.8
 
-# ---------------------------
-test Python 3.9:
-  extends:
-    - .docker_job_definition
-    - .test-rules
-  image: python:3.9
+# # ---------------------------
+# test Python 3.9:
+#   extends:
+#     - .docker_job_definition
+#     - .test-rules
+#   image: python:3.9
 
-# ---------------------------
-test Python 3.10:
-  extends:
-    - .docker_job_definition
-    - .test-rules
-  image: python:3.10
+# # ---------------------------
+# test Python 3.10:
+#   extends:
+#     - .docker_job_definition
+#     - .test-rules
+#   image: python:3.10
 
-# ---------------------------
-test Python 3.11:
-  extends:
-    - .docker_job_definition
-    - .test-rules
-  image: python:3.11
+# # ---------------------------
+# test Python 3.11:
+#   extends:
+#     - .docker_job_definition
+#     - .test-rules
+#   image: python:3.11
 
 # ---------------------------
 Linter:
