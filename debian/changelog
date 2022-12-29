@@ -1,4 +1,4 @@
-fb-logging (0.5.3) UNRELEASED; urgency=medium
+fb-logging (0.5.3) all; urgency=medium
 
   * Changing .gitlab-ci.yml to use shared CI scripts
 
