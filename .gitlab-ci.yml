@@ -1,28 +1,9 @@
 ---
 
-stages:
-  - test
-  - linter
-  - build
-  - sign
-  - deploy
-
 include:
   - project: 'python/packaging'
     ref: main
-    file: 'gitlab/python-tests.yaml'
-  - project: 'python/packaging'
-    ref: main
-    file: 'gitlab/linter.yaml'
-  - project: 'python/packaging'
-    ref: main
-    file: 'gitlab/build-python-packages.yaml'
-  - project: 'python/packaging'
-    ref: main
-    file: 'gitlab/sign-packages.yaml'
-  - project: 'python/packaging'
-    ref: main
-    file: 'gitlab/deploy-packages.yaml'
+    file: 'gitlab/create-all.yaml'
 
 # ---------------------------
 # Global variables
