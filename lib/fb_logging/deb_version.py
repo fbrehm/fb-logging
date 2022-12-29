@@ -25,7 +25,7 @@ import warnings
 
 try:
     # pylint: disable=unused-import
-    from typing import (
+    from typing import (    # noqa: F401
         Any,
         Optional,
         Text,

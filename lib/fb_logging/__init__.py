@@ -5,13 +5,13 @@
 
 @author: Frank Brehm
 @contact: frank@brehm-online.com
-@copyright: © 2021 by Frank Brehm, Berlin
+@copyright: © 2022 by Frank Brehm, Berlin
 """
 
 __author__ = 'Frank Brehm <frank@brehm-online.com>'
-__copyright__ = '(C) 2021 by Frank Brehm, Berlin'
+__copyright__ = '(C) 2022 by Frank Brehm, Berlin'
 __contact__ = 'frank@brehm-online.com'
-__version__ = '0.5.2'
+__version__ = '0.5.3'
 __license__ = 'LGPL-3'
 
 # Standard modules
