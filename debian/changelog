@@ -1,3 +1,9 @@
+fb-logging (0.5.3) UNRELEASED; urgency=medium
+
+  * Changing .gitlab-ci.yml to use shared CI scripts
+
+ -- Frank Brehm <frank.brehm@pixelpark.com>  Thu, 29 Dec 2022 18:24:01 +0100
+
 fb-logging (0.5.2) all; urgency=medium
 
   * Adding Python 3.11 for testing in CI definitions.
