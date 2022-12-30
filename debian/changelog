@@ -1,4 +1,4 @@
-fb-logging (0.5.5) UNRELEASED; urgency=medium
+fb-logging (0.5.5) all; urgency=medium
 
   * Cleaning up .gitlab-ci.yml
   * Setting a defined version of shared Gitlab CI pipeline
