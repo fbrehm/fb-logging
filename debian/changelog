@@ -1,3 +1,10 @@
+fb-logging (0.5.5) all; urgency=medium
+
+  * Cleaning up .gitlab-ci.yml
+  * Setting a defined version of shared Gitlab CI pipeline
+
+ -- Frank Brehm <frank.brehm@pixelpark.com>  Fri, 30 Dec 2022 10:12:41 +0100
+
 fb-logging (0.5.4) all; urgency=medium
 
   * Fixing .gitlab-ci.yml
