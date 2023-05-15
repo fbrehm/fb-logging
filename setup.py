@@ -11,17 +11,15 @@
 
 from __future__ import print_function
 
-import os
-import sys
-import re
-import pprint
 import datetime
+import os
+import pprint
+import re
+import sys
 import textwrap
-
 from pathlib import Path
 
 # Third party modules
-from setuptools import setup
 
 # own modules:
 __module_name__ = 'fb_logging'
@@ -54,7 +52,9 @@ if os.path.exists(__module_dir__) and os.path.isfile(__init_py__):
 
 import fb_logging
 
-ENCODING = "utf-8"
+from setuptools import setup
+
+ENCODING = 'utf-8'
 
 __packet_version__ = fb_logging.__version__
 
