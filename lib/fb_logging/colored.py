@@ -2,14 +2,13 @@
 # -*- coding: utf-8 -*-
 """@summary: Additional logging formatter for colored output via console."""
 
-import logging
 import copy
+import logging
 import re
-
-from numbers import Number
 from collections.abc import Sequence
+from numbers import Number
 
-__version__ = '0.5.2'
+__version__ = '0.5.3'
 
 
 # =============================================================================
@@ -24,7 +23,7 @@ class ColorNotFoundError(KeyError):
     # -------------------------------------------------------------------------
     def __str__(self):
         """Typecast into str."""
-        return "Color {!r} not found.".format(self.color)
+        return 'Color {!r} not found.'.format(self.color)
 
 
 # =============================================================================
@@ -39,7 +38,7 @@ class WrongColorTypeError(TypeError):
     # -------------------------------------------------------------------------
     def __str__(self):
         """Typecast into str."""
-        return "Color {c!r} has wrong type {t}.".format(
+        return 'Color {c!r} has wrong type {t}.'.format(
             c=self.color, t=self.color.__class__.__name__)
 
 
@@ -465,7 +464,7 @@ class ColoredFormatter(logging.Formatter):
         self.level_color['CRITICAL'] = value
 
     # -------------------------------------------------------------------------
-    def format(self, record):
+    def format(self, record):                                           # noqa A003.
         """Format the specified record as text."""
         rcrd = copy.copy(record)
         levelname = rcrd.levelname

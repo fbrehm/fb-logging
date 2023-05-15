@@ -20,7 +20,6 @@
 from __future__ import absolute_import, print_function
 
 import re
-
 import warnings
 
 try:
@@ -47,7 +46,7 @@ def function_deprecated_by(func):
         func_name = func.__name__
     except AttributeError:
         func_name = func.__func__.__name__
-    warn_msg = "Use %s instead" % func_name
+    warn_msg = 'Use %s instead' % func_name
 
     def deprecated_func(*args, **kwargs):
         warnings.warn(warn_msg, DeprecationWarning, stacklevel=2)
@@ -73,9 +72,9 @@ class BaseVersion(object):
     """
 
     re_valid_version = re.compile(
-        r"^((?P<epoch>\d+):)?"
-        "(?P<upstream_version>[A-Za-z0-9.+:~-]+?)"
-        "(-(?P<debian_revision>[A-Za-z0-9+.~]+))?$")
+        r'^((?P<epoch>\d+):)?'
+        '(?P<upstream_version>[A-Za-z0-9.+:~-]+?)'
+        '(-(?P<debian_revision>[A-Za-z0-9+.~]+))?$')
     magic_attrs = (
         'full_version', 'epoch', 'upstream_version',
         'debian_revision', 'debian_version')
@@ -93,17 +92,17 @@ class BaseVersion(object):
         # type: (str) -> None
         m = self.re_valid_version.match(version)
         if not m:
-            raise ValueError("Invalid version string %r" % version)
+            raise ValueError('Invalid version string %r' % version)
         # If there no epoch ("1:..."), then the upstream version can not
         # contain a :.
-        if m.group("epoch") is None and ":" in m.group("upstream_version"):
-            raise ValueError("Invalid version string %r" % version)
+        if m.group('epoch') is None and ':' in m.group('upstream_version'):
+            raise ValueError('Invalid version string %r' % version)
 
         # pylint: disable=attribute-defined-outside-init
         self.__full_version = version
-        self.__epoch = m.group("epoch")
-        self.__upstream_version = m.group("upstream_version")
-        self.__debian_revision = m.group("debian_revision")
+        self.__epoch = m.group('epoch')
+        self.__upstream_version = m.group('upstream_version')
+        self.__debian_revision = m.group('debian_revision')
 
     # -------------------------------------------------------------------------
     def __setattr__(self, attr, value):
@@ -114,15 +113,15 @@ class BaseVersion(object):
             return
 
         # For compatibility with the old changelog.Version class
-        if attr == "debian_version":
-            attr = "debian_revision"
+        if attr == 'debian_version':
+            attr = 'debian_revision'
 
-        if attr == "full_version":
+        if attr == 'full_version':
             self._set_full_version(str(value))
         else:
             if value is not None:
                 value = str(value)
-            private = "_BaseVersion__%s" % attr
+            private = '_BaseVersion__%s' % attr
             old_value = getattr(self, private)
             setattr(self, private, value)
             try:
@@ -131,7 +130,7 @@ class BaseVersion(object):
                 # Don't leave it in an invalid state
                 setattr(self, private, old_value)
                 self._update_full_version()
-                raise ValueError("Setting %s to %r results in invalid version"
+                raise ValueError('Setting %s to %r results in invalid version'
                                  % (attr, value))
 
     # -------------------------------------------------------------------------
@@ -142,21 +141,21 @@ class BaseVersion(object):
             return super(BaseVersion, self).__getattribute__(attr)
 
         # For compatibility with the old changelog.Version class
-        if attr == "debian_version":
-            attr = "debian_revision"
+        if attr == 'debian_version':
+            attr = 'debian_revision'
 
-        private = "_BaseVersion__%s" % attr
+        private = '_BaseVersion__%s' % attr
         return getattr(self, private)
 
     # -------------------------------------------------------------------------
     def _update_full_version(self):
         # type: () -> None
-        version = ""
+        version = ''
         if self.__epoch is not None:
-            version += self.__epoch + ":"
+            version += self.__epoch + ':'
         version += self.__upstream_version
         if self.__debian_revision:
-            version += "-" + self.__debian_revision
+            version += '-' + self.__debian_revision
         self.full_version = version
 
     # -------------------------------------------------------------------------
@@ -226,10 +225,10 @@ class BaseVersion(object):
 class Version(BaseVersion):
     """Represents a Debian package version, with native Python comparison."""
 
-    re_all_digits_or_not = re.compile(r"\d+|\D+")
-    re_digits = re.compile(r"\d+")
-    re_digit = re.compile(r"\d")
-    re_alpha = re.compile("[A-Za-z]")
+    re_all_digits_or_not = re.compile(r'\d+|\D+')
+    re_digits = re.compile(r'\d+')
+    re_digit = re.compile(r'\d')
+    re_alpha = re.compile('[A-Za-z]')
 
     # -------------------------------------------------------------------------
     def _compare(self, other):
@@ -250,18 +249,18 @@ class Version(BaseVersion):
                 raise ValueError("Couldn't convert %r to BaseVersion: %s"
                                  % (other, e))
 
-        lepoch = int(self.epoch or "0")
-        repoch = int(other.epoch or "0")
+        lepoch = int(self.epoch or '0')
+        repoch = int(other.epoch or '0')
         if lepoch < repoch:
             return -1
         if lepoch > repoch:
             return 1
-        res = self._version_cmp_part(self.upstream_version or "0",
-                                     other.upstream_version or "0")
+        res = self._version_cmp_part(self.upstream_version or '0',
+                                     other.upstream_version or '0')
         if res != 0:
             return res
-        return self._version_cmp_part(self.debian_revision or "0",
-                                      other.debian_revision or "0")
+        return self._version_cmp_part(self.debian_revision or '0',
+                                      other.debian_revision or '0')
 
     # -------------------------------------------------------------------------
     @classmethod
@@ -302,8 +301,8 @@ class Version(BaseVersion):
         la = cls.re_all_digits_or_not.findall(va)
         lb = cls.re_all_digits_or_not.findall(vb)
         while la or lb:
-            a = "0"
-            b = "0"
+            a = '0'
+            b = '0'
             if la:
                 a = la.pop(0)
             if lb:
