@@ -150,7 +150,7 @@ class ChangelogParseError(_base_exception_class):
     def __str__(self):
         """Typecasting into str."""
         # type: () -> str
-        return "Could not parse changelog: "+self._line
+        return 'Could not parse changelog: '+self._line
 
 
 # =============================================================================
@@ -179,7 +179,7 @@ class VersionError(_base_exception_class):
     # -------------------------------------------------------------------------
     def __str__(self):
         """Typecasting into str."""
-        return "Could not parse version: " + self._version
+        return 'Could not parse version: ' + self._version
 
 
 # =============================================================================
@@ -227,7 +227,7 @@ class ChangeBlock(object):
         self._set_version(version)
         self.package = package
         self.distributions = distributions
-        self.urgency = urgency or "unknown"
+        self.urgency = urgency or 'unknown'
         self.urgency_comment = urgency_comment or ''
         self._changes = changes or []   # type: List[Text]
         self.author = author
@@ -236,7 +236,7 @@ class ChangeBlock(object):
         self.other_pairs = other_pairs or {}
         self._encoding = encoding
         self._no_trailer = False
-        self._trailer_separator = "  "
+        self._trailer_separator = '  '
 
     # -------------------------------------------------------------------------
     def _set_version(self, version):
@@ -254,7 +254,7 @@ class ChangeBlock(object):
     # -------------------------------------------------------------------------
     version = property(
         _get_version, _set_version,
-        doc="The package version that this block pertains to"
+        doc='The package version that this block pertains to'
     )
 
     # -------------------------------------------------------------------------
@@ -266,7 +266,7 @@ class ChangeBlock(object):
             key = key[0].upper() + key[1:].lower()
             m = xbcs_re.match(key)
             if m is None:
-                key = "XS-%s" % key
+                key = 'XS-%s' % key
             norm_dict[key] = value
         return norm_dict
 
@@ -312,7 +312,7 @@ class ChangeBlock(object):
         bugs = []
         for match in type_re.finditer(changes):
             closes_list = match.group(0)
-            for bugmatch in re.finditer(r"\d+", closes_list):
+            for bugmatch in re.finditer(r'\d+', closes_list):
                 bugs.append(int(bugmatch.group(0)))
         return bugs
 
@@ -334,35 +334,35 @@ class ChangeBlock(object):
     def _format(self):
         # type: () -> str
         # TODO(jsw): Switch to StringIO or a list to join at the end.
-        block = ""
+        block = ''
         if self.package is None:
-            raise ChangelogCreateError("Package not specified")
-        block += self.package + " "
+            raise ChangelogCreateError('Package not specified')
+        block += self.package + ' '
         if self._raw_version is None:
-            raise ChangelogCreateError("Version not specified")
-        block += "(" + self._raw_version + ") "
+            raise ChangelogCreateError('Version not specified')
+        block += '(' + self._raw_version + ') '
         if self.distributions is None:
-            raise ChangelogCreateError("Distribution not specified")
-        block += self.distributions + "; "
+            raise ChangelogCreateError('Distribution not specified')
+        block += self.distributions + '; '
         if self.urgency is None:
-            raise ChangelogCreateError("Urgency not specified")
-        block += "urgency=" + self.urgency + self.urgency_comment
+            raise ChangelogCreateError('Urgency not specified')
+        block += 'urgency=' + self.urgency + self.urgency_comment
         for (key, value) in self.other_pairs.items():
-            block += ", %s=%s" % (key, value)
+            block += ', %s=%s' % (key, value)
         block += '\n'
         if self.changes() is None:
-            raise ChangelogCreateError("Changes not specified")
+            raise ChangelogCreateError('Changes not specified')
         for change in self.changes():
-            block += change + "\n"
+            block += change + '\n'
         if not self._no_trailer:
             if self.author is None:
-                raise ChangelogCreateError("Author not specified")
+                raise ChangelogCreateError('Author not specified')
             if self.date is None:
-                raise ChangelogCreateError("Date not specified")
-            block += " -- " + self.author + self._trailer_separator \
-                + self.date + "\n"
+                raise ChangelogCreateError('Date not specified')
+            block += ' -- ' + self.author + self._trailer_separator \
+                + self.date + '\n'
         for line in self._trailing:
-            block += line + "\n"
+            block += line + '\n'
         return block
 
     # -------------------------------------------------------------------------
@@ -527,11 +527,11 @@ class Changelog(object):
         exception is thrown. The constructor will parse the changelog on
         a best effort basis.
         """
-        first_heading = "first heading"
-        next_heading_or_eof = "next heading of EOF"
-        start_of_change_data = "start of change data"
-        more_changes_or_trailer = "more change data or trailer"
-        slurp_to_end = "slurp to end"
+        first_heading = 'first heading'
+        next_heading_or_eof = 'next heading of EOF'
+        start_of_change_data = 'start of change data'
+        more_changes_or_trailer = 'more change data or trailer'
+        slurp_to_end = 'slurp to end'
 
         encoding = encoding or self._encoding
 
@@ -574,7 +574,7 @@ class Changelog(object):
                     current_block._raw_version = top_match.group(2)
                     current_block.distributions = top_match.group(3).lstrip()
 
-                    pairs = line.split(";", 1)[1]
+                    pairs = line.split(';', 1)[1]
                     all_keys = {}      # type: Dict[str, str]
                     other_pairs = {}   # type: Dict[str, str]
                     for pair in pairs.split(','):
@@ -589,14 +589,14 @@ class Changelog(object):
                         value = kv_match.group(2)
                         if key.lower() in all_keys:
                             self._parse_error(
-                                "Repeated key-value: "
-                                "%s" % key.lower(), strict)
+                                'Repeated key-value: '
+                                '%s' % key.lower(), strict)
                         all_keys[key.lower()] = value
-                        if key.lower() == "urgency":
+                        if key.lower() == 'urgency':
                             val_match = value_re.match(value)
                             if val_match is None:
                                 self._parse_error(
-                                    "Badly formatted urgency value: %s" %
+                                    'Badly formatted urgency value: %s' %
                                     value, strict)
                             else:
                                 current_block.urgency = val_match.group(1)
@@ -645,7 +645,7 @@ class Changelog(object):
                         state = slurp_to_end
                         continue
                     self._parse_error(
-                        "Unexpected line while looking for %s: %s" %
+                        'Unexpected line while looking for %s: %s' %
                         (state, line), strict)
                     if state == first_heading:
                         self.initial_blank_lines.append(line)
@@ -662,9 +662,9 @@ class Changelog(object):
                 elif end_match is not None:
                     if end_match.group(3) != '  ':
                         self._parse_error(
-                            "Badly formatted trailer line: %s" % line, strict)
+                            'Badly formatted trailer line: %s' % line, strict)
                         current_block._trailer_separator = end_match.group(3)
-                    current_block.author = "%s <%s>" \
+                    current_block.author = '%s <%s>' \
                         % (end_match.group(1), end_match.group(2))
                     current_block.date = end_match.group(4)
                     current_block._changes = changes
@@ -675,7 +675,7 @@ class Changelog(object):
                 elif end_no_details_match is not None:
                     if not allow_empty_author:
                         self._parse_error(
-                            "Badly formatted trailer line: %s" % line, strict)
+                            'Badly formatted trailer line: %s' % line, strict)
                         continue
                     current_block._changes = changes
                     self._blocks.append(current_block)
@@ -693,7 +693,7 @@ class Changelog(object):
                         changes.append(line)
                         continue
                     self._parse_error(
-                        "Unexpected line while looking for %s: %s" %
+                        'Unexpected line while looking for %s: %s' %
                         (state, line), strict)
                     changes.append(line)
             elif state == slurp_to_end:
@@ -702,11 +702,11 @@ class Changelog(object):
                 else:
                     changes.append(line)
             else:
-                assert False, "Unknown state: %s" % state
+                assert False, 'Unknown state: %s' % state
 
         if (state not in (next_heading_or_eof, slurp_to_end)
                 or (state == slurp_to_end and old_state != next_heading_or_eof)):
-            self._parse_error("Found eof where expected %s" % state, strict)
+            self._parse_error('Found eof where expected %s' % state, strict)
             current_block._changes = changes
             current_block._no_trailer = True
             self._blocks.append(current_block)
@@ -737,28 +737,28 @@ class Changelog(object):
     # For convenience, let's expose some of the version properties
     full_version = property(
         lambda self: self.version.full_version,
-        doc="The full version number of the last version"
+        doc='The full version number of the last version'
     )
     # -------------------------------------------------------------------------
     epoch = property(
         lambda self: self.version.epoch,
-        doc="The epoch number of the last revision, or `None` "
-        "if no epoch was used."
+        doc='The epoch number of the last revision, or `None` '
+        'if no epoch was used.'
     )
     # -------------------------------------------------------------------------
     debian_version = property(
         lambda self: self.version.debian_revision,
-        doc="The debian part of the version number of the last version."
+        doc='The debian part of the version number of the last version.'
     )
     # -------------------------------------------------------------------------
     debian_revision = property(
         lambda self: self.version.debian_revision,
-        doc="The debian part of the version number of the last version."
+        doc='The debian part of the version number of the last version.'
     )
     # -------------------------------------------------------------------------
     upstream_version = property(
         lambda self: self.version.upstream_version,
-        doc="The upstream part of the version number of the last version."
+        doc='The upstream part of the version number of the last version.'
     )
 
     # -------------------------------------------------------------------------
@@ -776,7 +776,7 @@ class Changelog(object):
     # -------------------------------------------------------------------------
     package = property(
         get_package, set_package,
-        doc="Name of the package in the last version"
+        doc='Name of the package in the last version'
     )
 
     # -------------------------------------------------------------------------
@@ -973,7 +973,7 @@ def get_maintainer():
         be determined.
     """
     env = os.environ
-    regex = re.compile(r"^(.*)\s+<(.*)>$")
+    regex = re.compile(r'^(.*)\s+<(.*)>$')
 
     # Split email and name
     if 'DEBEMAIL' in env:
@@ -1024,7 +1024,7 @@ def get_maintainer():
             if not user:
                 addr = None
             else:
-                addr = "%s@%s" % (user, addr)
+                addr = '%s@%s' % (user, addr)
 
         if addr:
             email_address = addr
