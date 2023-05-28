@@ -81,7 +81,7 @@ jobs:
       - name: Install flake8 and pylint
         shell: bash
         run: |
-          pip install --upgrade --upgrade-strategy eager flake8 pylint
+          pip install --upgrade --upgrade-strategy eager flake8 pylint flake8-blind-except flake8-builtins flake8-class-newline flake8-comprehensions flake8-deprecated flake8-docstrings flake8-import-order flake8-quotes
           pip list --format columns
       - name: Execute Flake 8
         shell: bash
