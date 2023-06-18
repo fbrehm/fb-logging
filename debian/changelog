@@ -1,4 +1,4 @@
-fb-logging (0.6.0) UNRELEASED; urgency=medium
+fb-logging (0.6.0) all; urgency=medium
 
   * Adding additional flake8 tests in .github/workflows/packages.yaml
   * Fixing linter errors.
