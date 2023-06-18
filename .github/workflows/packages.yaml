@@ -186,7 +186,7 @@ jobs:
           - distributor: 'Debian'
             os_codename: 'bookworm'
             os_release: '12'
-            container: 'debian:bullseye'
+            container: 'debian:bookworm'
             version_prefix: 'deb12'
             compat: '12'
           - distributor: 'Ubuntu'
