@@ -8,20 +8,19 @@ It's intended to combine it with syslog.
 
 # Standard modules
 import logging
-import syslog
 import os.path
 import sys
-
+import syslog
 from numbers import Number
 
 # Third party modules
 
 # Own modules
 
-__version__ = '1.2.1'
+__version__ = '1.2.2'
 
 if sys.version_info[0] < 3:
-    raise RuntimeError("This module may only be used with Python > 3.1.")
+    raise RuntimeError('This module may only be used with Python > 3.1.')
 
 
 # =============================================================================
@@ -79,14 +78,14 @@ class UnixSyslogHandler(logging.Handler):
     LOG_NOWAIT = syslog.LOG_NOWAIT
 
     priority_names = {
-        "alert": LOG_ALERT,
-        "crit": LOG_CRIT,
-        "debug": LOG_DEBUG,
-        "emerg": LOG_EMERG,
-        "err": LOG_ERR,
-        "info": LOG_INFO,
-        "notice": LOG_NOTICE,
-        "warning": LOG_WARNING,
+        'alert': LOG_ALERT,
+        'crit': LOG_CRIT,
+        'debug': LOG_DEBUG,
+        'emerg': LOG_EMERG,
+        'err': LOG_ERR,
+        'info': LOG_INFO,
+        'notice': LOG_NOTICE,
+        'warning': LOG_WARNING,
     }
 
     priority_ids = {}
@@ -96,31 +95,31 @@ class UnixSyslogHandler(logging.Handler):
             priority_ids[val] = key
 
     # Deprecated priority names
-    priority_names["error"] = LOG_ERR
-    priority_names["panic"] = LOG_EMERG
-    priority_names["critical"] = LOG_CRIT
-    priority_names["warn"] = LOG_WARNING
+    priority_names['error'] = LOG_ERR
+    priority_names['panic'] = LOG_EMERG
+    priority_names['critical'] = LOG_CRIT
+    priority_names['warn'] = LOG_WARNING
 
     facility_names = {
-        "auth": LOG_AUTH,
-        "authpriv": LOG_AUTHPRIV,
-        "cron": LOG_CRON,
-        "daemon": LOG_DAEMON,
-        "ftp": LOG_FTP,
-        "kern": LOG_KERN,
-        "lpr": LOG_LPR,
-        "mail": LOG_MAIL,
-        "news": LOG_NEWS,
-        "user": LOG_USER,
-        "uucp": LOG_UUCP,
-        "local0": LOG_LOCAL0,
-        "local1": LOG_LOCAL1,
-        "local2": LOG_LOCAL2,
-        "local3": LOG_LOCAL3,
-        "local4": LOG_LOCAL4,
-        "local5": LOG_LOCAL5,
-        "local6": LOG_LOCAL6,
-        "local7": LOG_LOCAL7,
+        'auth': LOG_AUTH,
+        'authpriv': LOG_AUTHPRIV,
+        'cron': LOG_CRON,
+        'daemon': LOG_DAEMON,
+        'ftp': LOG_FTP,
+        'kern': LOG_KERN,
+        'lpr': LOG_LPR,
+        'mail': LOG_MAIL,
+        'news': LOG_NEWS,
+        'user': LOG_USER,
+        'uucp': LOG_UUCP,
+        'local0': LOG_LOCAL0,
+        'local1': LOG_LOCAL1,
+        'local2': LOG_LOCAL2,
+        'local3': LOG_LOCAL3,
+        'local4': LOG_LOCAL4,
+        'local5': LOG_LOCAL5,
+        'local6': LOG_LOCAL6,
+        'local7': LOG_LOCAL7,
     }
 
     facility_ids = {}
@@ -130,18 +129,18 @@ class UnixSyslogHandler(logging.Handler):
             facility_ids[val] = key
 
     # Deprecated facility names
-    facility_names["security"] = LOG_AUTH
+    facility_names['security'] = LOG_AUTH
 
     priority_map = {
-        "DEBUG": "debug",
-        "INFO": "info",
-        "WARNING": "warning",
-        "ERROR": "err",
-        "CRITICAL": "crit"
+        'DEBUG': 'debug',
+        'INFO': 'info',
+        'WARNING': 'warning',
+        'ERROR': 'err',
+        'CRITICAL': 'crit'
     }
 
     # -------------------------------------------------------------------------
-    def __init__(self, ident=None, logopt=None, facility=None, encoding="utf-8"):
+    def __init__(self, ident=None, logopt=None, facility=None, encoding='utf-8'):
         """Initialize a handler.
 
         @param ident: Identifier of the syslog message, uses basename
@@ -220,13 +219,13 @@ class UnixSyslogHandler(logging.Handler):
         if isinstance(value, Number):
             v = int(value)
             if v not in self.facility_ids:
-                msg = "Invalid value {!r} for facility.".format(value)
+                msg = 'Invalid value {!r} for facility.'.format(value)
                 raise ValueError(msg)
             used_facility = self.facility_ids[v]
         else:
             used_facility = str(value).lower()
             if used_facility not in self.facility_names:
-                msg = "Invalid value {!r} for facility.".format(value)
+                msg = 'Invalid value {!r} for facility.'.format(value)
                 raise ValueError(msg)
         self._facility = used_facility
 
@@ -260,7 +259,7 @@ class UnixSyslogHandler(logging.Handler):
         @return: the numeric logging level code
         @rtype: str
         """
-        return self.priority_map.get(level_name.upper(), "warning")
+        return self.priority_map.get(level_name.upper(), 'warning')
 
     # -------------------------------------------------------------------------
     def emit(self, record):
@@ -288,7 +287,7 @@ class UnixSyslogHandler(logging.Handler):
 
 
 # =============================================================================
-if __name__ == "__main__":
+if __name__ == '__main__':
 
     pass
 

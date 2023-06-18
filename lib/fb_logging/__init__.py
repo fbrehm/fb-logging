@@ -11,16 +11,15 @@
 __author__ = 'Frank Brehm <frank@brehm-online.com>'
 __copyright__ = '(C) 2022 by Frank Brehm, Berlin'
 __contact__ = 'frank@brehm-online.com'
-__version__ = '0.5.5'
+__version__ = '0.6.0'
 __license__ = 'LGPL-3'
 
 # Standard modules
-import os
 import copy
 import logging
 import logging.handlers
+import os
 import syslog
-
 from numbers import Number
 
 
@@ -54,7 +53,7 @@ class WrongLogFacilityIdTypeError(SyslogFacitityError, TypeError):
     # -------------------------------------------------------------------------
     def __str__(self):
         """Typecast into str."""
-        msg = "Wrong variable {v!r} ({t}) given as a syslog facility id.".format(
+        msg = 'Wrong variable {v!r} ({t}) given as a syslog facility id.'.format(
             v=self.value, t=self.value.__class__.__name__)
         return msg
 
@@ -75,7 +74,7 @@ class WrongLogFacilityIdValueError(SyslogFacitityError, ValueError):
     # -------------------------------------------------------------------------
     def __str__(self):
         """Typecast into str."""
-        msg = "Wrong variable {} given as a syslog facility id.".format(self.value)
+        msg = 'Wrong variable {} given as a syslog facility id.'.format(self.value)
         return msg
 
 
@@ -95,7 +94,7 @@ class WrongLogFacilityNameTypeError(SyslogFacitityError, TypeError):
     # -------------------------------------------------------------------------
     def __str__(self):
         """Typecast into str."""
-        msg = "Wrong variable {v!r} ({t}) given as a syslog facility name.".format(
+        msg = 'Wrong variable {v!r} ({t}) given as a syslog facility name.'.format(
             v=self.value, t=self.value.__class__.__name__)
         return msg
 
@@ -116,7 +115,7 @@ class WrongLogFacilityNameValueError(SyslogFacitityError, ValueError):
     # -------------------------------------------------------------------------
     def __str__(self):
         """Typecast into str."""
-        msg = "Wrong variable {!r} given as a syslog facility name.".format(self.value)
+        msg = 'Wrong variable {!r} given as a syslog facility name.'.format(self.value)
         return msg
 
 

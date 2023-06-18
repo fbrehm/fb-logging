@@ -81,7 +81,11 @@ jobs:
       - name: Install flake8 and pylint
         shell: bash
         run: |
-          pip install --upgrade --upgrade-strategy eager flake8 pylint
+          if test -f requirements-lint.txt; then
+              pip install --upgrade --upgrade-strategy eager --requirement requirements-lint.txt
+          else
+              pip install --upgrade --upgrade-strategy eager flake8 pylint
+          fi
           pip list --format columns
       - name: Execute Flake 8
         shell: bash
@@ -178,6 +182,12 @@ jobs:
             os_release: '11'
             container: 'debian:bullseye'
             version_prefix: 'deb11'
+            compat: '12'
+          - distributor: 'Debian'
+            os_codename: 'bookworm'
+            os_release: '12'
+            container: 'debian:bullseye'
+            version_prefix: 'deb12'
             compat: '12'
           - distributor: 'Ubuntu'
             os_codename: 'bionic'
