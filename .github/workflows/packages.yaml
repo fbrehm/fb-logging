@@ -196,12 +196,6 @@ jobs:
             version_prefix: 'deb13'
             compat: '13'
           - distributor: 'Ubuntu'
-            os_codename: 'bionic'
-            os_release: '18.04'
-            container: 'ubuntu:bionic'
-            version_prefix: 'ubuntu18.04'
-            compat: '11'
-          - distributor: 'Ubuntu'
             os_codename: 'focal'
             os_release: '20.04'
             container: 'ubuntu:focal'
@@ -299,13 +293,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - el_version: '7'
-            yum: 'yum'
-            py_minor_version: '6'
-            py_version_dot: '3.6'
-            py_version_nodot: '36'
-            image: centos:7
-            epel_package: epel-release
           - el_version: '8'
             yum: 'dnf'
             py_minor_version: '8'
