@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
+@summary: Testing colored logging formatter.
+
 @author: Frank Brehm
 @contact: frank@brehm-online.com
-@copyright: © 2021 Frank Brehm, Berlin
+@copyright: © 2024 Frank Brehm, Berlin
 @license: LGPL3
-@summary: testing colored logging formatter
 """
 
+import logging
 import os
 import sys
-import logging
-
 from random import randint
 
 try:
@@ -29,34 +29,41 @@ LOG = logging.getLogger('test_colored')
 
 # =============================================================================
 class TestColored(FbLoggingTestcase):
+    """Testcase for unit tests on fb_logging.colored."""
+
+    # -------------------------------------------------------------------------
+    def setUp(self):
+        """Execute this on seting up before calling each particular test method."""
+        if self.verbose >= 1:
+            print()
 
     # -------------------------------------------------------------------------
     def test_import_modules(self):
+        """Test importing module fb_logging.colored."""
+        LOG.info('Test importing module colored ...')
 
-        LOG.info("Test importing module colored ...")
-
-        LOG.debug("Importing fb_logging.colored ...")
+        LOG.debug('Importing fb_logging.colored ...')
         import fb_logging.colored
 
-        LOG.debug("Version of fb_logging.colored: {!r}.".format(fb_logging.colored.__version__))
+        LOG.debug('Version of fb_logging.colored: {!r}.'.format(fb_logging.colored.__version__))
 
-        LOG.debug("Checking available color keys ...")
+        LOG.debug('Checking available color keys ...')
 
         from fb_logging.colored import Colors
         colors = Colors.keys()
         if self.verbose >= 2:
-            LOG.debug("Valid color names:\n{}".format(pp(colors)))
+            LOG.debug('Valid color names:\n{}'.format(pp(colors)))
 
     # -------------------------------------------------------------------------
     def test_colorcode_4bit(self):
-
-        LOG.info("Testing colored output 4 bit colors ...")
+        """Test colored output 4 bit colors."""
+        LOG.info('Testing colored output 4 bit colors ...')
 
         from fb_logging.colored import Colors
         from fb_logging.colored import colorstr
         from fb_logging.colored import ColorNotFoundError, WrongColorTypeError
 
-        msg = "Colored output"
+        msg = 'Colored output'
 
         print('')
         max_len = 1
@@ -67,17 +74,17 @@ class TestColored(FbLoggingTestcase):
         max_len += 1
         tpl = '{{c:<{}}} {{msg}}'.format(max_len)
         for color in normal_colors:
-            LOG.debug("Testing color {clr!r} ({cls}) ...".format(
+            LOG.debug('Testing color {clr!r} ({cls}) ...'.format(
                 clr=color, cls=color.__class__.__name__))
             try:
                 c = '{}:'.format(color)
                 print(tpl.format(c=c, msg=colorstr(msg, color)))
             except Exception as e:
-                self.fail("Failed to generate colored string {c!r} with {cls}: {e}".format(
-                    clr=color, cls=e.__class__.__name__, e=e))
+                self.fail('Failed to generate colored string {c!r} with {cls}: {e}'.format(
+                    c=color, cls=e.__class__.__name__, e=e))
 
         print('')
-        LOG.info("Testing combined colored output ...")
+        LOG.info('Testing combined colored output ...')
         print('')
 
         colors = (
@@ -86,15 +93,15 @@ class TestColored(FbLoggingTestcase):
             ('dark_red', 'green_bg', 'underline'),
         )
         for color in colors:
-            LOG.debug("Testing color {clr} ...".format(clr=pp(color)))
+            LOG.debug('Testing color {clr} ...'.format(clr=pp(color)))
             try:
                 print('{c}: {msg}'.format(c=pp(color), msg=colorstr(msg, color)))
             except Exception as e:
-                self.fail("Failed to generate colored string {c!r} with {cls}: {e}".format(
-                    clr=color, cls=e.__class__.__name__, e=e))
+                self.fail('Failed to generate colored string {c!r} with {cls}: {e}'.format(
+                    c=color, cls=e.__class__.__name__, e=e))
 
         print('')
-        LOG.info("Testing legacy colors ...")
+        LOG.info('Testing legacy colors ...')
         print('')
         max_len = 1
         legacy_colors = sorted(Colors.legacy_colors.keys())
@@ -105,17 +112,17 @@ class TestColored(FbLoggingTestcase):
         tpl = '{{c:<{}}} {{msg}}  ({{real}})'.format(max_len)
         for color in legacy_colors:
             real_color = Colors.legacy_colors[color]
-            LOG.debug("Testing legacy color {clr!r} == {real!r} ({cls}) ...".format(
+            LOG.debug('Testing legacy color {clr!r} == {real!r} ({cls}) ...'.format(
                 clr=color, real=real_color, cls=color.__class__.__name__))
             try:
                 c = '{}:'.format(color)
                 print(tpl.format(c=c, msg=colorstr(msg, color), real=real_color))
             except Exception as e:
-                self.fail("Failed to generate colored string {c!r} with {cls}: {e}".format(
-                    clr=color, cls=e.__class__.__name__, e=e))
+                self.fail('Failed to generate colored string {c!r} with {cls}: {e}'.format(
+                    c=color, cls=e.__class__.__name__, e=e))
 
         print('')
-        LOG.info("Testing invalid colors ...")
+        LOG.info('Testing invalid colors ...')
         print('')
 
         wrong_colors = (
@@ -126,22 +133,22 @@ class TestColored(FbLoggingTestcase):
             'uhu',
         )
         for color in wrong_colors:
-            LOG.debug("Testing wrong color {clr} ...".format(clr=pp(color)))
+            LOG.debug('Testing wrong color {clr} ...'.format(clr=pp(color)))
             with self.assertRaises((ColorNotFoundError, WrongColorTypeError)) as cm:
                 msg = colorstr(msg, color)
 
             e = cm.exception
-            LOG.debug("Got a {c}: {e}.".format(c=e.__class__.__name__, e=e))
+            LOG.debug('Got a {c}: {e}.'.format(c=e.__class__.__name__, e=e))
 
     # -------------------------------------------------------------------------
     def test_colorcode_8bit(self):
-
-        LOG.info("Testing colored output 8 bit colors ...")
+        """Test colored output 8 bit colors."""
+        LOG.info('Testing colored output 8 bit colors ...')
 
         from fb_logging.colored import Colors
 
         print('')
-        LOG.info("Testing foreground colors ...")
+        LOG.info('Testing foreground colors ...')
 
         for i in list(range(256)):
 
@@ -158,7 +165,7 @@ class TestColored(FbLoggingTestcase):
                     print()
 
         print('')
-        LOG.info("Testing background colors ...")
+        LOG.info('Testing background colors ...')
 
         for i in list(range(256)):
 
@@ -176,10 +183,10 @@ class TestColored(FbLoggingTestcase):
 
     # -------------------------------------------------------------------------
     def test_colorcode_24bit(self):
+        """Test colored output 24 bit colors."""
+        LOG.info('Testing colored output 24 bit colors ...')
 
-        LOG.info("Testing colored output 24 bit colors ...")
-
-        from fb_logging.colored import Colors, colorstr_24bit
+        from fb_logging.colored import colorstr_24bit
 
         test_colors = [
             ((0, 0, 0), (255, 255, 255)),
@@ -208,29 +215,30 @@ class TestColored(FbLoggingTestcase):
             c = (None, (randint(0, 255), randint(0, 255), randint(0, 255)))
             test_colors.append(c)
 
-        msg = "Colored output"
+        msg = 'Colored output'
         print('')
 
         for color in test_colors:
 
             ctxt = '{!r}'.format(color)
-            LOG.debug("Testing color {clr} ...".format(clr=ctxt))
+            LOG.debug('Testing color {clr} ...'.format(clr=ctxt))
 
-            print("{ctxt:<30} {msg}".format(
+            print('{ctxt:<30} {msg}'.format(
                 ctxt=(ctxt + ':'), msg=colorstr_24bit(msg, color[0], color[1])))
 
     # -------------------------------------------------------------------------
     def test_formatter_object(self):
-
-        LOG.info("Testing init of a ColoredFormatter object ...")
+        """Test init of a ColoredFormatter object."""
+        LOG.info('Testing init of a ColoredFormatter object ...')
 
         from fb_logging.colored import ColoredFormatter
 
         try:
-            formatter = ColoredFormatter(                                   # noqa
+            formatter = ColoredFormatter(
                 '%(name)s: %(message)s (%(filename)s:%(lineno)d)')
+            LOG.debug('Formatter: {!r}'.format(formatter))
         except Exception as e:
-            self.fail("Could not instatiate ColoredFormatter object with %s: %s" % (
+            self.fail('Could not instatiate ColoredFormatter object with %s: %s' % (
                 e.__class__.__name__, str(e)))
 
 
@@ -242,7 +250,7 @@ if __name__ == '__main__':
         verbose = 0
     init_root_logger(verbose)
 
-    LOG.info("Starting tests ...")
+    LOG.info('Starting tests ...')
 
     loader = unittest.TestLoader()
     suite = unittest.TestSuite()

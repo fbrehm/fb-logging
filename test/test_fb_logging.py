@@ -1,17 +1,18 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-'''
+"""
+@summary: Test script (and module) for unit tests on logging objects.
+
 @author: Frank Brehm
 @contact: frank@brehm-online.com
-@copyright: © 2021 Frank Brehm, Berlin
+@copyright: © 2024 Frank Brehm, Berlin
 @license: LGPL3
-@summary: test script (and module) for unit tests on logging objects
-'''
+"""
 
-import os
-import sys
 import logging
 import logging.handlers
+import os
+import sys
 import syslog
 
 try:
@@ -29,50 +30,57 @@ LOG = logging.getLogger('test_fb_logging')
 
 # =============================================================================
 class TestFbLogging(FbLoggingTestcase):
+    """Testcase for unit tests on fb_logging in general."""
+
+    # -------------------------------------------------------------------------
+    def setUp(self):
+        """Execute this on seting up before calling each particular test method."""
+        if self.verbose >= 1:
+            print()
 
     # -------------------------------------------------------------------------
     def test_import_modules(self):
+        """Test importing module fb_logging."""
+        LOG.info('Test importing main module ...')
 
-        LOG.info("Test importing main module ...")
-
-        LOG.debug("Importing fb_logging ...")
+        LOG.debug('Importing fb_logging ...')
         import fb_logging
         from fb_logging import valid_syslog_facilities, syslog_facility_names
 
-        LOG.debug("Version of fb_logging: {!r}.".format(fb_logging.__version__))
+        LOG.debug('Version of fb_logging: {!r}.'.format(fb_logging.__version__))
 
         facilities = valid_syslog_facilities()
         fac_names = syslog_facility_names()
         if self.verbose >= 3:
-            LOG.debug("Valid syslog facilities:\n{}".format(pp(facilities)))
-            LOG.debug("Syslog facility names:\n{}".format(pp(fac_names)))
+            LOG.debug('Valid syslog facilities:\n{}'.format(pp(facilities)))
+            LOG.debug('Syslog facility names:\n{}'.format(pp(fac_names)))
 
     # -------------------------------------------------------------------------
     def test_use_unix_syslog_handler(self):
-
-        LOG.info("Testing fb_logging.use_unix_syslog_handler() ...")
+        """Test fb_logging.use_unix_syslog_handler()."""
+        LOG.info('Testing fb_logging.use_unix_syslog_handler() ...')
 
         os_name = os.uname()[0]
-        LOG.debug("Current OS kernel name: {!r}.".format(os_name))
+        LOG.debug('Current OS kernel name: {!r}.'.format(os_name))
 
         from fb_logging import use_unix_syslog_handler
 
         use_ux_handler = use_unix_syslog_handler()
-        LOG.debug("Return value of use_unix_syslog_handler(): {!r}.".format(use_ux_handler))
+        LOG.debug('Return value of use_unix_syslog_handler(): {!r}.'.format(use_ux_handler))
 
         if os_name.lower() == 'sunos':
             self.assertTrue(
-                use_ux_handler, "On a {os!r} system {func}() must return {ret!r}.".format(
+                use_ux_handler, 'On a {os!r} system {func}() must return {ret!r}.'.format(
                     os=os_name, func='use_unix_syslog_handler', ret=True))
         else:
             self.assertFalse(
-                use_ux_handler, "On a {os!r} system {func}() must return {ret!r}.".format(
+                use_ux_handler, 'On a {os!r} system {func}() must return {ret!r}.'.format(
                     os=os_name, func='use_unix_syslog_handler', ret=False))
 
     # -------------------------------------------------------------------------
     def test_get_syslog_facility_name(self):
-
-        LOG.info("Testing fb_logging.get_syslog_facility_name() ...")
+        """Test fb_logging.get_syslog_facility_name()."""
+        LOG.info('Testing fb_logging.get_syslog_facility_name() ...')
 
         from fb_logging import FbSyslogFacilityInfo
         from fb_logging import use_unix_syslog_handler, syslog_facility_name
@@ -139,38 +147,38 @@ class TestFbLogging(FbLoggingTestcase):
             fac_origin = test_tuple[1]
             expected = test_tuple[2]
 
-            LOG.debug("Test syslog_facility_name({id}) -> {ex!r} ({origin}).".format(
+            LOG.debug('Test syslog_facility_name({id}) -> {ex!r} ({origin}).'.format(
                 id=fac_id, ex=expected, origin=fac_origin))
             result = syslog_facility_name(fac_id)
-            LOG.debug("Got {!r}.".format(result))
+            LOG.debug('Got {!r}.'.format(result))
             self.assertEqual(expected, result)
 
         for test_id in invalid_test_data:
 
-            LOG.debug("Test exception on syslog_facility_name({!r}).".format(test_id))
+            LOG.debug('Test exception on syslog_facility_name({!r}).'.format(test_id))
 
             with self.assertRaises(SyslogFacitityError) as cm:
                 result = syslog_facility_name(test_id)
 
             e = cm.exception
-            LOG.debug("Got a {c}: {e}.".format(c=e.__class__.__name__, e=e))
+            LOG.debug('Got a {c}: {e}.'.format(c=e.__class__.__name__, e=e))
 
-        LOG.info("Testing {} with wrong values without raising an exception ...".format(
+        LOG.info('Testing {} with wrong values without raising an exception ...'.format(
             'syslog_facility_name()'))
 
         FbSyslogFacilityInfo.raise_on_wrong_facility_name = False
 
         for test_id in invalid_test_values:
 
-            LOG.debug("Test returning None on syslog_facility_name({!r}).".format(test_id))
+            LOG.debug('Test returning None on syslog_facility_name({!r}).'.format(test_id))
             result = syslog_facility_name(test_id)
-            LOG.debug("Got {!r}.".format(result))
+            LOG.debug('Got {!r}.'.format(result))
             self.assertIsNone(result)
 
     # -------------------------------------------------------------------------
     def test_get_syslog_facility_id(self):
-
-        LOG.info("Testing fb_logging.syslog_facility_id() ...")
+        """Test fb_logging.syslog_facility_id()."""
+        LOG.info('Testing fb_logging.syslog_facility_id() ...')
 
         from fb_logging import FbSyslogFacilityInfo
         from fb_logging import use_unix_syslog_handler, syslog_facility_id
@@ -218,31 +226,31 @@ class TestFbLogging(FbLoggingTestcase):
             expected = test_tuple[1]
             fac_origin = test_tuple[2]
 
-            LOG.debug("Test syslog_facility_id({name!r}) -> {ex} ({origin}).".format(
+            LOG.debug('Test syslog_facility_id({name!r}) -> {ex} ({origin}).'.format(
                 name=fac_name, ex=expected, origin=fac_origin))
             result = syslog_facility_id(fac_name)
-            LOG.debug("Got {!r}.".format(result))
+            LOG.debug('Got {!r}.'.format(result))
             self.assertEqual(expected, result)
 
         for test_name in invalid_test_data:
 
-            LOG.debug("Test exception on syslog_facility_id({!r}).".format(test_name))
+            LOG.debug('Test exception on syslog_facility_id({!r}).'.format(test_name))
 
             with self.assertRaises(SyslogFacitityError) as cm:
                 result = syslog_facility_id(test_name)
 
             e = cm.exception
-            LOG.debug("Got a {c}: {e}.".format(c=e.__class__.__name__, e=e))
+            LOG.debug('Got a {c}: {e}.'.format(c=e.__class__.__name__, e=e))
 
-        LOG.info("Testing syslog_facility_id() with wrong values without raising an exception ...")
+        LOG.info('Testing syslog_facility_id() with wrong values without raising an exception ...')
 
         FbSyslogFacilityInfo.raise_on_wrong_facility_name = False
 
         for test_name in invalid_test_values:
 
-            LOG.debug("Test returning None on syslog_facility_id({!r}).".format(test_name))
+            LOG.debug('Test returning None on syslog_facility_id({!r}).'.format(test_name))
             result = syslog_facility_id(test_name)
-            LOG.debug("Got {!r}.".format(result))
+            LOG.debug('Got {!r}.'.format(result))
             self.assertIsNone(result)
 
 
@@ -254,7 +262,7 @@ if __name__ == '__main__':
         verbose = 0
     init_root_logger(verbose)
 
-    LOG.info("Starting tests ...")
+    LOG.info('Starting tests ...')
 
     loader = unittest.TestLoader()
     suite = unittest.TestSuite()

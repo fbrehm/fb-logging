@@ -5,7 +5,7 @@
 
 @author: Frank Brehm
 @contact: frank@brehm-online.com
-@copyright: © 2021 by Frank Brehm, Berlin
+@copyright: © 2024 by Frank Brehm, Berlin
 @license: LGPL3+
 """
 
@@ -63,7 +63,7 @@ __debian_pkg_name__ = __module_name__.replace('_', '-')
 
 __author__ = 'Frank Brehm'
 __contact__ = 'frank@brehm-online.com'
-__copyright__ = '(C) 2022 Frank Brehm, Berlin'
+__copyright__ = '(C) 2024 Frank Brehm, Berlin'
 __license__ = 'LGPL3+'
 __url__ = 'https://github.com/fbrehm/fb-logging'
 __description__ = 'Python modules to extend the logging mechanism in Python.'
