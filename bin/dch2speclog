@@ -3,7 +3,7 @@
 """
 @author: Frank Brehm
 @contact: frank@brehm.online.com
-@copyright: © 2022 by Frank Brehm, Berlin
+@copyright: © 2024 by Frank Brehm, Berlin
 @summary: A script for converting a Debian changelog into
           log entries of a RPM spec file.
 """
