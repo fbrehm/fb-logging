@@ -39,7 +39,7 @@ class TestColored(FbLoggingTestcase):
 
     # -------------------------------------------------------------------------
     def test_import_modules(self):
-        """Test importing module fb_tools.common."""
+        """Test importing module fb_logging.colored."""
         LOG.info('Test importing module colored ...')
 
         LOG.debug('Importing fb_logging.colored ...')
