@@ -1,17 +1,18 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-'''
+"""
+@summary: Test script (and module) for unit tests on logging objects.
+
 @author: Frank Brehm
 @contact: frank@brehm-online.com
 @copyright: © 2024 Frank Brehm, Berlin
 @license: LGPL3
-@summary: test script (and module) for unit tests on logging objects
-'''
+"""
 
-import os
-import sys
 import logging
 import logging.handlers
+import os
+import sys
 
 try:
     import unittest2 as unittest
@@ -28,52 +29,56 @@ LOG = logging.getLogger('test_syslog')
 
 # =============================================================================
 class TestSyslogTestcase(FbLoggingTestcase):
+    """Testcase for unit tests on fb_logging.syslog_handler."""
 
     # -------------------------------------------------------------------------
     def setUp(self):
+        """Execute this on seting up before calling each particular test method."""
+        if self.verbose >= 1:
+            print()
 
-        py_version = "Python {}.{}.{}".format(
+        py_version = 'Python {}.{}.{}'.format(
             sys.version_info[0], sys.version_info[1], sys.version_info[2])
-        LOG.debug("This is %s", py_version)
+        LOG.debug('This is %s', py_version)
 
         mb_chars = 'äöüÄÖÜß»«¢„“”µ·…@ł€¶ŧ←↓→øþ¨æſðđŋħłĸ˝^'
         self.msg_utf8 = "Test {} UTF-8 with wide characters: '{}'.".format(py_version, mb_chars)
         self.msg_utf8 = self.msg_utf8.encode('utf-8')
         self.msg_uni = "Test {} Unicode with wide characters: '{}'.".format(py_version, mb_chars)
 
-        LOG.debug("self.msg_utf8 ({}): {!r}".format(
+        LOG.debug('self.msg_utf8 ({}): {!r}'.format(
             self.msg_utf8.__class__.__name__, self.msg_utf8))
-        LOG.debug("self.msg_uni ({}): {!r}".format(
+        LOG.debug('self.msg_uni ({}): {!r}'.format(
             self.msg_uni.__class__.__name__, self.msg_uni))
 
     # -------------------------------------------------------------------------
     def test_import_modules(self):
-
-        LOG.info("Test importing all appropriate modules ...")
+        """Test importing modules."""
+        LOG.info('Test importing all appropriate modules ...')
 
         import fb_logging.syslog_handler
-        LOG.debug("Version of fb_logging.syslog_handler: {!r}.".format(
+        LOG.debug('Version of fb_logging.syslog_handler: {!r}.'.format(
             fb_logging.syslog_handler.__version__))
 
-        LOG.debug("Importing FbSysLogHandler from fb_logging.syslog_handler ...")
-        from fb_logging.syslog_handler import FbSysLogHandler               # noqa
+        LOG.debug('Importing FbSysLogHandler from fb_logging.syslog_handler ...')
+        from fb_logging.syslog_handler import FbSysLogHandler               # noqa: F401
 
         import fb_logging.unix_handler
-        LOG.debug("Version of fb_logging.unix_handler: {!r}.".format(
+        LOG.debug('Version of fb_logging.unix_handler: {!r}.'.format(
             fb_logging.unix_handler.__version__))
 
-        LOG.debug("Importing UnixSyslogHandler from fb_logging.unix_handler ...")
-        from fb_logging.unix_handler import UnixSyslogHandler               # noqa
+        LOG.debug('Importing UnixSyslogHandler from fb_logging.unix_handler ...')
+        from fb_logging.unix_handler import UnixSyslogHandler               # noqa: F401 noqa
 
     # -------------------------------------------------------------------------
     @unittest.skipUnless(os.path.exists('/dev/log'), "Socket '/dev/log' must exist.")
     def test_logging_syslog(self):
-
-        LOG.info("Test logging with FbSysLogHandler ...")
+        """Test logging with syslog with FbSysLogHandler."""
+        LOG.info('Test logging with FbSysLogHandler ...')
 
         from fb_logging.syslog_handler import FbSysLogHandler
 
-        LOG.debug("Init of a test logger instance ...")
+        LOG.debug('Init of a test logger instance ...')
         test_logger = logging.getLogger('test.unicode')
         test_logger.setLevel(logging.INFO)
         appname = os.path.basename(sys.argv[0])
@@ -85,7 +90,7 @@ class TestSyslogTestcase(FbLoggingTestcase):
         formatter_syslog = logging.Formatter(format_str_syslog)
         formatter_console = logging.Formatter(format_str_console)
 
-        LOG.debug("Init of a FbSysLogHandler ...")
+        LOG.debug('Init of a FbSysLogHandler ...')
         lh_syslog = FbSysLogHandler(
             address='/dev/log',
             facility=logging.handlers.SysLogHandler.LOG_USER,
@@ -93,27 +98,27 @@ class TestSyslogTestcase(FbLoggingTestcase):
 
         lh_syslog.setFormatter(formatter_syslog)
 
-        LOG.debug("Init of a StreamHandler ...")
+        LOG.debug('Init of a StreamHandler ...')
         lh_console = logging.StreamHandler(sys.stderr)
         lh_console.setFormatter(formatter_console)
 
-        LOG.debug("Adding log handlers to test logger instance ...")
+        LOG.debug('Adding log handlers to test logger instance ...')
         test_logger.addHandler(lh_syslog)
         test_logger.addHandler(lh_console)
 
-        LOG.debug("Logging an UTF-8 message without wide characters ...")
+        LOG.debug('Logging an UTF-8 message without wide characters ...')
         test_logger.info(self.msg_utf8)
-        LOG.debug("Logging an unicode message with wide characters ...")
+        LOG.debug('Logging an unicode message with wide characters ...')
         test_logger.info(self.msg_uni)
 
     # -------------------------------------------------------------------------
     def test_unix_syslog(self):
-
-        LOG.info("Test logging with UnixSyslogHandler ...")
+        """Test logging with syslog with UnixSyslogHandler."""
+        LOG.info('Test logging with UnixSyslogHandler ...')
 
         from fb_logging.unix_handler import UnixSyslogHandler
 
-        LOG.debug("Init of a test logger instance ...")
+        LOG.debug('Init of a test logger instance ...')
         test_logger = logging.getLogger('test.unix_handler')
         test_logger.setLevel(logging.INFO)
         appname = os.path.basename(sys.argv[0])
@@ -125,7 +130,7 @@ class TestSyslogTestcase(FbLoggingTestcase):
         formatter_syslog = logging.Formatter(format_str_syslog)
         formatter_console = logging.Formatter(format_str_console)
 
-        LOG.debug("Init of a UnixSyslogHandler ...")
+        LOG.debug('Init of a UnixSyslogHandler ...')
         lh_unix_syslog = UnixSyslogHandler(
             ident=appname,
             facility=UnixSyslogHandler.LOG_USER,
@@ -133,17 +138,17 @@ class TestSyslogTestcase(FbLoggingTestcase):
 
         lh_unix_syslog.setFormatter(formatter_syslog)
 
-        LOG.debug("Init of a StreamHandler ...")
+        LOG.debug('Init of a StreamHandler ...')
         lh_console = logging.StreamHandler(sys.stderr)
         lh_console.setFormatter(formatter_console)
 
-        LOG.debug("Adding log handlers to test logger instance ...")
+        LOG.debug('Adding log handlers to test logger instance ...')
         test_logger.addHandler(lh_unix_syslog)
         test_logger.addHandler(lh_console)
 
-        LOG.debug("Logging an UTF-8 message without wide characters ...")
+        LOG.debug('Logging an UTF-8 message without wide characters ...')
         test_logger.info(self.msg_utf8)
-        LOG.debug("Logging an unicode message with wide characters ...")
+        LOG.debug('Logging an unicode message with wide characters ...')
         test_logger.info(self.msg_uni)
 
 
@@ -155,7 +160,7 @@ if __name__ == '__main__':
         verbose = 0
     init_root_logger(verbose)
 
-    LOG.info("Starting tests ...")
+    LOG.info('Starting tests ...')
 
     loader = unittest.TestLoader()
     suite = unittest.TestSuite()
