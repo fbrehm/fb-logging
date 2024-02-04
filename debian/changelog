@@ -1,6 +1,8 @@
 fb-logging (1.0.0) UNRELEASED; urgency=medium
 
   * Improving Github workflow.
+  * Extending linter checks in Github workflow.
+  * Fixing flake8 linter error messages in bin/dch2speclog and test/.
 
  -- Frank Brehm <frank.brehm@pixelpark.com>  Sun, 04 Feb 2024 12:27:52 +0100
 
