@@ -91,7 +91,7 @@ jobs:
         shell: bash
         run: |
           flake8 --version
-          flake8 lib
+          flake8 bin/dch2speclog lib test setup.py
 #          bin
 #      - name: Execute Shellcheck
 #        run: >
