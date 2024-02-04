@@ -1,4 +1,4 @@
-fb-logging (1.0.0) UNRELEASED; urgency=medium
+fb-logging (1.0.0) all; urgency=medium
 
   * Improving Github workflow.
   * Extending linter checks in Github workflow.
