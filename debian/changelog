@@ -1,3 +1,13 @@
+fb-logging (0.6.1) all; urgency=medium
+
+  * Adding tests for Python 3.12 to CI tests.
+  * Using Python 3.12 for CI linter tests.
+  * Adding distros Debian 13 (trixie) and Ubuntu 24.04 (Noble Numbat) to
+    Github workflow packages for building OS packages.
+  * Updating external Guthub actions.
+
+ -- Frank Brehm <frank.brehm@pixelpark.com>  Sun, 04 Feb 2024 09:24:42 +0100
+
 fb-logging (0.6.0) all; urgency=medium
 
   * Adding additional flake8 tests in .github/workflows/packages.yaml
