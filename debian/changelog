@@ -1,3 +1,9 @@
+fb-logging (1.0.0) UNRELEASED; urgency=medium
+
+  * Improving Github workflow.
+
+ -- Frank Brehm <frank.brehm@pixelpark.com>  Sun, 04 Feb 2024 12:27:52 +0100
+
 fb-logging (0.6.2) all; urgency=medium
 
   * Fixing Github workflow
