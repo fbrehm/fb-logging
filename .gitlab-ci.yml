@@ -2,7 +2,7 @@
 
 include:
   - project: 'python/packaging'
-    ref: v1.7
+    ref: v1.9
     file: 'gitlab/create-all.yaml'
 
 # ---------------------------
@@ -30,7 +30,7 @@ variables:
   # VERSION_PREFIX: 'unknown'
   YUM_REPO_GPG_ID: 'C0E73F70'
   YUM_REPO_GPG_PASSWD: ''
-  YUM_REPO_HOST: 'repo02.pixelpark.com'
+  # YUM_REPO_HOST: 'repo.pixelpark.com'
   YUM_REPO_USER: 'rpm-repo'
   YUM_REPO_DIR_HTTP: '/Linux/yum/pixelpark'
   YUM_REPO_DIR: "/srv/www/repo${YUM_REPO_DIR_HTTP}"
