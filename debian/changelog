@@ -1,3 +1,10 @@
+fb-logging (1.0.1) UNRELEASED; urgency=medium
+
+  * Updating .gitlab-ci.yml to the latest version of Digitas packaging
+    tools.
+
+ -- Frank Brehm <frank.brehm@pixelpark.com>  Tue, 07 May 2024 11:41:05 +0200
+
 fb-logging (1.0.0) all; urgency=medium
 
   * Improving Github workflow.
