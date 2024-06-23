@@ -1,4 +1,4 @@
-fb-logging (1.1.0) UNRELEASED; urgency=medium
+fb-logging (1.1.0) all; urgency=medium
 
   * Using external Gitlab workflow for installing build packages.
   * Removing no more needed GitHub workflow and actions.
