@@ -1,5 +1,5 @@
 %define version @@@Version@@@
-%define builddir python@@@py_version_nodot@@@_fb_logging-%{version}
+%define builddir python@@@py_version_nodot@@@_fb-logging-%{version}
 
 Name:           python@@@py_version_nodot@@@-fb-logging
 Version:        %{version}
@@ -10,7 +10,7 @@ Group:          Development/Languages/Python
 License:        LGPL-3
 Distribution:   Frank Brehm
 URL:            https://github.com/fbrehm/fb-logging
-Source0:        fb_logging.%{version}.tar.gz
+Source0:        fb-logging.%{version}.tar.gz
 
 BuildRequires:  python@@@py_version_nodot@@@
 BuildRequires:  python@@@py_version_nodot@@@-libs
