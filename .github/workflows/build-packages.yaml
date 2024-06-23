@@ -55,7 +55,7 @@ jobs:
     name: "Calling shared build workflow"
     needs:
       - prepare-image
-    uses: fbrehm/actions/.github/workflows/build-python-packages.yaml@test
+    uses: fbrehm/actions/.github/workflows/build-python-packages.yaml@main
     with:
       has_i18n: false
       additional_locales: ''
