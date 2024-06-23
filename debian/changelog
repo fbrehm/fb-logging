@@ -1,3 +1,10 @@
+fb-logging (1.1.0) UNRELEASED; urgency=medium
+
+  * Using external Gitlab workflow for installing build packages.
+  * Removing no more needed GitHub workflow and actions.
+
+ -- Frank Brehm <frank.brehm@pixelpark.com>  Sun, 23 Jun 2024 09:49:49 +0200
+
 fb-logging (1.0.1) all; urgency=medium
 
   * Updating .gitlab-ci.yml to the latest version of Digitas packaging
