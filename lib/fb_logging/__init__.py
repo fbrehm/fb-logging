@@ -11,7 +11,7 @@
 __author__ = 'Frank Brehm <frank@brehm-online.com>'
 __copyright__ = '(C) 2024 by Frank Brehm, Berlin'
 __contact__ = 'frank@brehm-online.com'
-__version__ = '1.1.0'
+__version__ = '1.1.1'
 __license__ = 'LGPL-3'
 
 # Standard modules

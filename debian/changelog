@@ -1,3 +1,9 @@
+fb-logging (1.1.1) all; urgency=medium
+
+  * Fixing .gitlab-ci.yml.
+
+ -- Frank Brehm <frank.brehm@pixelpark.com>  Mon, 24 Jun 2024 16:13:48 +0200
+
 fb-logging (1.1.0) all; urgency=medium
 
   * Using external Gitlab workflow for installing build packages.
