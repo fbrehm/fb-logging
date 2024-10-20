@@ -387,6 +387,7 @@ class ColoredFormatter(logging.Formatter):
     """
 
     level_color_bright = {
+        'TRACE': None,
         'DEBUG': 'blue',
         'INFO': 'cyan',
         'NOTICE': 'green',
@@ -396,6 +397,7 @@ class ColoredFormatter(logging.Formatter):
     }
 
     level_color_dark = {
+        'TRACE': None,
         'DEBUG': 'dark_blue',
         'INFO': 'dark_cyan',
         'NOTICE': 'dark_green',
@@ -425,6 +427,7 @@ class ColoredFormatter(logging.Formatter):
             self.level_color = copy.copy(self.level_color_bright)
 
         self._colorize_msg = False
+        self.colorize_msg = colorize_msg
 
     # -----------------------------------------------------------
     @property
@@ -502,11 +505,11 @@ class ColoredFormatter(logging.Formatter):
             rcrd.processName = colorstr(rcrd.processName, 'bold')
             rcrd.threadName = colorstr(rcrd.threadName, 'bold')
 
-            if self.level_color[levelname] is not None:
-                rcrd.levelname = colorstr(
-                    levelname, self.level_color[levelname])
+            clr = self.level_color[levelname]
+            if clr is not None:
+                rcrd.levelname = colorstr(levelname, clr)
                 if self.colorize_msg:
-                    rcrd.msg = colorstr(rcrd.msg, self.level_color[levelname])
+                    rcrd.msg = colorstr(rcrd.msg, clr)
 
         return logging.Formatter.format(self, rcrd)
 

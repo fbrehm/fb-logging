@@ -72,25 +72,33 @@ class TestColoredFormatter(FbLoggingTestcase):
         """Test logging of colorized log messages."""
         LOG.info(self.get_method_doc())
 
+        from fb_logging import CRITICAL, ERROR, WARNING, NOTICE, INFO, DEBUG, TRACE
         from fb_logging.colored import ColoredFormatter
 
         format_str = self.appname + ' [%(asctime)s]: %(name)s(%(lineno)d) %(funcName)s() '
         format_str += '%(levelname)s - %(message)s'
 
         msgs = (
-            (logging.DEBUG, 'This is a DEBUG message.'),
-            (logging.INFO, 'This is a INFO message.'),
-            (25, 'This is a NOTICE message.'),
-            (logging.WARNING, 'This is a WARNING message.'),
-            (logging.ERROR, 'This is a ERROR message.'),
-            (logging.CRITICAL, 'This is a CRITICAL message.'),
+            (TRACE, 'This is a TRACE message.'),
+            (DEBUG, 'This is a DEBUG message.'),
+            (INFO, 'This is an INFO message.'),
+            (NOTICE, 'This is a NOTICE message.'),
+            (WARNING, 'This is a WARNING message.'),
+            (ERROR, 'This is an ERROR message.'),
+            (CRITICAL, 'This is a CRITICAL message.'),
         )
 
         bright_fmt = ColoredFormatter(format_str)
         LOG.debug('Bright formatter: {!r}'.format(bright_fmt))
         bright_handler = logging.StreamHandler(sys.stderr)
-        bright_handler.setLevel(logging.DEBUG)
+        bright_handler.setLevel(TRACE)
         bright_handler.setFormatter(bright_fmt)
+
+        full_fmt = ColoredFormatter(format_str, colorize_msg=True)
+        LOG.debug('Full formatter: {!r}'.format(full_fmt))
+        full_handler = logging.StreamHandler(sys.stderr)
+        full_handler.setLevel(TRACE)
+        full_handler.setFormatter(full_fmt)
 
         if self.verbose > 1:
             LOG.debug('Used color levels in bright mode:\n' + pp(bright_fmt.level_color))
@@ -98,7 +106,7 @@ class TestColoredFormatter(FbLoggingTestcase):
         dark_fmt = ColoredFormatter(format_str, dark=True)
         LOG.debug('Dark formatter: {!r}'.format(dark_fmt))
         dark_handler = logging.StreamHandler(sys.stderr)
-        dark_handler.setLevel(logging.DEBUG)
+        dark_handler.setLevel(TRACE)
         dark_handler.setFormatter(dark_fmt)
 
         if self.verbose > 1:
@@ -107,6 +115,7 @@ class TestColoredFormatter(FbLoggingTestcase):
         tst_logger = logging.getLogger('color_tester')
         tst_logger.addHandler(bright_handler)
         tst_logger.addHandler(dark_handler)
+        tst_logger.addHandler(full_handler)
 
         for token in msgs:
             lvl = token[0]

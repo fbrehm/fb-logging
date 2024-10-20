@@ -22,6 +22,14 @@ import os
 import syslog
 from numbers import Number
 
+TRACE = 5
+DEBUG = logging.DEBUG
+INFO = logging.INFO
+NOTICE = 25
+WARNING = logging.WARNING
+ERROR = logging.ERROR
+CRITICAL = logging.CRITICAL
+
 
 # =============================================================================
 class FbLoggingError(Exception):

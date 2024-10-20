@@ -46,16 +46,19 @@ def get_arg_verbose():
 # =============================================================================
 def init_root_logger(verbose=0, appname=None):
     """Initialize the root logger."""
+    from fb_logging import WARNING, NOTICE, INFO, TRACE
+
     root_log = logging.getLogger()
-    root_log.setLevel(logging.DEBUG)
+    root_log.setLevel(TRACE)
 
-    logging.addLevelName(25, 'NOTICE')
+    logging.addLevelName(TRACE, 'TRACE')
+    logging.addLevelName(NOTICE, 'NOTICE')
 
-    log_lvl = logging.WARNING
+    log_lvl = WARNING
     if verbose:
-        log_lvl = logging.INFO
+        log_lvl = INFO
         if verbose > 1:
-            log_lvl = logging.DEBUG
+            log_lvl = 5
 
     if appname:
         appname = str(appname).strip()
@@ -77,9 +80,9 @@ def init_root_logger(verbose=0, appname=None):
     # create log handler for console output
     lh_console = logging.StreamHandler(sys.stderr)
     # if verbose:
-    #     lh_console.setLevel(logging.DEBUG)
+    #     lh_console.setLevel(DEBUG)
     # else:
-    #     lh_console.setLevel(logging.INFO)
+    #     lh_console.setLevel(INFO)
     lh_console.setFormatter(formatter)
 
     app_logger.addHandler(lh_console)
