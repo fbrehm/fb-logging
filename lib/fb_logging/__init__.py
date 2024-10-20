@@ -11,7 +11,7 @@
 __author__ = 'Frank Brehm <frank@brehm-online.com>'
 __copyright__ = '(C) 2024 by Frank Brehm, Berlin'
 __contact__ = 'frank@brehm-online.com'
-__version__ = '1.1.1'
+__version__ = '1.2.0'
 __license__ = 'LGPL-3'
 
 # Standard modules
@@ -21,6 +21,14 @@ import logging.handlers
 import os
 import syslog
 from numbers import Number
+
+TRACE = 5
+DEBUG = logging.DEBUG
+INFO = logging.INFO
+NOTICE = 25
+WARNING = logging.WARNING
+ERROR = logging.ERROR
+CRITICAL = logging.CRITICAL
 
 
 # =============================================================================

@@ -12,8 +12,11 @@
 import argparse
 import logging
 import os
+import platform
 import pprint
+import re
 import sys
+import textwrap
 from logging import Formatter
 try:
     import unittest2 as unittest
@@ -41,16 +44,29 @@ def get_arg_verbose():
 
 
 # =============================================================================
-def init_root_logger(verbose=0):
+def init_root_logger(verbose=0, appname=None):
     """Initialize the root logger."""
-    root_log = logging.getLogger()
-    root_log.setLevel(logging.WARNING)
-    if verbose:
-        root_log.setLevel(logging.INFO)
-        if verbose > 1:
-            root_log.setLevel(logging.DEBUG)
+    from fb_logging import WARNING, NOTICE, INFO, TRACE
 
-    appname = os.path.basename(sys.argv[0])
+    root_log = logging.getLogger()
+    root_log.setLevel(TRACE)
+
+    logging.addLevelName(TRACE, 'TRACE')
+    logging.addLevelName(NOTICE, 'NOTICE')
+
+    log_lvl = WARNING
+    if verbose:
+        log_lvl = INFO
+        if verbose > 1:
+            log_lvl = 5
+
+    if appname:
+        appname = str(appname).strip()
+    if not appname:
+        appname = os.path.basename(sys.argv[0])
+
+    app_logger = logging.getLogger(appname)
+    app_logger.setLevel(log_lvl)
     format_str = appname + ': '
     if verbose:
         if verbose > 1:
@@ -63,13 +79,13 @@ def init_root_logger(verbose=0):
 
     # create log handler for console output
     lh_console = logging.StreamHandler(sys.stderr)
-    if verbose:
-        lh_console.setLevel(logging.DEBUG)
-    else:
-        lh_console.setLevel(logging.INFO)
+    # if verbose:
+    #     lh_console.setLevel(DEBUG)
+    # else:
+    #     lh_console.setLevel(INFO)
     lh_console.setFormatter(formatter)
 
-    root_log.addHandler(lh_console)
+    app_logger.addHandler(lh_console)
 
 
 # =============================================================================
@@ -83,6 +99,70 @@ def pp(value, indent=4, width=99, depth=None):
     pretty_printer = pprint.PrettyPrinter(
         indent=indent, width=width, depth=depth)
     return pretty_printer.pformat(value)
+
+
+# =============================================================================
+def terminal_can_colors(debug=False):
+    """
+    Detect, whether the current terminal is able to perform ANSI color sequences.
+
+    Both stdout and stderr are checked.
+
+    @return: both stdout and stderr can perform ANSI color sequences
+    @rtype: bool
+
+    """
+    cur_term = ''
+    if 'TERM' in os.environ:
+        cur_term = os.environ['TERM'].lower().strip()
+
+    colored_term_list = (
+        r'ansi',
+        r'linux.*',
+        r'screen.*',
+        r'[xeak]term.*',
+        r'gnome.*',
+        r'rxvt.*',
+        r'interix',
+    )
+    term_pattern = r'^(?:' + r'|'.join(colored_term_list) + r')$'
+    re_term = re.compile(term_pattern)
+
+    ansi_term = False
+    env_term_has_colors = False
+
+    if cur_term:
+        if cur_term == 'ansi':
+            env_term_has_colors = True
+            ansi_term = True
+        elif re_term.search(cur_term):
+            env_term_has_colors = True
+    if debug:
+        sys.stderr.write('ansi_term: {a!r}, env_term_has_colors: {h!r}\n'.format(
+            a=ansi_term, h=env_term_has_colors))
+
+    has_colors = False
+    if env_term_has_colors:
+        has_colors = True
+    for handle in [sys.stdout, sys.stderr]:
+        if (hasattr(handle, 'isatty') and handle.isatty()):
+            if debug:
+                msg = '{} is a tty.'.format(handle.name)
+                sys.stderr.write(msg + '\n')
+            if (platform.system() == 'Windows' and not ansi_term):
+                if debug:
+                    sys.stderr.write('Platform is Windows and not ansi_term.\n')
+                has_colors = False
+        else:
+            if debug:
+                msg = '{} is not a tty.'.format(handle.name)
+                sys.stderr.write(msg + '\n')
+            if ansi_term:
+                pass
+            else:
+                has_colors = False
+
+    return has_colors
 
 
 # =============================================================================
@@ -130,6 +210,28 @@ class FbLoggingTestcase(unittest.TestCase):
     def tearDown(self):
         """Tear down routine for calling each particular test method."""
         pass
+
+    # -------------------------------------------------------------------------
+    @classmethod
+    def current_function_name(cls, level=0):
+        """Return the name of the function, from where this method was called."""
+        return sys._getframe(level + 1).f_code.co_name
+
+    # -------------------------------------------------------------------------
+    @classmethod
+    def get_method_doc(cls):
+        """Return the docstring of the method, from where this method was called."""
+        func_name = cls.current_function_name(1)
+        doc_str = getattr(cls, func_name).__doc__
+        cname = cls.__name__
+        mname = '{cls}.{meth}()'.format(cls=cname, meth=func_name)
+        msg = 'This is {}.'.format(mname)
+        if doc_str is None:
+            return msg
+        doc_str = textwrap.dedent(doc_str).strip()
+        if doc_str:
+            msg = '{m} - {d}'.format(m=mname, d=doc_str)
+        return msg
 
 
 # =============================================================================

@@ -24,7 +24,8 @@ sys.path.insert(0, libdir)
 
 from general import FbLoggingTestcase, get_arg_verbose, init_root_logger
 
-LOG = logging.getLogger('test_syslog')
+__app__ = 'test_syslog'
+LOG = logging.getLogger(__app__)
 
 
 # =============================================================================
@@ -53,8 +54,8 @@ class TestSyslogTestcase(FbLoggingTestcase):
 
     # -------------------------------------------------------------------------
     def test_import_modules(self):
-        """Test importing modules."""
-        LOG.info('Test importing all appropriate modules ...')
+        """Test importing all appropriate modules."""
+        LOG.info(self.get_method_doc())
 
         import fb_logging.syslog_handler
         LOG.debug('Version of fb_logging.syslog_handler: {!r}.'.format(
@@ -74,7 +75,7 @@ class TestSyslogTestcase(FbLoggingTestcase):
     @unittest.skipUnless(os.path.exists('/dev/log'), "Socket '/dev/log' must exist.")
     def test_logging_syslog(self):
         """Test logging with syslog with FbSysLogHandler."""
-        LOG.info('Test logging with FbSysLogHandler ...')
+        LOG.info(self.get_method_doc())
 
         from fb_logging.syslog_handler import FbSysLogHandler
 
@@ -114,7 +115,7 @@ class TestSyslogTestcase(FbLoggingTestcase):
     # -------------------------------------------------------------------------
     def test_unix_syslog(self):
         """Test logging with syslog with UnixSyslogHandler."""
-        LOG.info('Test logging with UnixSyslogHandler ...')
+        LOG.info(self.get_method_doc())
 
         from fb_logging.unix_handler import UnixSyslogHandler
 
@@ -158,7 +159,7 @@ if __name__ == '__main__':
     verbose = get_arg_verbose()
     if verbose is None:
         verbose = 0
-    init_root_logger(verbose)
+    init_root_logger(verbose, __app__)
 
     LOG.info('Starting tests ...')
 
