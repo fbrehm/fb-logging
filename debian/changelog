@@ -1,4 +1,4 @@
-fb-logging (1.2.0) UNRELEASED; urgency=medium
+fb-logging (1.2.0) all; urgency=medium
 
   * Adding function terminal_can_colors() to test/general.py.
   * Fixing lib/fb_logging/colored.py for dark mode.
