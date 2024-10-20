@@ -16,6 +16,7 @@ import platform
 import pprint
 import re
 import sys
+import textwrap
 from logging import Formatter
 try:
     import unittest2 as unittest
@@ -43,16 +44,24 @@ def get_arg_verbose():
 
 
 # =============================================================================
-def init_root_logger(verbose=0):
+def init_root_logger(verbose=0, appname=None):
     """Initialize the root logger."""
     root_log = logging.getLogger()
-    root_log.setLevel(logging.WARNING)
-    if verbose:
-        root_log.setLevel(logging.INFO)
-        if verbose > 1:
-            root_log.setLevel(logging.DEBUG)
+    root_log.setLevel(logging.DEBUG)
 
-    appname = os.path.basename(sys.argv[0])
+    log_lvl = logging.WARNING
+    if verbose:
+        log_lvl = logging.INFO
+        if verbose > 1:
+            log_lvl = logging.DEBUG
+
+    if appname:
+        appname = str(appname).strip()
+    if not appname:
+        appname = os.path.basename(sys.argv[0])
+
+    app_logger = logging.getLogger(appname)
+    app_logger.setLevel(log_lvl)
     format_str = appname + ': '
     if verbose:
         if verbose > 1:
@@ -65,13 +74,13 @@ def init_root_logger(verbose=0):
 
     # create log handler for console output
     lh_console = logging.StreamHandler(sys.stderr)
-    if verbose:
-        lh_console.setLevel(logging.DEBUG)
-    else:
-        lh_console.setLevel(logging.INFO)
+    # if verbose:
+    #     lh_console.setLevel(logging.DEBUG)
+    # else:
+    #     lh_console.setLevel(logging.INFO)
     lh_console.setFormatter(formatter)
 
-    root_log.addHandler(lh_console)
+    app_logger.addHandler(lh_console)
 
 
 # =============================================================================
@@ -196,6 +205,28 @@ class FbLoggingTestcase(unittest.TestCase):
     def tearDown(self):
         """Tear down routine for calling each particular test method."""
         pass
+
+    # -------------------------------------------------------------------------
+    @classmethod
+    def current_function_name(cls, level=0):
+        """Return the name of the function, from where this method was called."""
+        return sys._getframe(level + 1).f_code.co_name
+
+    # -------------------------------------------------------------------------
+    @classmethod
+    def get_method_doc(cls):
+        """Return the docstring of the method, from where this method was called."""
+        func_name = cls.current_function_name(1)
+        doc_str = getattr(cls, func_name).__doc__
+        cname = cls.__name__
+        mname = '{cls}.{meth}()'.format(cls=cname, meth=func_name)
+        msg = 'This is {}.'.format(mname)
+        if doc_str is None:
+            return msg
+        doc_str = textwrap.dedent(doc_str).strip()
+        if doc_str:
+            msg = '{m} - {d}'.format(m=mname, d=doc_str)
+        return msg
 
 
 # =============================================================================

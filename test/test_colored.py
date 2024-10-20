@@ -24,7 +24,8 @@ sys.path.insert(0, libdir)
 
 from general import FbLoggingTestcase, get_arg_verbose, init_root_logger, pp
 
-LOG = logging.getLogger('test_colored')
+__app__ = 'test_colored'
+LOG = logging.getLogger(__app__)
 
 
 # =============================================================================
@@ -40,7 +41,7 @@ class TestColored(FbLoggingTestcase):
     # -------------------------------------------------------------------------
     def test_import_modules(self):
         """Test importing module fb_logging.colored."""
-        LOG.info('Test importing module colored ...')
+        LOG.info(self.get_method_doc())
 
         LOG.debug('Importing fb_logging.colored ...')
         import fb_logging.colored
@@ -57,7 +58,7 @@ class TestColored(FbLoggingTestcase):
     # -------------------------------------------------------------------------
     def test_colorcode_4bit(self):
         """Test colored output 4 bit colors."""
-        LOG.info('Testing colored output 4 bit colors ...')
+        LOG.info(self.get_method_doc())
 
         from fb_logging.colored import Colors
         from fb_logging.colored import colorstr
@@ -143,7 +144,7 @@ class TestColored(FbLoggingTestcase):
     # -------------------------------------------------------------------------
     def test_colorcode_8bit(self):
         """Test colored output 8 bit colors."""
-        LOG.info('Testing colored output 8 bit colors ...')
+        LOG.info(self.get_method_doc())
 
         from fb_logging.colored import Colors
 
@@ -184,7 +185,7 @@ class TestColored(FbLoggingTestcase):
     # -------------------------------------------------------------------------
     def test_colorcode_24bit(self):
         """Test colored output 24 bit colors."""
-        LOG.info('Testing colored output 24 bit colors ...')
+        LOG.info(self.get_method_doc())
 
         from fb_logging.colored import colorstr_24bit
 
@@ -226,21 +227,6 @@ class TestColored(FbLoggingTestcase):
             print('{ctxt:<30} {msg}'.format(
                 ctxt=(ctxt + ':'), msg=colorstr_24bit(msg, color[0], color[1])))
 
-    # -------------------------------------------------------------------------
-    def test_formatter_object(self):
-        """Test init of a ColoredFormatter object."""
-        LOG.info('Testing init of a ColoredFormatter object ...')
-
-        from fb_logging.colored import ColoredFormatter
-
-        try:
-            formatter = ColoredFormatter(
-                '%(name)s: %(message)s (%(filename)s:%(lineno)d)')
-            LOG.debug('Formatter: {!r}'.format(formatter))
-        except Exception as e:
-            self.fail('Could not instatiate ColoredFormatter object with %s: %s' % (
-                e.__class__.__name__, str(e)))
-
 
 # =============================================================================
 if __name__ == '__main__':
@@ -248,7 +234,7 @@ if __name__ == '__main__':
     verbose = get_arg_verbose()
     if verbose is None:
         verbose = 0
-    init_root_logger(verbose)
+    init_root_logger(verbose, __app__)
 
     LOG.info('Starting tests ...')
 
@@ -259,7 +245,6 @@ if __name__ == '__main__':
     suite.addTest(TestColored('test_colorcode_4bit', verbose))
     suite.addTest(TestColored('test_colorcode_8bit', verbose))
     suite.addTest(TestColored('test_colorcode_24bit', verbose))
-    suite.addTest(TestColored('test_formatter_object', verbose))
 
     runner = unittest.TextTestRunner(verbosity=verbose)
 

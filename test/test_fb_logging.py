@@ -25,7 +25,8 @@ sys.path.insert(0, libdir)
 
 from general import FbLoggingTestcase, get_arg_verbose, init_root_logger, pp
 
-LOG = logging.getLogger('test_fb_logging')
+__app__ = 'test_fb_logging'
+LOG = logging.getLogger(__app__)
 
 
 # =============================================================================
@@ -41,7 +42,7 @@ class TestFbLogging(FbLoggingTestcase):
     # -------------------------------------------------------------------------
     def test_import_modules(self):
         """Test importing module fb_logging."""
-        LOG.info('Test importing main module ...')
+        LOG.info(self.get_method_doc())
 
         LOG.debug('Importing fb_logging ...')
         import fb_logging
@@ -58,7 +59,7 @@ class TestFbLogging(FbLoggingTestcase):
     # -------------------------------------------------------------------------
     def test_use_unix_syslog_handler(self):
         """Test fb_logging.use_unix_syslog_handler()."""
-        LOG.info('Testing fb_logging.use_unix_syslog_handler() ...')
+        LOG.info(self.get_method_doc())
 
         os_name = os.uname()[0]
         LOG.debug('Current OS kernel name: {!r}.'.format(os_name))
@@ -80,7 +81,7 @@ class TestFbLogging(FbLoggingTestcase):
     # -------------------------------------------------------------------------
     def test_get_syslog_facility_name(self):
         """Test fb_logging.get_syslog_facility_name()."""
-        LOG.info('Testing fb_logging.get_syslog_facility_name() ...')
+        LOG.info(self.get_method_doc())
 
         from fb_logging import FbSyslogFacilityInfo
         from fb_logging import use_unix_syslog_handler, syslog_facility_name
@@ -178,7 +179,7 @@ class TestFbLogging(FbLoggingTestcase):
     # -------------------------------------------------------------------------
     def test_get_syslog_facility_id(self):
         """Test fb_logging.syslog_facility_id()."""
-        LOG.info('Testing fb_logging.syslog_facility_id() ...')
+        LOG.info(self.get_method_doc())
 
         from fb_logging import FbSyslogFacilityInfo
         from fb_logging import use_unix_syslog_handler, syslog_facility_id
@@ -260,7 +261,7 @@ if __name__ == '__main__':
     verbose = get_arg_verbose()
     if verbose is None:
         verbose = 0
-    init_root_logger(verbose)
+    init_root_logger(verbose, __app__)
 
     LOG.info('Starting tests ...')
 

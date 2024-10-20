@@ -8,7 +8,7 @@ import re
 from collections.abc import Sequence
 from numbers import Number
 
-__version__ = '0.5.3'
+__version__ = '0.6.1'
 
 
 # =============================================================================
@@ -386,11 +386,19 @@ class ColoredFormatter(logging.Formatter):
     http://stackoverflow.com/questions/384076/how-can-i-make-the-python-logging-output-to-be-colored
     """
 
-    level_color = {
-        'DEBUG': None,
+    level_color_bright = {
+        'DEBUG': 'cyan',
         'INFO': 'green',
         'WARNING': 'yellow',
         'ERROR': ('bold', 'bright_red'),
+        'CRITICAL': ('bold', 'yellow', 'red_bg'),
+    }
+
+    level_color_dark = {
+        'DEBUG': 'dark_cyan',
+        'INFO': 'dark_green',
+        'WARNING': 'dark_yellow',
+        'ERROR': 'dark_red',
         'CRITICAL': ('bold', 'yellow', 'red_bg'),
     }
 
@@ -404,14 +412,15 @@ class ColoredFormatter(logging.Formatter):
         """
         logging.Formatter.__init__(self, fmt, datefmt)
 
+        self.level_color = {}
+
         if dark:
             # changing the default colors to "dark" because the xterm plugin
             # for Jenkins cannot use bright colors
             # see: http://stackoverflow.com/a/28071761
-            self.color_debug = 'dark_cyan'
-            self.color_info = 'dark_green'
-            self.color_warning = 'dark_yellow'
-            self.color_error = 'dark_red'
+            self.level_color = copy.copy(self.level_color_dark)
+        else:
+            self.level_color = copy.copy(self.level_color_bright)
 
     # -----------------------------------------------------------
     @property
