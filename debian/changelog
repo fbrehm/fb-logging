@@ -1,3 +1,14 @@
+fb-logging (1.2.0) UNRELEASED; urgency=medium
+
+  * Adding function terminal_can_colors() to test/general.py.
+  * Fixing lib/fb_logging/colored.py for dark mode.
+  * Adding test/test_colored_formatter.py for testing colorized logging
+    output.
+  * Fixing update-env.sh for Python 3.12.
+  * Decolorize the underlaying logging message.
+
+ -- Frank Brehm <frank@brehm-online.com>  Sun, 20 Oct 2024 16:30:45 +0200
+
 fb-logging (1.1.1) all; urgency=medium
 
   * Fixing .gitlab-ci.yml.
