@@ -12,7 +12,9 @@
 import argparse
 import logging
 import os
+import platform
 import pprint
+import re
 import sys
 from logging import Formatter
 try:
@@ -83,6 +85,70 @@ def pp(value, indent=4, width=99, depth=None):
     pretty_printer = pprint.PrettyPrinter(
         indent=indent, width=width, depth=depth)
     return pretty_printer.pformat(value)
+
+
+# =============================================================================
+def terminal_can_colors(debug=False):
+    """
+    Detect, whether the current terminal is able to perform ANSI color sequences.
+
+    Both stdout and stderr are checked.
+
+    @return: both stdout and stderr can perform ANSI color sequences
+    @rtype: bool
+
+    """
+    cur_term = ''
+    if 'TERM' in os.environ:
+        cur_term = os.environ['TERM'].lower().strip()
+
+    colored_term_list = (
+        r'ansi',
+        r'linux.*',
+        r'screen.*',
+        r'[xeak]term.*',
+        r'gnome.*',
+        r'rxvt.*',
+        r'interix',
+    )
+    term_pattern = r'^(?:' + r'|'.join(colored_term_list) + r')$'
+    re_term = re.compile(term_pattern)
+
+    ansi_term = False
+    env_term_has_colors = False
+
+    if cur_term:
+        if cur_term == 'ansi':
+            env_term_has_colors = True
+            ansi_term = True
+        elif re_term.search(cur_term):
+            env_term_has_colors = True
+    if debug:
+        sys.stderr.write('ansi_term: {a!r}, env_term_has_colors: {h!r}\n'.format(
+            a=ansi_term, h=env_term_has_colors))
+
+    has_colors = False
+    if env_term_has_colors:
+        has_colors = True
+    for handle in [sys.stdout, sys.stderr]:
+        if (hasattr(handle, 'isatty') and handle.isatty()):
+            if debug:
+                msg = '{} is a tty.'.format(handle.name)
+                sys.stderr.write(msg + '\n')
+            if (platform.system() == 'Windows' and not ansi_term):
+                if debug:
+                    sys.stderr.write('Platform is Windows and not ansi_term.\n')
+                has_colors = False
+        else:
+            if debug:
+                msg = '{} is not a tty.'.format(handle.name)
+                sys.stderr.write(msg + '\n')
+            if ansi_term:
+                pass
+            else:
+                has_colors = False
+
+    return has_colors
 
 
 # =============================================================================
