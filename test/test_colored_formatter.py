@@ -74,6 +74,7 @@ class TestColoredFormatter(FbLoggingTestcase):
 
         from fb_logging import CRITICAL, ERROR, WARNING, NOTICE, INFO, DEBUG, TRACE
         from fb_logging.colored import ColoredFormatter
+        from fb_logging.colored import colorstr
 
         format_str = self.appname + ' [%(asctime)s]: %(name)s(%(lineno)d) %(funcName)s() '
         format_str += '%(levelname)s - %(message)s'
@@ -125,6 +126,13 @@ class TestColoredFormatter(FbLoggingTestcase):
                 print()
             LOG.info('Logging with level {!r}.'.format(lvl))
             tst_logger.log(lvl, msg)
+
+        if self.verbose >= 1:
+            print()
+        colored_msg = 'This is a log entry with a {one} and a {two}.'.format(
+            one=colorstr('cyan message', 'cyan'), two=colorstr('green message', 'green'))
+        LOG.debug('Logging a partially colorized message.')
+        tst_logger.log(NOTICE, colored_msg)
 
 
 # =============================================================================
