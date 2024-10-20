@@ -49,6 +49,8 @@ def init_root_logger(verbose=0, appname=None):
     root_log = logging.getLogger()
     root_log.setLevel(logging.DEBUG)
 
+    logging.addLevelName(25, 'NOTICE')
+
     log_lvl = logging.WARNING
     if verbose:
         log_lvl = logging.INFO

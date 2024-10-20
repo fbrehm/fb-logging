@@ -8,7 +8,7 @@ import re
 from collections.abc import Sequence
 from numbers import Number
 
-__version__ = '0.6.1'
+__version__ = '0.6.2'
 
 
 # =============================================================================
@@ -387,23 +387,25 @@ class ColoredFormatter(logging.Formatter):
     """
 
     level_color_bright = {
-        'DEBUG': 'cyan',
-        'INFO': 'green',
+        'DEBUG': 'blue',
+        'INFO': 'cyan',
+        'NOTICE': 'green',
         'WARNING': 'yellow',
         'ERROR': ('bold', 'bright_red'),
         'CRITICAL': ('bold', 'yellow', 'red_bg'),
     }
 
     level_color_dark = {
-        'DEBUG': 'dark_cyan',
-        'INFO': 'dark_green',
+        'DEBUG': 'dark_blue',
+        'INFO': 'dark_cyan',
+        'NOTICE': 'dark_green',
         'WARNING': 'dark_yellow',
         'ERROR': 'dark_red',
         'CRITICAL': ('bold', 'yellow', 'red_bg'),
     }
 
     # -------------------------------------------------------------------------
-    def __init__(self, fmt=None, datefmt=None, dark=False):
+    def __init__(self, fmt=None, datefmt=None, dark=False, colorize_msg=False):
         """Initialize the formatter with specified format strings.
 
         Initialize the formatter either with the specified format string, or a
@@ -421,6 +423,18 @@ class ColoredFormatter(logging.Formatter):
             self.level_color = copy.copy(self.level_color_dark)
         else:
             self.level_color = copy.copy(self.level_color_bright)
+
+        self._colorize_msg = False
+
+    # -----------------------------------------------------------
+    @property
+    def colorize_msg(self):
+        """Return whether the logging message should also be colorized."""
+        return getattr(self, '_colorize_msg', False)
+
+    @colorize_msg.setter
+    def colorize_msg(self, value):
+        self._colorize_msg = bool(value)
 
     # -----------------------------------------------------------
     @property
@@ -491,7 +505,8 @@ class ColoredFormatter(logging.Formatter):
             if self.level_color[levelname] is not None:
                 rcrd.levelname = colorstr(
                     levelname, self.level_color[levelname])
-                rcrd.msg = colorstr(rcrd.msg, self.level_color[levelname])
+                if self.colorize_msg:
+                    rcrd.msg = colorstr(rcrd.msg, self.level_color[levelname])
 
         return logging.Formatter.format(self, rcrd)
 

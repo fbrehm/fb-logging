@@ -80,6 +80,7 @@ class TestColoredFormatter(FbLoggingTestcase):
         msgs = (
             (logging.DEBUG, 'This is a DEBUG message.'),
             (logging.INFO, 'This is a INFO message.'),
+            (25, 'This is a NOTICE message.'),
             (logging.WARNING, 'This is a WARNING message.'),
             (logging.ERROR, 'This is a ERROR message.'),
             (logging.CRITICAL, 'This is a CRITICAL message.'),
@@ -92,7 +93,7 @@ class TestColoredFormatter(FbLoggingTestcase):
         bright_handler.setFormatter(bright_fmt)
 
         if self.verbose > 1:
-            LOG.debug("Used color levels in bright mode:\n" + pp(bright_fmt.level_color))
+            LOG.debug('Used color levels in bright mode:\n' + pp(bright_fmt.level_color))
 
         dark_fmt = ColoredFormatter(format_str, dark=True)
         LOG.debug('Dark formatter: {!r}'.format(dark_fmt))
@@ -101,7 +102,7 @@ class TestColoredFormatter(FbLoggingTestcase):
         dark_handler.setFormatter(dark_fmt)
 
         if self.verbose > 1:
-            LOG.debug("Used color levels in dark mode:\n" + pp(dark_fmt.level_color))
+            LOG.debug('Used color levels in dark mode:\n' + pp(dark_fmt.level_color))
 
         tst_logger = logging.getLogger('color_tester')
         tst_logger.addHandler(bright_handler)
@@ -113,7 +114,7 @@ class TestColoredFormatter(FbLoggingTestcase):
 
             if self.verbose >= 1:
                 print()
-            LOG.info("Logging with level {!r}.".format(lvl))
+            LOG.info('Logging with level {!r}.'.format(lvl))
             tst_logger.log(lvl, msg)
 
 
