@@ -1,3 +1,9 @@
+fb-logging (1.2.1) UNRELEASED; urgency=medium
+
+  * Setting Copyright to year 2025
+
+ -- Frank Brehm <frank.brehm@pixelpark.com>  Thu, 17 Apr 2025 14:36:24 +0200
+
 fb-logging (1.2.0) all; urgency=medium
 
   * Adding function terminal_can_colors() to test/general.py.
