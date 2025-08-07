@@ -23,7 +23,7 @@ BASE_DIR=$( dirname "$0" )
 cd "${BASE_DIR}"
 BASE_DIR=$( readlink -f . )
 
-declare -a VALID_PY_VERSIONS=("3.12" "3.11" "3.10" "3.9" "3.8" "3.7" "3.6")
+declare -a VALID_PY_VERSIONS=("3.13" "3.12" "3.11" "3.10" "3.9" "3.8")
 
 PIP_OPTIONS=
 export VIRTUAL_ENV_DISABLE_PROMPT=y
@@ -308,6 +308,7 @@ upgrade_pip() {
     line
     info "Upgrading PIP …"
     empty_line
+    # shellcheck disable=SC2086
     pip install ${PIP_OPTIONS} --upgrade --upgrade-strategy eager pip
     empty_line
 }
@@ -317,6 +318,7 @@ upgrade_setuptools() {
     line
     info "Upgrading setuptools + wheel + six …"
     empty_line
+    # shellcheck disable=SC2086
     pip install ${PIP_OPTIONS} --upgrade --upgrade-strategy eager setuptools wheel six
     empty_line
 }
@@ -326,11 +328,13 @@ upgrade_modules() {
     line
     info "Installing and/or upgrading necessary modules …"
     empty_line
+    # shellcheck disable=SC2086
     pip install ${PIP_OPTIONS} --upgrade --upgrade-strategy eager --requirement requirements.txt
     empty_line
     if [[ -f requirements-lint.txt ]] ; then
         info "Installing and/or upgrading necessary modules for linting …"
         empty_line
+        # shellcheck disable=SC2086
         pip install ${PIP_OPTIONS} --upgrade --upgrade-strategy eager --requirement requirements-lint.txt
         empty_line
     fi
@@ -372,7 +376,7 @@ main() {
     get_options "$@"
     init_venv
     upgrade_pip
-    upgrade_setuptools
+    # upgrade_setuptools
     upgrade_modules
     list_modules
     compile_i18n

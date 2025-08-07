@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "fb_logging"
+name = "fb-logging"
 homepage = "https://github.com/fbrehm/fb-logging"
 version = "1.2.1"
 description = "Python modules to extend the logging mechanism in Python."
@@ -25,11 +25,17 @@ classifiers = [
 packages = [{include = "fb_logging", from = "src"}]
 
 [tool.poetry.dependencies]
-python = ">=3.8"
+python = ">=3.9"
 
-[tool.poetry.dev-dependencies]
-pytest = "^7.0.0"
-pytest-cov = "^3.0.0"
+[tool.poetry.group.dev.dependencies]
+black = "^25.1.0"
+flake8 = "^7.3.0"
+isort = "^6.0.1"
+pylint = "^3.3.7"
+
+
+[tool.poetry.group.test.dependencies]
+pytest = "^8.4.1"
 
 [build-system]
 requires = ["poetry-core"]
