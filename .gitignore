@@ -32,7 +32,6 @@ share/python-wheels/
 MANIFEST
 lib/fb_logging/local_version.py
 tmp/
-poetry.lock
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
