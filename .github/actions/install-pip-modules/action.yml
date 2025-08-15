@@ -41,12 +41,12 @@ runs:
         pip install poetry
         echo ""
         echo "Installing all necessary packages with poetry ..."
-        POETRY_OPTS='--no-root --ansi'
-        if [[ "${INSTALL_PYTEST}" != false ]] ; then
-            POETRY_OPTS+=" --only=test"
+        POETRY_OPTS='--no-root --ansi --without=dev'
+        if [[ "${INSTALL_PYTEST}" == false ]] ; then
+            POETRY_OPTS+=" --without=test"
         fi
-        if [[ "${INSTALL_LINTER_TOOLS}" != false ]] ; then
-            POETRY_OPTS+=" --only=dev"
+        if [[ "${INSTALL_LINTER_TOOLS}" == false ]] ; then
+            POETRY_OPTS+=" --without=lint"
         fi
         echo "Poetry install options: '${POETRY_OPTS}'"
         poetry install ${POETRY_OPTS}

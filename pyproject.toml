@@ -27,13 +27,15 @@ packages = [{include = "fb_logging", from = "src"}]
 [tool.poetry.dependencies]
 python = ">=3.9"
 poethepoet = "^0.36.0"
+six = '^1.16.0'
 
 [tool.poetry.group.dev.dependencies]
 black = "^25.1.0"
-flake8 = "^7.3.0"
 isort = "^6.0.1"
+
+[tool.poetry.group.lint.dependencies]
+flake8 = "^7.3.0"
 pylint = "^3.3.7"
-six = '^1.16.0'
 flake8-blind-except = "^0.2.1"
 flake8-builtins = "^2.5.0"
 flake8-bugbear = "^24.12.12"
@@ -43,7 +45,6 @@ flake8-deprecated = "^2.2.1"
 flake8-docstrings = "^1.7.0"
 flake8-import-order = "^0.19.2"
 flake8-quotes = "^3.4.0"
-
 
 [tool.poetry.group.test.dependencies]
 pytest = "^8.4.1"
