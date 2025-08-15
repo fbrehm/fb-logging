@@ -45,56 +45,11 @@ runs:
         if [[ "${INSTALL_PYTEST}" != false ]] ; then
             POETRY_OPTS+=" --only=test"
         fi
-        if [[ "${INSTALL_LINTER_TOOLS}" == false ]] ; then
+        if [[ "${INSTALL_LINTER_TOOLS}" != false ]] ; then
             POETRY_OPTS+=" --only=dev"
         fi
         echo "Poetry install options: '${POETRY_OPTS}'"
         poetry install ${POETRY_OPTS}
-    # - name: Install Pytest
-    #   env:
-    #     INSTALL_PYTEST: ${{ inputs.install_pytest }}
-    #     USE_POETRY: ${{ inputs.use_poetry }}
-    #   id: inst-pytest
-    #   shell: bash
-    #   run: |
-    #     if [[ "${USE_POETRY}" != true ]] ; then
-    #         echo "Installing pytest by pip"
-    #         if [[ "${INSTALL_PYTEST}" != false ]] ; then
-    #             pip install --upgrade --upgrade-strategy eager pytest
-    #         else
-    #             echo "Installing pytest not necessary."
-    #         fi
-    #     fi
-    # - name: Install Linter tools
-    #   env:
-    #     INSTALL_LINTER_TOOLS: ${{ inputs.install_linter_tools }}
-    #     USE_POETRY: ${{ inputs.use_poetry }}
-    #   id: inst-linter-tools
-    #   shell: bash
-    #   run: |
-    #     if [[ "${INSTALL_LINTER_TOOLS}" == false ]] ; then
-    #         echo "Installation of Linter tools not necessary."
-    #     else
-    #         echo "Installing shellcheck and yamllint ..."
-    #         if type -p apt >/dev/null; then
-    #             apt install --yes shellcheck yamllint
-    #         elif type -p dnf >/dev/null; then
-    #             dnf --assumeyes install ShellCheck yamllint
-    #         elif type -p yum >/dev/null; then
-    #             yum --assumeyes install ShellCheck yamllint
-    #         else
-    #             echo "Did not found apt, dnf or yum." >&2
-    #             exit 5
-    #         fi
-    #         if [[ "${USE_POETRY}" != true ]] ; then
-    #             echo "Installing flake8 and pylint ..."
-    #             pip install --upgrade --upgrade-strategy eager flake8 pylint
-    #             if [[ -f requirements-lint.txt ]] ; then
-    #                 echo "Installing PIP requirements from requirements-lint.txt ..."
-    #                 pip install --upgrade --upgrade-strategy eager --requirement requirements-lint.txt
-    #             fi
-    #         fi
-    #     fi
     - name: Show installed Python modules
       id: show-py-modules
       env:
@@ -102,10 +57,6 @@ runs:
       shell: bash
       run: |
         echo "All installed Python modules:"
-        if [[ "${USE_POETRY}" != true ]] ; then
-            pip list --format columns
-        else
-            poetry run pip list --format columns
-        fi
+        poetry run pip list --format columns
 
 # vim: et tabstop=2 expandtab shiftwidth=2 softtabstop=2 list
