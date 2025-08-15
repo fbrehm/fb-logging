@@ -7,36 +7,14 @@ name: "Testing and building OS packages."
 # yamllint disable-line rule:truthy
 on:
   push:
-    branches:
-      - '**'
-      - '!dev-**'
-      - '!dev/**'
-      - '!hf**'
-      - '!old**'
-      - '!feature**'
-      - 'dev/workflow'
-      - 'build-*'
+    branches-ignore:
+      - 'dev-**'
+      - 'dev/**'
+      - 'hf**'
+      - 'old**'
+      - 'feature**'
     tags:
       - '**'
-#  workflow_dispatch: {}
-  workflow_call:
-    inputs:
-      debian_email:
-        description: 'The mail address of the user, which will be used to update debian/chagelog.'
-        type: string
-        default: 'frank@brehm-online.com'
-      debian_fullname:
-        description: 'A human readable name of the user, which will be used to update debian/chagelog.'
-        type: string
-        default: 'Frank Brehm'
-      test_python_versions:
-        description: 'A list of Python versions, for which the package should be tested.'
-        type: string
-        default: '["3.8", "3.9", "3.10", "3.11", "3.12", "3.13"]'
-      latest_debian_version:
-        description: 'The short name of the latest stable Debian version.'
-        type: string
-        default: 'bookworm'
 
 ################################################################################
 # These environments can be overridden in the GUI
@@ -51,87 +29,31 @@ env:
   SMTP_SERVER_ADDRESS: 'mail.uhu-banane.net'
   SMTP_SERVER_PORT: 587
   USED_TIMEZONE: 'Europe/Berlin'
+  PKG_NAME: 'fb-logging'
 
 ################################################################################
 jobs:
 
   ###########################
-  prepare-image:
-    name: "Preparing image for the first time."
-    runs-on: ubuntu-latest
-    steps:
-      - run: echo "Null - Nada - Njet!"
-    outputs:
-      password_file: ${{ env.GPG_PASSWORD_FILE }}
-      key_id: ${{ env.GPG_KEY_ID }}
-      repo_dir: ${{ env.FB_REPO_IN_DIR }}
-      smtp_server_address: ${{ env.SMTP_SERVER_ADDRESS }}
-      smtp_server_port: ${{ env.SMTP_SERVER_PORT }}
-      smtp_sender_address: ${{ env.SENDER_ADDRESS }}
-      smtp_recipient_addresses: ${{ env.NOTIFY_ADDRESS }}
-
-  ###########################
-  define-test-matrix:
-    name: "Defining the Python Test matrix"
-    runs-on: ubuntu-latest
-    container: debian:${{ inputs.latest_debian_version }}
-    env:
-      PYTHON_VERSIONS: ${{ inputs.test_python_versions }}
-    outputs:
-      matrix: ${{ steps.set-matrix.outputs.matrix }}
-    steps:
-      - name: "Update package lists"
-        id: apt-update
-        shell: bash
-        run: |
-          echo "Update all package lists."
-          apt update --yes
-
-      - name: "Install JQ"
-        shell: bash
-        run: |
-          apt install --yes jq
-          echo -e "Version of JQ: $( jq --version )"
-
-      - name: Defining the Test-Matrix
-        id: set-matrix
-        shell: bash
-        run: |
-          if [[ -z "${{ inputs.test_python_versions }}" ]] ; then
-            echo "::error::No Python versions given for creating the Python test matrix"
-            exit 5
-          fi
-
-          matrix_json="{\"python_version\": ${PYTHON_VERSIONS} }"
-
-          echo -e "\nGenerated JSON:"
-          echo "${matrix_json}" | jq -C .
-
-          echo "matrix=${matrix_json}" >> ${GITHUB_OUTPUT}
-          echo "::debug::Using Matrix: $( cat ${GITHUB_OUTPUT} )"
-
-  ###########################
   test:
-    name: 'Exec Python-${{ matrix.python_version }} tests'
     runs-on: ubuntu-latest
-    needs: define-test-matrix
+    name: Executing Python tests
     strategy:
       fail-fast: false
-      matrix: ${{ fromJSON(needs.define-test-matrix.outputs.matrix) }}
+      matrix:
+        python_version: ['3.8', '3.9', '3.10', '3.11', '3.12' ]
     container: python:${{ matrix.python_version }}
-    env:
-      LANG: ${{ matrix.language }}
-      LANGUAGE: ${{ matrix.language }}
-      LC_ALL: ${{ matrix.language }}
     steps:
-      - name: "Checking out sources."
-        uses: actions/checkout@v4
-      - name: "Show Environment"
-        shell: bash
-        run: |
-          echo "Bash enviroment:"
-          env | sort
-          echo -e "\nPython version:"
-          python --version
+      - uses: actions/checkout@v2
+      - name: Show Environment
+        run: python --version
+      - uses: ./.github/actions/prepare-debian-container
+      # - uses: ./.github/actions/install-pip-modules
+      # - name: Install PyTest with pip
+      #   run: |
+      #     pip install --upgrade --upgrade-strategy eager pytest
+      #     pip list --format columns
+      # - name: Executing PyTest
+      #   run: pytest --verbose
 
 # vim: et tabstop=2 expandtab shiftwidth=2 softtabstop=2 list
