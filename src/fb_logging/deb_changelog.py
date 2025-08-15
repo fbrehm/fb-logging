@@ -508,7 +508,7 @@ class Changelog(object):
         if strict:
             raise ChangelogParseError(message)
         else:
-            warnings.warn(message)
+            warnings.warn(message, stacklevel=1)
 
     # -------------------------------------------------------------------------
     def parse_changelog(self,                                                   # noqa: C901
@@ -702,7 +702,7 @@ class Changelog(object):
                 else:
                     changes.append(line)
             else:
-                assert False, 'Unknown state: %s' % state
+                raise AssertionError(f'Unknown state: {state}')
 
         if (state not in (next_heading_or_eof, slurp_to_end)
                 or (state == slurp_to_end and old_state != next_heading_or_eof)):

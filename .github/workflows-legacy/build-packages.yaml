@@ -1,6 +1,7 @@
 ---
 
-name: "Building OS packages with a shared workflow."
+# name: "Building OS packages with a shared workflow."
+name: "Testing and building OS packages."
 
 ################################################################################
 # yamllint disable-line rule:truthy
@@ -14,9 +15,28 @@ on:
       - '!old**'
       - '!feature**'
       - 'dev/workflow'
+      - 'build-*'
     tags:
       - '**'
-  workflow_dispatch: {}
+#  workflow_dispatch: {}
+  workflow_call:
+    inputs:
+      debian_email:
+        description: 'The mail address of the user, which will be used to update debian/chagelog.'
+        type: string
+        default: 'frank@brehm-online.com'
+      debian_fullname:
+        description: 'A human readable name of the user, which will be used to update debian/chagelog.'
+        type: string
+        default: 'Frank Brehm'
+      test_python_versions:
+        description: 'A list of Python versions, for which the package should be tested.'
+        type: string
+        default: '["3.8", "3.9", "3.10", "3.11", "3.12", "3.13"]'
+      latest_debian_version:
+        description: 'The short name of the latest stable Debian version.'
+        type: string
+        default: 'bookworm'
 
 ################################################################################
 # These environments can be overridden in the GUI
@@ -51,39 +71,67 @@ jobs:
       smtp_recipient_addresses: ${{ env.NOTIFY_ADDRESS }}
 
   ###########################
-  call-shared-workflow:
-    name: "Calling shared build workflow"
-    needs:
-      - prepare-image
-    uses: fbrehm/actions/.github/workflows/build-python-packages.yaml@main
-    with:
-      has_i18n: false
-      additional_locales: ''
-      # test_python_versions: '["3.8", "3.9", "3.10", "3.11", "3.12"]'
-      # test_python_versions: '["3.8", "3.10", "3.11", "3.12"]'
-      libdir: lib/fb_logging
-      # debian_versions: 'Debian-Bullseye Debian-Bookworm Ubuntu-Focal Ubuntu-Jammy'
-      # el_versions: 'el-8 el-9'
-      additional_debian_build_packages: ''
-      additional_rpm_build_packages: ''
-      password_file: ${{ needs.prepare-image.outputs.password_file }}
-      key_id: ${{ needs.prepare-image.outputs.key_id }}
-      do_help2man: true
-      repo_dir: ${{ needs.prepare-image.outputs.repo_dir }}
-      smtp_server_address: ${{ needs.prepare-image.outputs.smtp_server_address }}
-      smtp_server_port: ${{ needs.prepare-image.outputs.smtp_server_port }}
-      smtp_sender_address: ${{ needs.prepare-image.outputs.smtp_sender_address }}
-      smtp_recipient_addresses: ${{ needs.prepare-image.outputs.smtp_recipient_addresses }}
-    secrets:
-      pypi_token: ${{ secrets.PYPI_TOKEN }}
-      public_key: ${{ secrets.GPG_PUBLIC_KEY }}
-      private_key: ${{ secrets.GPG_PRIVATE_KEY }}
-      key_password: ${{ secrets.GPG_KEY_PASSWORD }}
-      repo_server: ${{ secrets.FB_REPO_SERVER }}
-      repo_user: ${{ secrets.FB_REPO_USER }}
-      ssh_private_key: ${{ secrets.FB_REPOIN_SSH_PRIVATE_KEY }}
-      smtp_user: ${{ secrets.EMAIL_USERNAME }}
-      smtp_password: ${{ secrets.EMAIL_PASSWORD }}
+  define-test-matrix:
+    name: "Defining the Python Test matrix"
+    runs-on: ubuntu-latest
+    container: debian:${{ inputs.latest_debian_version }}
+    env:
+      PYTHON_VERSIONS: ${{ inputs.test_python_versions }}
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - name: "Update package lists"
+        id: apt-update
+        shell: bash
+        run: |
+          echo "Update all package lists."
+          apt update --yes
 
+      - name: "Install JQ"
+        shell: bash
+        run: |
+          apt install --yes jq
+          echo -e "Version of JQ: $( jq --version )"
+
+      - name: Defining the Test-Matrix
+        id: set-matrix
+        shell: bash
+        run: |
+          if [[ -z "${{ inputs.test_python_versions }}" ]] ; then
+            echo "::error::No Python versions given for creating the Python test matrix"
+            exit 5
+          fi
+
+          matrix_json="{\"python_version\": ${PYTHON_VERSIONS} }"
+
+          echo -e "\nGenerated JSON:"
+          echo "${matrix_json}" | jq -C .
+
+          echo "matrix=${matrix_json}" >> ${GITHUB_OUTPUT}
+          echo "::debug::Using Matrix: $( cat ${GITHUB_OUTPUT} )"
+
+  ###########################
+  test:
+    name: 'Exec Python-${{ matrix.python_version }} tests'
+    runs-on: ubuntu-latest
+    needs: define-test-matrix
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.define-test-matrix.outputs.matrix) }}
+    container: python:${{ matrix.python_version }}
+    env:
+      LANG: ${{ matrix.language }}
+      LANGUAGE: ${{ matrix.language }}
+      LC_ALL: ${{ matrix.language }}
+    steps:
+      - name: "Checking out sources."
+        uses: actions/checkout@v4
+      - name: "Show Environment"
+        shell: bash
+        run: |
+          echo "Bash enviroment:"
+          env | sort
+          echo -e "\nPython version:"
+          python --version
 
 # vim: et tabstop=2 expandtab shiftwidth=2 softtabstop=2 list
