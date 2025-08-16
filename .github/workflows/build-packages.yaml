@@ -51,11 +51,7 @@ jobs:
       - uses: ./.github/actions/install-pip-modules
         with:
           install_pytest: true
-      # - name: Install PyTest with pip
-      #   run: |
-      #     pip install --upgrade --upgrade-strategy eager pytest
-      #     pip list --format columns
-      # - name: Executing PyTest
-      #   run: pytest --verbose
+      - name: Executing PyTest
+        run: poetry run pytest --verbose
 
 # vim: et tabstop=2 expandtab shiftwidth=2 softtabstop=2 list
