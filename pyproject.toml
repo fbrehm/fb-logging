@@ -30,11 +30,13 @@ dependencies = [
 ]
 
 [project.urls]
-Source = "git@github.com:fbrehm/fb-logging"
+Source = "https://github.com/fbrehm/fb-logging"
 
 [tool.flit.module]
 name = "fb_logging"
 
+[project.scripts]
+dch2speclog = "fb_logging.dch2speclog:main"
 
 [project.optional-dependencies]
 develop = [
@@ -56,7 +58,7 @@ lint = [
 ]
 
 test = [
-    "pytest ~= 8",
+    "pytest >= 7.0.0, < 9.0.0",
 ]
 
 [tool.black]
