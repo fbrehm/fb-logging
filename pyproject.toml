@@ -1,0 +1,65 @@
+[build-system]
+requires = ["flit_core >=3.2,<4"]
+build-backend = "flit_core.buildapi"
+
+[project]
+name = "fb-logging"
+authors = [{name = "Frank Brehm", email = "frank@brehm-online.com"}]
+license = {file = "LICENSE"}
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Framework :: IPython",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: GNU Lesser General Public License v3 or later (LGPLv3+)",
+    "Natural Language :: English",
+    "Operating System :: POSIX",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+dynamic = ["version", "description"]
+readme = "README.md"
+requires-python = ">=3.8"
+dependencies = [
+    "six ~= 1.16",
+]
+
+[project.urls]
+Source = "git@github.com:fbrehm/fb-logging"
+
+[tool.flit.module]
+name = "fb_logging"
+
+
+[project.optional-dependencies]
+develop = [
+    "black ~= 25",
+    "isort ~= 6",
+]
+
+lint = [
+    "flake8 ~= 7",
+    "pylint ~= 3",
+    "flake8-blind-except ~= 0.2",
+    "flake8-builtins ~= 2",
+    "flake8-bugbear ~= 24",
+    "flake8-class-newline ~= 1",
+    "flake8-comprehensions ~= 3",
+    "flake8-deprecated ~= 2",
+    "flake8-docstrings ~= 1",
+    "flake8-import-order ~= 0.19"
+]
+
+test = [
+    "pytest ~= 8",
+]
+
+[tool.black]
+line-length = 99
+target-version = ["py39", "py310", "py311", "py312"]
+
