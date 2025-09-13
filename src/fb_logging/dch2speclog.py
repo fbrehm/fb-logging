@@ -64,8 +64,7 @@ class FileOptionAction(argparse.Action):
     # -------------------------------------------------------------------------
     def __init__(self, option_strings, *args, **kwargs):
         """Initialise a LogFileOptionAction object."""
-        super(FileOptionAction, self).__init__(
-            option_strings=option_strings, *args, **kwargs)
+        super(FileOptionAction, self).__init__(*args, option_strings=option_strings, **kwargs)
 
     # -------------------------------------------------------------------------
     def __call__(self, parser, namespace, values, option_string=None):
@@ -361,7 +360,9 @@ class Dch2SpecLogApp(object):
                     change = m.group(1)
                 continue
 
-            warnings.warn('Could not evaluate Changelog entry {!r}.'.format(line), SyntaxWarning)
+            warnings.warn(
+                'Could not evaluate Changelog entry {!r}.'.format(line),
+                SyntaxWarning, stacklevel=1)
 
         if change:
             clist.append(change)
