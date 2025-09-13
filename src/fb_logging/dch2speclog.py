@@ -430,15 +430,17 @@ class Dch2SpecLogApp(object):
 
 
 # =============================================================================
+def main():
+    """Run the application - main entry point."""
+    app = Dch2SpecLogApp()
 
-app = Dch2SpecLogApp()
+    if app.verbose > 2:
+        print('{c}-Object:\n{a}'.format(
+            c=app.__class__.__name__, a=pp(app.__dict__)), file=sys.stderr)
 
-if app.verbose > 2:
-    print('{c}-Object:\n{a}'.format(
-        c=app.__class__.__name__, a=pp(app.__dict__)), file=sys.stderr)
+    app()
 
-app()
+    sys.exit(0)
 
-sys.exit(0)
 
 # vim: tabstop=4 expandtab shiftwidth=4 softtabstop=4
