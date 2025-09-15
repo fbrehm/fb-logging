@@ -43,6 +43,7 @@ runs:
       env:
         INSTALL_PYTEST: ${{ inputs.install_pytest }}
         INSTALL_LINTER_TOOLS: ${{ inputs.install_linter_tools }}
+        FLIT_ROOT_INSTALL: 1
       shell: bash
       run: |
         echo ""
