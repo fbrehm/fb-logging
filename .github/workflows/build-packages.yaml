@@ -1,0 +1,61 @@
+---
+
+# name: "Building OS packages with a shared workflow."
+name: "Testing and building OS packages."
+
+################################################################################
+# yamllint disable-line rule:truthy
+on:
+  push:
+    branches-ignore:
+      - 'dev-**'
+      - 'dev/**'
+      - 'hf**'
+      - 'old**'
+      - 'feature**'
+    tags:
+      - '**'
+
+################################################################################
+# These environments can be overridden in the GUI
+env:
+  DEBFULLNAME: 'Frank Brehm'
+  DEBEMAIL: 'frank@brehm-online.com'
+  FB_REPO_IN_DIR: '/var/www/incoming'
+  GPG_KEY_ID: '87A8DBD6B796E12A'
+  GPG_PASSWORD_FILE: '.private/uhu.txt'
+  NOTIFY_ADDRESS: 'frank@brehm-online.com,frank.brehm@pixelpark.com'
+  SENDER_ADDRESS: 'Frank Brehm <frank@brehm-online.com>'
+  SMTP_SERVER_ADDRESS: 'mail.uhu-banane.net'
+  SMTP_SERVER_PORT: 587
+  USED_TIMEZONE: 'Europe/Berlin'
+  PKG_NAME: 'fb-logging'
+
+################################################################################
+jobs:
+
+  ###########################
+  test:
+    runs-on: ubuntu-latest
+    name: Executing Python tests
+    strategy:
+      fail-fast: false
+      matrix:
+        python_version: ['3.8', '3.9', '3.10', '3.11', '3.12' ]
+    container: python:${{ matrix.python_version }}
+    steps:
+      - uses: actions/checkout@v2
+      - name: Show Environment
+        run: python --version
+      - uses: ./.github/actions/prepare-debian-container
+      - uses: ./.github/actions/install-pip-modules
+        with:
+          install_pytest: true
+      - name: Executing PyTest
+        run: |
+          echo ""
+          echo "Executing pytest ..."
+          source .venv/bin/activate
+          pytest --verbose
+
+# vim: et tabstop=2 expandtab shiftwidth=2 softtabstop=2 list
