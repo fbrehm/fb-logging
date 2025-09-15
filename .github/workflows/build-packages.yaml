@@ -55,6 +55,8 @@ jobs:
         run: |
           echo ""
           echo "Executing pytest ..."
+          echo "PWD: '$( pwd )'"
+          ls -lA --color=yes
           source .venv/bin/activate
           pytest --verbose
 
