@@ -37,7 +37,8 @@ Source = "https://github.com/fbrehm/fb-logging"
 name = "fb_logging"
 
 [project.scripts]
-dch2speclog = "fb_logging.dch2speclog:main"
+# dch2speclog = "fb_logging.dch2speclog:main"
+dch2speclog = "fb_logging.dch2spl:main"
 
 [project.optional-dependencies]
 development = [
