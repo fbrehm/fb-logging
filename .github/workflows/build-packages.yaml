@@ -56,8 +56,6 @@ jobs:
         shell: bash
         run: |
           echo ""
-          echo "PWD: '$( pwd )'"
-          ls -lA --color=yes
           source .venv/bin/activate
           echo ""
           echo "Executing pytest ..."
