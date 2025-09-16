@@ -27,6 +27,7 @@ readme = "README.md"
 requires-python = ">=3.8"
 dependencies = [
     "click",
+    "semver",
     "six",
 ]
 
@@ -67,3 +68,6 @@ testing = [
 line-length = 99
 target-version = ["py39", "py310", "py311", "py312"]
 
+
+# =============================================================================
+# vim: fileencoding=utf-8 filetype=toml tabstop=4 expandtab shiftwidth=4 softtabstop=4 list
