@@ -57,10 +57,8 @@ jobs:
         id: exec-pytest
         shell: bash
         run: |
-          echo ""
-          source .venv/bin/activate
-          echo ""
           echo "Executing pytest ..."
+          source .venv/bin/activate
           pytest --verbose
 
   ###########################
@@ -80,7 +78,6 @@ jobs:
       - name: "Checking package version against tag."
         shell: bash
         run: |
-          echo ""
           echo "Getting package version from '${INDEX_FILE}' ..."
           PACKAGE_VERSION=$( cat "${INDEX_FILE}" | \
               grep -P '^__version__(\s|=)' | \
@@ -96,10 +93,9 @@ jobs:
               fi
           fi
 
-      - name: "Comparing package version in debian/changlog and in ${INDEX_FILE}."
+      - name: "Comparing package version in debian/changlog and in index file."
         shell: bash
         run: |
-          echo ""
           echo "Getting package version from '${INDEX_FILE}' ..."
           PACKAGE_VERSION=$( cat "${INDEX_FILE}" | \
               grep -P '^__version__(\s|=)' | \
@@ -124,7 +120,9 @@ jobs:
         run: |
           echo "Executing flake8 ..."
           source .venv/bin/activate
+          echo "Flake8 version:"
           flake8 --version
+          echo "And fire ..."
           flake8 "${MODULE_DIR}" test
 
 # vim: et tabstop=2 expandtab shiftwidth=2 softtabstop=2 list
