@@ -30,6 +30,8 @@ env:
   SMTP_SERVER_PORT: 587
   USED_TIMEZONE: 'Europe/Berlin'
   PKG_NAME: 'fb-logging'
+  MODULE_DIR: 'src/fb_logging'
+  INDEX_FILE: 'src/fb_logging/__init__.py'
 
 ################################################################################
 jobs:
@@ -60,5 +62,63 @@ jobs:
           echo ""
           echo "Executing pytest ..."
           pytest --verbose
+
+  ###########################
+  linter:
+    runs-on: ubuntu-latest
+    name: Executing Linters
+    container: python:3.12
+    needs:
+      - test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/prepare-debian-container
+      - uses: ./.github/actions/install-pip-modules
+        with:
+          install_linter_tools: true
+
+      - name: "Checking package version against tag."
+        shell: bash
+        run: |
+          PACKAGE_VERSION=$( cat "${INDEX_FILE}" | \
+              grep -P '^__version__(\s|=)' | \
+                  sed -e "s/^[^'\"]*['\"]//" -e "s/['\"][ 	]*\$//" )
+          echo "::notice::Package version: '${PACKAGE_VERSION}'"
+          if echo "${GITREF}" | grep -q -P '^refs/tags/' ; then
+              TAG_VERSION=$( echo "${GITREF}" | sed -e 's|^refs/tags/||' )
+              if [[ "${PACKAGE_VERSION}" == "${TAG_VERSION}" ]] ; then
+              echo "::notice::Tag and package version '${TAG_VERSION}' are okay."
+              else
+                  echo "::error::Tag '${TAG_VERSION}' does not match package version '${PACKAGE_VERSION}'" >&2
+                  exit 5
+              fi
+          fi
+
+      - name: "Comparing package version in debian/changlog and in ${INDEX_FILE}."
+        shell: bash
+        run: |
+          echo "Getting package version from '${INDEX_FILE}' ..."
+          PACKAGE_VERSION=$( cat "${INDEX_FILE}" | \
+              grep -P '^__version__(\sed -e "s/^[^'\"]*['\"]//" -e "s/['\"][ »]*\$//" )
+          echo "::notice::Package version: '${PACKAGE_VERSION}'"
+          if [[ -f debian/changelog ]] ; then
+            DEBIAN_PKG_VERSION=$( head -n 1 debian/changelog | sed -e 's/^[^(]*(//' -e 's/).*//' )
+            echo "Debian package version: '${DEBIAN_PKG_VERSION}'"
+            if [[ "${PACKAGE_VERSION}" == "${DEBIAN_PKG_VERSION}" ]] ; then
+            echo "::notice::Debian package version and package version '${DEBIAN_PKG_VERSION}' are matching."
+            else
+              echo "::error::Debian package version '${DEBIAN_PKG_VERSION}' does not match package version '${PACKAGE_VERSION}'" >&2
+              exit 5
+            fi
+          else
+            echo "::error::File 'debian/changelog' not found." >&2
+            exit 7
+          fi
+
+      - name: Execute Flake 8
+        shell: bash
+        run: |
+          flake8 --version
+          flake8 "${MODULE_DIR}" test
 
 # vim: et tabstop=2 expandtab shiftwidth=2 softtabstop=2 list
