@@ -559,7 +559,7 @@ jobs:
           fi
 
           URL="${OWN_REPO_SERVER_URL}${OWN_YUM_REPO_ROOT_PATH}/el-${EL_VERSION}"
-          DESC=$(  printf "${OWN_YUM_REPO_DESCRIPTION}" "${{ EL_VERSION }}" )
+          DESC=$(  printf "${OWN_YUM_REPO_DESCRIPTION}" "${EL_VERSION}" )
 
           echo -e "\nCreating '${REPO_FILE}' ..."
           lines=$( cat <<-EOF
