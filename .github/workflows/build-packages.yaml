@@ -518,9 +518,9 @@ jobs:
           cat /etc/os-release
           echo "<--"
 
-          echo ""
+          echo "\n"
           echo "::notice::Python version: $(python3 --version)"
-          echo ""
+          echo "\n"
 
           echo -e "\nBash enviroment:"
           env | sort
@@ -607,7 +607,42 @@ jobs:
           dnf makecache
           echo
           echo "Upgrading all packages"
-          dnf --assumeyes upgrade
+          dnf ${DNF_ENABLE_REPO} --assumeyes upgrade
+
+      - name: 'Install TZdata'
+        shell: bash
+        run: |
+          if rpm -qa | grep '^tzdata-' >/dev/null ; then
+            echo -e "\nReinstalling tzdata ..."
+            dnf ${DNF_ENABLE_REPO} --assumeyes reinstall tzdata || true
+          else
+            echo -e "\nInstalling tzdata ..."
+            dnf ${DNF_ENABLE_REPO} --assumeyes install tzdata || true
+          fi
+          echo -e "\nFile /usr/share/zoneinfo/zone.tab:"
+          ls -l --color=always /usr/share/zoneinfo/zone.tab
+
+      - name: 'Install Python 3'
+        shell: bash
+        run: |
+          echo "Installing Python ${{ matrix.py_version_nodot}} ..."
+
+          cmd="dnf ${DNF_ENABLE_REPO} --assumeyes install ${PYTHON}"
+          cmd+=" ${PYTHON}-setuptools ${PYTHON}-pip ${PYTHON}-devel ${PYTHON}-babel"
+          cmd+=" ${PYTHON}-pytz ${PYTHON}-chardet ${PYTHON}-six"
+          cmd+=" ${PYTHON}-flit ${PYTHON}-click"
+
+          echo -e "\nCalling: ${cmd}"
+          eval ${cmd}
+
+          echo -e "\nPython binaries:"
+          ls -l --color=always /bin/python* /bin/pip* || true
+
+          echo -e "\nInstalling Python-Debian with pip3 ..."
+          pip3 install python-debian packaging
+
+          echo -e "\nPip3 list:"
+          pip3 list --format columns
 
 
 # vim: et tabstop=2 expandtab shiftwidth=2 softtabstop=2 list
