@@ -28,6 +28,10 @@ env:
   SMTP_SERVER_PORT: 587
   USED_TIMEZONE: 'Europe/Berlin'
   GPG_PASSWORD_FILE: '.private/uhu.txt'
+  OWN_REPO_SERVER_URL: 'https://repo.uhu-banane.de'
+  OWN_YUM_REPO_NAME: 'frank-brehm'
+  OWN_YUM_REPO_DESCRIPTION: 'Frank Brehms Yum repository for Enterprise Linux %s'
+  OWN_YUM_REPO_ROOT_PATH: '/Yum'
 
 jobs:
 

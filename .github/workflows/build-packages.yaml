@@ -146,6 +146,7 @@ jobs:
       - name: "Set and show Environment"
         shell: bash
         run: |
+          echo "Updating GITHUB_ENV ..."
           export PKG_NAME=$( head -n 1 debian/changelog | awk '{print $1}' )
           export PKG_VERSION=$( head -n 1 debian/changelog | sed -e "s/^[^(]*(//" -e "s/).*//" )
           export SIGNING_HOOK_SCRIPT="${HOME}/signing-hook-script.sh"
@@ -161,6 +162,9 @@ jobs:
           fi
           echo -e "\nBash enviroment:"
           env | sort
+          echo ""
+          echo "::notice::Python version: $(python3 --version)"
+          echo ""
           echo "Removing setup.py ..."
           rm -fv setup.py
 
@@ -309,6 +313,7 @@ jobs:
       - name: "Set and show Environment"
         shell: bash
         run: |
+          echo "Updating GITHUB_ENV ..."
           export PKG_NAME=$( head -n 1 debian/changelog | awk '{print $1}' )
           export PKG_VERSION=$( head -n 1 debian/changelog | sed -e "s/^[^(]*(//" -e "s/).*//" )
           export SIGNING_HOOK_SCRIPT="${HOME}/signing-hook-script.sh"
@@ -326,6 +331,9 @@ jobs:
           fi
           echo -e "\nBash enviroment:"
           env | sort
+          echo ""
+          echo "::notice::Python version: $(python3 --version)"
+          echo ""
           echo "Removing setup.py ..."
           rm -fv setup.py
 
@@ -427,5 +435,147 @@ jobs:
           name: debian_bin_pkgs_${{ matrix.version_prefix }}
           path: debian/pkgs/*/*
           retention-days: ${{ env.RETENTION_DAYS }}
+
+  ###########################
+  build_rpm:
+    runs-on: ubuntu-latest
+    name: Building RPM packages for Enterprise Linux
+    if: ${{ github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/test') || startsWith(github.ref, 'refs/heads/build') || startsWith(github.ref, 'refs/tags/') }}
+    needs:
+      - linter
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - title: 'Enterprise Linux 9'
+            el_version: '9'
+            py_minor_version: '9'
+            py_version_dot: '3'
+            py_version_nodot: '3'
+            image: 'rockylinux:9'
+            epel_package: 'epel-release'
+            has_powertools: false
+          - title: 'Enterprise Linux 10'
+            el_version: '10'
+            py_minor_version: '10'
+            py_version_dot: '3'
+            py_version_nodot: '3'
+            image: 'rockylinux:10'
+            has_powertools: false
+            epel_package: 'epel-release'
+    container: ${{ matrix.image }}
+    env:
+      EL_TITLE: ${{ matrix.title }}
+      EL_VERSION: ${{ matrix.el_version }}
+      EPEL_PACKAGE: ${{ matrix.epel_package }}
+      PY_VERSION_DOT: ${{ matrix.py_version_dot}}
+      PY_VERSION_NODOT: ${{ matrix.py_version_nodot}}
+      PYTHON: "python${{ matrix.py_version_nodot}}"
+      USED_CHARSET: 'utf8'
+      USED_LOCALE: 'en_US'
+      USED_LC: 'en_US.utf8'
+      MAN_SECTION: 1
+
+    steps:
+      - name: "Set and show Environment"
+        shell: bash
+        run: |
+          echo "Updating GITHUB_ENV ..."
+          export PKG_NAME=$( head -n 1 debian/changelog | awk '{print $1}' )
+          export PKG_VERSION=$( head -n 1 debian/changelog | sed -e "s/^[^(]*(//" -e "s/).*//" )
+          export PKG_RELEASE=$( ./get-rpm-release )
+          export PKG_BUILD_VERSION="${PKG_VERSION}-${PKG_RELEASE}"
+          export OS_TITLE=$( cat /etc/os-release | \
+              grep '^PRETTY_NAME=' | \
+              sed -e 's/^PRETTY_NAME=//' -e 's/"//g' )
+          export RPM_SRC_DIR_BASE="${PYTHON}_${PKG_NAME}-${PKG_VERSION}"
+          export RPM_SRC_DIR="rpmdir/SOURCES/${RPM_SRC_DIR_BASE}"
+          export SPECFILE="${PKG_NAME}.spec"
+
+          export DNF_ENABLE_REPO="--enablerepo=devel"
+          if [[ "${{ matrix.has_powertools }}" == true ]] ; then
+            DNF_ENABLE_REPO+=" --enablerepo=powertools"
+          fi
+
+          echo "DNF_ENABLE_REPO=${DNF_ENABLE_REPO}" >>"$GITHUB_ENV"
+          echo "OS_TITLE=${OS_TITLE}" >>"$GITHUB_ENV"
+          echo "PKG_NAME=${PKG_NAME}" >>"$GITHUB_ENV"
+          echo "PKG_VERSION=${PKG_VERSION}" >>"$GITHUB_ENV"
+          echo "PKG_RELEASE=${PKG_RELEASE}" >>"$GITHUB_ENV"
+          echo "PKG_BUILD_VERSION=${PKG_BUILD_VERSION}" >>"$GITHUB_ENV"
+          echo "TZ=${TZ}" >>"$GITHUB_ENV"
+          echo "RPM_SRC_DIR_BASE=${RPM_SRC_DIR_BASE}" >>"$GITHUB_ENV"
+          echo "RPM_SRC_DIR=${RPM_SRC_DIR}" >>"$GITHUB_ENV"
+          echo "SPECFILE=${SPECFILE}" >>"$GITHUB_ENV"
+
+          echo "::notice::Building RPM packages on ${OS_TITLE}."
+          echo -e "\nOS release:"
+          cat /etc/os-release
+          echo "<--"
+
+          echo ""
+          echo "::notice::Python version: $(python3 --version)"
+          echo ""
+
+          echo -e "\nAll locales:"
+          locale -a
+          echo -e "\nInstalling locales ..."
+          langpacks='langpacks-en'
+          echo " * en"
+          if [[ -n "${ADDITIONAL_LOCALES}" ]] ; then
+              for my_lc in "${ADDITIONAL_LOCALES}" ; do
+                  base_lang=$( echo "${my_lc}" | sed -e 's/\..*//'  -e 's/_.*//' )
+                  echo " * ${base_lang}"
+                  langpack="langpacks-${base_lang}"
+                  langpacks+=" ${langpack}"
+              done
+          fi
+          echo -e "\nInstalling language packs ${langpacks}"
+          cmd="dnf ${DNF_ENABLE_REPO} --assumeyes install glibc-all-langpacks ${langpacks}"
+          echo -e "\nCalling: ${cmd}"
+          eval ${cmd}
+          echo -e "\nAll locales:"
+          locale -a
+          echo -e "\nCurrent locales:"
+          locale
+          export LC_ALL="${USED_LC}"
+          echo "LC_ALL=${LC_ALL}" >>"$GITHUB_ENV"
+          echo -e "\nCurrent locales again:"
+          locale
+
+          echo -e "\nBash enviroment:"
+          env | sort
+
+      - name: "Adding own YUM repository"
+        shell: bash
+        env:
+          REPO_FILE: /etc/yum.repos.d/${{ env.OWN_YUM_REPO_NAME }}.repo
+        run: |
+          echo -e "Root path for URL: '${OWN_YUM_REPO_ROOT_PATH}'"
+
+          if [[ ! -d /etc/yum.repos.d/ ]] ; then
+              echo "::error title=add-own-yum-repo::Directory '/etc/yum.repos.d' not found or is not a directory."
+              exit 5
+          fi
+
+          URL="${OWN_REPO_SERVER_URL}${OWN_YUM_REPO_ROOT_PATH}/el-${EL_VERSION}"
+          DESC=$(  printf "${OWN_YUM_REPO_DESCRIPTION}" "${{ EL_VERSION }}" )
+
+          echo -e "\nCreating '${REPO_FILE}' ..."
+          lines=$( cat <<-EOF
+          	[${OWN_YUM_REPO_NAME}]
+          	name=${DESC}
+          	baseurl=${URL}
+          	enabled=1
+          	gpgcheck=0
+          	repo_gpgcheck=0
+          	EOF
+          )
+          echo "${lines}" > "${REPO_FILE}"
+
+          echo -e "\nContent of '${REPO_FILE}':"
+          cat "${REPO_FILE}"
+          echo "<--"
+
 
 # vim: et tabstop=2 expandtab shiftwidth=2 softtabstop=2 list
