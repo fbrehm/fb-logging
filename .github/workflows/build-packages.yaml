@@ -161,7 +161,8 @@ jobs:
           fi
           echo -e "\nBash enviroment:"
           env | sort
-
+          echo "Removing setup.py ..."
+          rm -fv setup.py
 
       - name: 'Preparing GPG for signing files without entering a password'
         uses: fbrehm/github-setup-gpg@main

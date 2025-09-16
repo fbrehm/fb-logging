@@ -16,7 +16,9 @@ X-Python3-Version: >= 3.6
 
 Package: python3-fb-logging
 Architecture: all
-Depends: python3-six,
+Depends: python3-click,
+         python3-semver,
+         python3-six,
          ${misc:Depends},
          ${python3:Depends}
 Description: Python modules to extend logging mechanism
