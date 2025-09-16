@@ -82,7 +82,9 @@ jobs:
         run: |
           echo ""
           echo "Getting package version from '${INDEX_FILE}' ..."
-          PACKAGE_VERSION=$( cat "${INDEX_FILE}" | grep -P '^__version__(\s|=)' | sed -e "s/^[^'\"]*['\"]//" -e "s/['\"][ 	]*\$//" )
+          PACKAGE_VERSION=$( cat "${INDEX_FILE}" | \
+              grep -P '^__version__(\s|=)' | \
+              sed -e "s/^[^'\"]*['\"]//" -e "s/['\"][ 	]*\$//" )
           echo "::notice::Package version: '${PACKAGE_VERSION}'"
           if echo "${GITREF}" | grep -q -P '^refs/tags/' ; then
               TAG_VERSION=$( echo "${GITREF}" | sed -e 's|^refs/tags/||' )
@@ -99,20 +101,22 @@ jobs:
         run: |
           echo ""
           echo "Getting package version from '${INDEX_FILE}' ..."
-          PACKAGE_VERSION=$( cat "${INDEX_FILE}" | grep -P '^__version__(\sed -e "s/^[^'\"]*['\"]//" -e "s/['\"][ »]*\$//" )
+          PACKAGE_VERSION=$( cat "${INDEX_FILE}" | \
+              grep -P '^__version__(\s|=)' | \
+              sed -e "s/^[^'\"]*['\"]//" -e "s/['\"][ 	]*\$//" )
           echo "::notice::Package version: '${PACKAGE_VERSION}'"
           if [[ -f debian/changelog ]] ; then
-            DEBIAN_PKG_VERSION=$( head -n 1 debian/changelog | sed -e 's/^[^(]*(//' -e 's/).*//' )
-            echo "Debian package version: '${DEBIAN_PKG_VERSION}'"
-            if [[ "${PACKAGE_VERSION}" == "${DEBIAN_PKG_VERSION}" ]] ; then
-            echo "::notice::Debian package version and package version '${DEBIAN_PKG_VERSION}' are matching."
+              DEBIAN_PKG_VERSION=$( head -n 1 debian/changelog | sed -e 's/^[^(]*(//' -e 's/).*//' )
+              echo "Debian package version: '${DEBIAN_PKG_VERSION}'"
+              if [[ "${PACKAGE_VERSION}" == "${DEBIAN_PKG_VERSION}" ]] ; then
+                  echo "::notice::Debian package version and package version '${DEBIAN_PKG_VERSION}' are matching."
+              else
+                  echo "::error::Debian package version '${DEBIAN_PKG_VERSION}' does not match package version '${PACKAGE_VERSION}'" >&2
+                  exit 5
+              fi
             else
-              echo "::error::Debian package version '${DEBIAN_PKG_VERSION}' does not match package version '${PACKAGE_VERSION}'" >&2
-              exit 5
-            fi
-          else
-            echo "::error::File 'debian/changelog' not found." >&2
-            exit 7
+                echo "::error::File 'debian/changelog' not found." >&2
+              exit 7
           fi
 
       - name: Execute Flake 8
