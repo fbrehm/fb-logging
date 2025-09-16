@@ -8,11 +8,11 @@
 @copyright: © 2025 by Frank Brehm, Berlin
 """
 
-__author__ = 'Frank Brehm <frank@brehm-online.com>'
-__copyright__ = '(C) 2025 by Frank Brehm, Berlin'
-__contact__ = 'frank@brehm-online.com'
-__version__ = '1.3.0'
-__license__ = 'LGPL-3'
+__author__ = "Frank Brehm <frank@brehm-online.com>"
+__copyright__ = "(C) 2025 by Frank Brehm, Berlin"
+__contact__ = "frank@brehm-online.com"
+__version__ = "1.3.0"
+__license__ = "LGPL-3"
 
 # Standard modules
 import copy
@@ -61,8 +61,9 @@ class WrongLogFacilityIdTypeError(SyslogFacitityError, TypeError):
     # -------------------------------------------------------------------------
     def __str__(self):
         """Typecast into str."""
-        msg = 'Wrong variable {v!r} ({t}) given as a syslog facility id.'.format(
-            v=self.value, t=self.value.__class__.__name__)
+        msg = "Wrong variable {v!r} ({t}) given as a syslog facility id.".format(
+            v=self.value, t=self.value.__class__.__name__
+        )
         return msg
 
 
@@ -82,7 +83,7 @@ class WrongLogFacilityIdValueError(SyslogFacitityError, ValueError):
     # -------------------------------------------------------------------------
     def __str__(self):
         """Typecast into str."""
-        msg = 'Wrong variable {} given as a syslog facility id.'.format(self.value)
+        msg = "Wrong variable {} given as a syslog facility id.".format(self.value)
         return msg
 
 
@@ -102,8 +103,9 @@ class WrongLogFacilityNameTypeError(SyslogFacitityError, TypeError):
     # -------------------------------------------------------------------------
     def __str__(self):
         """Typecast into str."""
-        msg = 'Wrong variable {v!r} ({t}) given as a syslog facility name.'.format(
-            v=self.value, t=self.value.__class__.__name__)
+        msg = "Wrong variable {v!r} ({t}) given as a syslog facility name.".format(
+            v=self.value, t=self.value.__class__.__name__
+        )
         return msg
 
 
@@ -123,7 +125,7 @@ class WrongLogFacilityNameValueError(SyslogFacitityError, ValueError):
     # -------------------------------------------------------------------------
     def __str__(self):
         """Typecast into str."""
-        msg = 'Wrong variable {!r} given as a syslog facility name.'.format(self.value)
+        msg = "Wrong variable {!r} given as a syslog facility name.".format(self.value)
         return msg
 
 
@@ -149,7 +151,7 @@ def use_unix_syslog_handler():
     use_syslog = False
     un = os.uname()
     os_name = un[0].lower()
-    if os_name == 'sunos':
+    if os_name == "sunos":
         use_syslog = True
 
     return use_syslog
@@ -171,45 +173,45 @@ class FbSyslogFacilityInfo(object):
 
     if use_unix_syslog_handler():
         syslog_facilities = {
-            'auth': syslog.LOG_AUTH,
-            'cron': syslog.LOG_CRON,
-            'daemon': syslog.LOG_DAEMON,
-            'kern': syslog.LOG_KERN,
-            'local0': syslog.LOG_LOCAL0,
-            'local1': syslog.LOG_LOCAL1,
-            'local2': syslog.LOG_LOCAL2,
-            'local3': syslog.LOG_LOCAL3,
-            'local4': syslog.LOG_LOCAL4,
-            'local5': syslog.LOG_LOCAL5,
-            'local6': syslog.LOG_LOCAL6,
-            'local7': syslog.LOG_LOCAL7,
-            'lpr': syslog.LOG_LPR,
-            'mail': syslog.LOG_MAIL,
-            'news': syslog.LOG_NEWS,
-            'user': syslog.LOG_USER,
-            'uucp': syslog.LOG_UUCP,
+            "auth": syslog.LOG_AUTH,
+            "cron": syslog.LOG_CRON,
+            "daemon": syslog.LOG_DAEMON,
+            "kern": syslog.LOG_KERN,
+            "local0": syslog.LOG_LOCAL0,
+            "local1": syslog.LOG_LOCAL1,
+            "local2": syslog.LOG_LOCAL2,
+            "local3": syslog.LOG_LOCAL3,
+            "local4": syslog.LOG_LOCAL4,
+            "local5": syslog.LOG_LOCAL5,
+            "local6": syslog.LOG_LOCAL6,
+            "local7": syslog.LOG_LOCAL7,
+            "lpr": syslog.LOG_LPR,
+            "mail": syslog.LOG_MAIL,
+            "news": syslog.LOG_NEWS,
+            "user": syslog.LOG_USER,
+            "uucp": syslog.LOG_UUCP,
         }
     else:
         syslog_facilities = {
-            'auth': logging.handlers.SysLogHandler.LOG_AUTH,
-            'authpriv': logging.handlers.SysLogHandler.LOG_AUTHPRIV,
-            'cron': logging.handlers.SysLogHandler.LOG_CRON,
-            'daemon': logging.handlers.SysLogHandler.LOG_DAEMON,
-            'kern': logging.handlers.SysLogHandler.LOG_KERN,
-            'local0': logging.handlers.SysLogHandler.LOG_LOCAL0,
-            'local1': logging.handlers.SysLogHandler.LOG_LOCAL1,
-            'local2': logging.handlers.SysLogHandler.LOG_LOCAL2,
-            'local3': logging.handlers.SysLogHandler.LOG_LOCAL3,
-            'local4': logging.handlers.SysLogHandler.LOG_LOCAL4,
-            'local5': logging.handlers.SysLogHandler.LOG_LOCAL5,
-            'local6': logging.handlers.SysLogHandler.LOG_LOCAL6,
-            'local7': logging.handlers.SysLogHandler.LOG_LOCAL7,
-            'lpr': logging.handlers.SysLogHandler.LOG_LPR,
-            'mail': logging.handlers.SysLogHandler.LOG_MAIL,
-            'news': logging.handlers.SysLogHandler.LOG_NEWS,
-            'syslog': logging.handlers.SysLogHandler.LOG_SYSLOG,
-            'user': logging.handlers.SysLogHandler.LOG_USER,
-            'uucp': logging.handlers.SysLogHandler.LOG_UUCP,
+            "auth": logging.handlers.SysLogHandler.LOG_AUTH,
+            "authpriv": logging.handlers.SysLogHandler.LOG_AUTHPRIV,
+            "cron": logging.handlers.SysLogHandler.LOG_CRON,
+            "daemon": logging.handlers.SysLogHandler.LOG_DAEMON,
+            "kern": logging.handlers.SysLogHandler.LOG_KERN,
+            "local0": logging.handlers.SysLogHandler.LOG_LOCAL0,
+            "local1": logging.handlers.SysLogHandler.LOG_LOCAL1,
+            "local2": logging.handlers.SysLogHandler.LOG_LOCAL2,
+            "local3": logging.handlers.SysLogHandler.LOG_LOCAL3,
+            "local4": logging.handlers.SysLogHandler.LOG_LOCAL4,
+            "local5": logging.handlers.SysLogHandler.LOG_LOCAL5,
+            "local6": logging.handlers.SysLogHandler.LOG_LOCAL6,
+            "local7": logging.handlers.SysLogHandler.LOG_LOCAL7,
+            "lpr": logging.handlers.SysLogHandler.LOG_LPR,
+            "mail": logging.handlers.SysLogHandler.LOG_MAIL,
+            "news": logging.handlers.SysLogHandler.LOG_NEWS,
+            "syslog": logging.handlers.SysLogHandler.LOG_SYSLOG,
+            "user": logging.handlers.SysLogHandler.LOG_USER,
+            "uucp": logging.handlers.SysLogHandler.LOG_UUCP,
         }
 
     for facility_name in syslog_facilities.keys():

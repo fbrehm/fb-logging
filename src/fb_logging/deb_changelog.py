@@ -99,7 +99,7 @@ import six
 
 try:
     # pylint: disable=unused-import
-    from typing import (        # noqa: F401
+    from typing import (  # noqa: F401
         Dict,
         Iterable,
         Iterator,
@@ -111,6 +111,7 @@ try:
         Text,
         Tuple,
     )
+
     IterableDataSource = Union[
         bytes,
         Text,
@@ -128,7 +129,7 @@ from .deb_version import Version
 # exception inheritance hierarchy for Python 2.
 _base_exception_class = Exception
 try:
-    _base_exception_class = StandardError    # type: ignore
+    _base_exception_class = StandardError  # type: ignore
 except NameError:
     pass
 
@@ -150,7 +151,7 @@ class ChangelogParseError(_base_exception_class):
     def __str__(self):
         """Typecasting into str."""
         # type: () -> str
-        return 'Could not parse changelog: '+self._line
+        return "Could not parse changelog: " + self._line
 
 
 # =============================================================================
@@ -179,7 +180,7 @@ class VersionError(_base_exception_class):
     # -------------------------------------------------------------------------
     def __str__(self):
         """Typecasting into str."""
-        return 'Could not parse version: ' + self._version
+        return "Could not parse version: " + self._version
 
 
 # =============================================================================
@@ -209,34 +210,35 @@ class ChangeBlock(object):
     """
 
     # -------------------------------------------------------------------------
-    def __init__(self,
-                 package=None,          # type: Optional[str]
-                 version=None,          # type: Optional[Union[Version, str]]
-                 distributions=None,    # type: Optional[str]
-                 urgency=None,          # type: Optional[str]
-                 urgency_comment=None,  # type: Optional[str]
-                 changes=None,          # type: Optional[List[Text]]
-                 author=None,           # type: Optional[Text]
-                 date=None,             # type: Optional[str]
-                 other_pairs=None,      # type: Dict[str, str]
-                 encoding='utf-8',      # type: str
-                 ):
+    def __init__(
+        self,
+        package=None,  # type: Optional[str]
+        version=None,  # type: Optional[Union[Version, str]]
+        distributions=None,  # type: Optional[str]
+        urgency=None,  # type: Optional[str]
+        urgency_comment=None,  # type: Optional[str]
+        changes=None,  # type: Optional[List[Text]]
+        author=None,  # type: Optional[Text]
+        date=None,  # type: Optional[str]
+        other_pairs=None,  # type: Dict[str, str]
+        encoding="utf-8",  # type: str
+    ):
         """Construct this object."""
         # type: (...) -> None
-        self._raw_version = None   # type: Optional[str]
+        self._raw_version = None  # type: Optional[str]
         self._set_version(version)
         self.package = package
         self.distributions = distributions
-        self.urgency = urgency or 'unknown'
-        self.urgency_comment = urgency_comment or ''
-        self._changes = changes or []   # type: List[Text]
+        self.urgency = urgency or "unknown"
+        self.urgency_comment = urgency_comment or ""
+        self._changes = changes or []  # type: List[Text]
         self.author = author
         self.date = date
-        self._trailing = []    # type: List[Text]
+        self._trailing = []  # type: List[Text]
         self.other_pairs = other_pairs or {}
         self._encoding = encoding
         self._no_trailer = False
-        self._trailer_separator = '  '
+        self._trailer_separator = "  "
 
     # -------------------------------------------------------------------------
     def _set_version(self, version):
@@ -253,8 +255,7 @@ class ChangeBlock(object):
 
     # -------------------------------------------------------------------------
     version = property(
-        _get_version, _set_version,
-        doc='The package version that this block pertains to'
+        _get_version, _set_version, doc="The package version that this block pertains to"
     )
 
     # -------------------------------------------------------------------------
@@ -262,11 +263,11 @@ class ChangeBlock(object):
         # type: () -> Dict[str, str]
         """Obtain a dict from the block header (other than urgency)."""
         norm_dict = {}
-        for (key, value) in self.other_pairs.items():
+        for key, value in self.other_pairs.items():
             key = key[0].upper() + key[1:].lower()
             m = xbcs_re.match(key)
             if m is None:
-                key = 'XS-%s' % key
+                key = "XS-%s" % key
             norm_dict[key] = value
         return norm_dict
 
@@ -308,11 +309,11 @@ class ChangeBlock(object):
     # -------------------------------------------------------------------------
     def _get_bugs_closed_generic(self, type_re):
         # type: (Pattern) -> List[int]
-        changes = six.u(' ').join(self._changes)
+        changes = six.u(" ").join(self._changes)
         bugs = []
         for match in type_re.finditer(changes):
             closes_list = match.group(0)
-            for bugmatch in re.finditer(r'\d+', closes_list):
+            for bugmatch in re.finditer(r"\d+", closes_list):
                 bugs.append(int(bugmatch.group(0)))
         return bugs
 
@@ -334,35 +335,34 @@ class ChangeBlock(object):
     def _format(self):
         # type: () -> str
         # TODO(jsw): Switch to StringIO or a list to join at the end.
-        block = ''
+        block = ""
         if self.package is None:
-            raise ChangelogCreateError('Package not specified')
-        block += self.package + ' '
+            raise ChangelogCreateError("Package not specified")
+        block += self.package + " "
         if self._raw_version is None:
-            raise ChangelogCreateError('Version not specified')
-        block += '(' + self._raw_version + ') '
+            raise ChangelogCreateError("Version not specified")
+        block += "(" + self._raw_version + ") "
         if self.distributions is None:
-            raise ChangelogCreateError('Distribution not specified')
-        block += self.distributions + '; '
+            raise ChangelogCreateError("Distribution not specified")
+        block += self.distributions + "; "
         if self.urgency is None:
-            raise ChangelogCreateError('Urgency not specified')
-        block += 'urgency=' + self.urgency + self.urgency_comment
-        for (key, value) in self.other_pairs.items():
-            block += ', %s=%s' % (key, value)
-        block += '\n'
+            raise ChangelogCreateError("Urgency not specified")
+        block += "urgency=" + self.urgency + self.urgency_comment
+        for key, value in self.other_pairs.items():
+            block += ", %s=%s" % (key, value)
+        block += "\n"
         if self.changes() is None:
-            raise ChangelogCreateError('Changes not specified')
+            raise ChangelogCreateError("Changes not specified")
         for change in self.changes():
-            block += change + '\n'
+            block += change + "\n"
         if not self._no_trailer:
             if self.author is None:
-                raise ChangelogCreateError('Author not specified')
+                raise ChangelogCreateError("Author not specified")
             if self.date is None:
-                raise ChangelogCreateError('Date not specified')
-            block += ' -- ' + self.author + self._trailer_separator \
-                + self.date + '\n'
+                raise ChangelogCreateError("Date not specified")
+            block += " -- " + self.author + self._trailer_separator + self.date + "\n"
         for line in self._trailing:
-            block += line + '\n'
+            block += line + "\n"
         return block
 
     # -------------------------------------------------------------------------
@@ -376,52 +376,42 @@ class ChangeBlock(object):
 
 # =============================================================================
 topline = re.compile(
-    r'^(\w%(name_chars)s*) \(([^\(\) \t]+)\)'
-    r'((\s+%(name_chars)s+)+)\;'
-    % {'name_chars': '[-+0-9a-z.]'},
-    re.IGNORECASE)
-blankline = re.compile(r'^\s*$')
-changere = re.compile(r'^\s\s+.*$')
+    r"^(\w%(name_chars)s*) \(([^\(\) \t]+)\)"
+    r"((\s+%(name_chars)s+)+)\;" % {"name_chars": "[-+0-9a-z.]"},
+    re.IGNORECASE,
+)
+blankline = re.compile(r"^\s*$")
+changere = re.compile(r"^\s\s+.*$")
 endline = re.compile(
-    r'^ -- (.*) <(.*)>(  ?)((\w+\,\s*)?\d{1,2}\s+\w+\s+'
-    r'\d{4}\s+\d{1,2}:\d\d:\d\d\s+[-+]\d{4}\s*)$')
+    r"^ -- (.*) <(.*)>(  ?)((\w+\,\s*)?\d{1,2}\s+\w+\s+"
+    r"\d{4}\s+\d{1,2}:\d\d:\d\d\s+[-+]\d{4}\s*)$"
+)
 endline_nodetails = re.compile(
-    r'^ --(?: (.*) <(.*)>(  ?)((\w+\,\s*)?\d{1,2}'
-    r'\s+\w+\s+\d{4}\s+\d{1,2}:\d\d:\d\d\s+[-+]\d{4}'
-    r'))?\s*$')
-keyvalue = re.compile(r'^([-0-9a-z]+)=\s*(.*\S)$', re.IGNORECASE)
-value_re = re.compile(r'^([-0-9a-z]+)((\s+.*)?)$', re.IGNORECASE)
-xbcs_re = re.compile('^X[BCS]+-', re.IGNORECASE)
-emacs_variables = re.compile(r'^(;;\s*)?Local variables:', re.IGNORECASE)
-vim_variables = re.compile('^vim:', re.IGNORECASE)
-cvs_keyword = re.compile(r'^\$\w+:.*\$')
-comments = re.compile(r'^\# ')
-more_comments = re.compile(r'^/\*.*\*/')
-closes = re.compile(
-    r'closes:\s*(?:bug)?\#?\s?\d+(?:,\s*(?:bug)?\#?\s?\d+)*',
-    re.IGNORECASE)
-closeslp = re.compile(r'lp:\s+\#\d+(?:,\s*\#\d+)*', re.IGNORECASE)
+    r"^ --(?: (.*) <(.*)>(  ?)((\w+\,\s*)?\d{1,2}"
+    r"\s+\w+\s+\d{4}\s+\d{1,2}:\d\d:\d\d\s+[-+]\d{4}"
+    r"))?\s*$"
+)
+keyvalue = re.compile(r"^([-0-9a-z]+)=\s*(.*\S)$", re.IGNORECASE)
+value_re = re.compile(r"^([-0-9a-z]+)((\s+.*)?)$", re.IGNORECASE)
+xbcs_re = re.compile("^X[BCS]+-", re.IGNORECASE)
+emacs_variables = re.compile(r"^(;;\s*)?Local variables:", re.IGNORECASE)
+vim_variables = re.compile("^vim:", re.IGNORECASE)
+cvs_keyword = re.compile(r"^\$\w+:.*\$")
+comments = re.compile(r"^\# ")
+more_comments = re.compile(r"^/\*.*\*/")
+closes = re.compile(r"closes:\s*(?:bug)?\#?\s?\d+(?:,\s*(?:bug)?\#?\s?\d+)*", re.IGNORECASE)
+closeslp = re.compile(r"lp:\s+\#\d+(?:,\s*\#\d+)*", re.IGNORECASE)
 
 old_format_re1 = re.compile(
-    r'^(\w+\s+\w+\s+\d{1,2} \d{1,2}:\d{1,2}:\d{1,2}'
-    r'\s+[\w\s]*\d{4})\s+(.*)\s+(<|\()(.*)(\)|>)')
-old_format_re2 = re.compile(
-    r'^(\w+\s+\w+\s+\d{1,2},?\s*\d{4})\s+(.*)'
-    r'\s+(<|\()(.*)(\)|>)')
-old_format_re3 = re.compile(
-    r'^(\w[-+0-9a-z.]*) \(([^\(\) \t]+)\)\;?',
-    re.IGNORECASE)
-old_format_re4 = re.compile(
-    r'^([\w.+-]+)(-| )(\S+) Debian (\S+)',
-    re.IGNORECASE)
-old_format_re5 = re.compile(
-    '^Changes from version (.*) to (.*):',
-    re.IGNORECASE)
-old_format_re6 = re.compile(
-    r'^Changes for [\w.+-]+-[\w.+-]+:?\s*$',
-    re.IGNORECASE)
-old_format_re7 = re.compile(r'^Old Changelog:\s*$', re.IGNORECASE)
-old_format_re8 = re.compile(r'^(?:\d+:)?\w[\w.+~-]*:?\s*$')
+    r"^(\w+\s+\w+\s+\d{1,2} \d{1,2}:\d{1,2}:\d{1,2}" r"\s+[\w\s]*\d{4})\s+(.*)\s+(<|\()(.*)(\)|>)"
+)
+old_format_re2 = re.compile(r"^(\w+\s+\w+\s+\d{1,2},?\s*\d{4})\s+(.*)" r"\s+(<|\()(.*)(\)|>)")
+old_format_re3 = re.compile(r"^(\w[-+0-9a-z.]*) \(([^\(\) \t]+)\)\;?", re.IGNORECASE)
+old_format_re4 = re.compile(r"^([\w.+-]+)(-| )(\S+) Debian (\S+)", re.IGNORECASE)
+old_format_re5 = re.compile("^Changes from version (.*) to (.*):", re.IGNORECASE)
+old_format_re6 = re.compile(r"^Changes for [\w.+-]+-[\w.+-]+:?\s*$", re.IGNORECASE)
+old_format_re7 = re.compile(r"^Old Changelog:\s*$", re.IGNORECASE)
+old_format_re8 = re.compile(r"^(?:\d+:)?\w[\w.+~-]*:?\s*$")
 
 
 # =============================================================================
@@ -483,23 +473,23 @@ class Changelog(object):
 
     # -------------------------------------------------------------------------
     # TODO(jsw): Avoid masking the 'file' built-in.
-    def __init__(self,
-                 file=None,                 # type: IterableDataSource
-                 max_blocks=None,           # type: Optional[int]
-                 allow_empty_author=False,  # type: bool
-                 strict=False,              # type: bool
-                 encoding='utf-8',          # type: str
-                 ):
+    def __init__(
+        self,
+        file=None,  # type: IterableDataSource
+        max_blocks=None,  # type: Optional[int]
+        allow_empty_author=False,  # type: bool
+        strict=False,  # type: bool
+        encoding="utf-8",  # type: str
+    ):
         """Construct this object."""
         # type: (...) -> None
         self._encoding = encoding
-        self._blocks = []   # type: List[ChangeBlock]
-        self.initial_blank_lines = []   # type: List[Text]
+        self._blocks = []  # type: List[ChangeBlock]
+        self.initial_blank_lines = []  # type: List[Text]
         if file is not None:
             self.parse_changelog(
-                file, max_blocks=max_blocks,
-                allow_empty_author=allow_empty_author,
-                strict=strict)
+                file, max_blocks=max_blocks, allow_empty_author=allow_empty_author, strict=strict
+            )
 
     # -------------------------------------------------------------------------
     @staticmethod
@@ -508,16 +498,17 @@ class Changelog(object):
         if strict:
             raise ChangelogParseError(message)
         else:
-            warnings.warn(message)
+            warnings.warn(message, stacklevel=2)
 
     # -------------------------------------------------------------------------
-    def parse_changelog(self,                                                   # noqa: C901
-                        file,             # type: Optional[IterableDataSource]
-                        max_blocks=None,  # type: Optional[int]
-                        allow_empty_author=False,  # type: bool
-                        strict=True,      # type: bool
-                        encoding=None,    # type: Optional[str]
-                        ):
+    def parse_changelog(  # noqa: C901
+        self,
+        file,  # type: Optional[IterableDataSource]
+        max_blocks=None,  # type: Optional[int]
+        allow_empty_author=False,  # type: bool
+        strict=True,  # type: bool
+        encoding=None,  # type: Optional[str]
+    ):
         # type: (...) -> None
         """Read and parse a changelog file.
 
@@ -527,16 +518,16 @@ class Changelog(object):
         exception is thrown. The constructor will parse the changelog on
         a best effort basis.
         """
-        first_heading = 'first heading'
-        next_heading_or_eof = 'next heading of EOF'
-        start_of_change_data = 'start of change data'
-        more_changes_or_trailer = 'more change data or trailer'
-        slurp_to_end = 'slurp to end'
+        first_heading = "first heading"
+        next_heading_or_eof = "next heading of EOF"
+        start_of_change_data = "start of change data"
+        more_changes_or_trailer = "more change data or trailer"
+        slurp_to_end = "slurp to end"
 
         encoding = encoding or self._encoding
 
         if file is None:
-            self._parse_error('Empty changelog file.', strict)
+            self._parse_error("Empty changelog file.", strict)
             return
 
         self._blocks = []
@@ -552,7 +543,7 @@ class Changelog(object):
         if isinstance(file, six.string_types):
             # Make sure the changelog file is not empty.
             if not file.strip():
-                self._parse_error('Empty changelog file.', strict)
+                self._parse_error("Empty changelog file.", strict)
                 return
 
             file = file.splitlines()
@@ -562,42 +553,39 @@ class Changelog(object):
             # Support both lists of lines without the trailing newline and
             # those with trailing newlines (e.g. when given a file object
             # directly)
-            line = line.rstrip('\n')
+            line = line.rstrip("\n")
             if state in (first_heading, next_heading_or_eof):
                 top_match = topline.match(line)
                 blank_match = blankline.match(line)
                 if top_match is not None:
-                    if (max_blocks is not None
-                            and len(self._blocks) >= max_blocks):
+                    if max_blocks is not None and len(self._blocks) >= max_blocks:
                         return
                     current_block.package = top_match.group(1)
                     current_block._raw_version = top_match.group(2)
                     current_block.distributions = top_match.group(3).lstrip()
 
-                    pairs = line.split(';', 1)[1]
-                    all_keys = {}      # type: Dict[str, str]
-                    other_pairs = {}   # type: Dict[str, str]
-                    for pair in pairs.split(','):
+                    pairs = line.split(";", 1)[1]
+                    all_keys = {}  # type: Dict[str, str]
+                    other_pairs = {}  # type: Dict[str, str]
+                    for pair in pairs.split(","):
                         pair = pair.strip()
                         kv_match = keyvalue.match(pair)
                         if kv_match is None:
                             self._parse_error(
-                                "Invalid key-value pair after ';': %s" % pair,
-                                strict)
+                                "Invalid key-value pair after ';': %s" % pair, strict
+                            )
                             continue
                         key = kv_match.group(1)
                         value = kv_match.group(2)
                         if key.lower() in all_keys:
-                            self._parse_error(
-                                'Repeated key-value: '
-                                '%s' % key.lower(), strict)
+                            self._parse_error("Repeated key-value: " "%s" % key.lower(), strict)
                         all_keys[key.lower()] = value
-                        if key.lower() == 'urgency':
+                        if key.lower() == "urgency":
                             val_match = value_re.match(value)
                             if val_match is None:
                                 self._parse_error(
-                                    'Badly formatted urgency value: %s' %
-                                    value, strict)
+                                    "Badly formatted urgency value: %s" % value, strict
+                                )
                             else:
                                 current_block.urgency = val_match.group(1)
                                 comment = val_match.group(2)
@@ -618,35 +606,40 @@ class Changelog(object):
                     cvs_match = cvs_keyword.match(line)
                     comments_match = comments.match(line)
                     more_comments_match = more_comments.match(line)
-                    if ((emacs_match is not None or vim_match is not None)
-                            and state != first_heading):
+                    if (
+                        emacs_match is not None or vim_match is not None
+                    ) and state != first_heading:
                         self._blocks[-1].add_trailing_line(line)
                         old_state = state
                         state = slurp_to_end
                         continue
-                    if (cvs_match is not None or comments_match is not None
-                            or more_comments_match is not None):
+                    if (
+                        cvs_match is not None
+                        or comments_match is not None
+                        or more_comments_match is not None
+                    ):
                         if state == first_heading:
                             self.initial_blank_lines.append(line)
                         else:
                             self._blocks[-1].add_trailing_line(line)
                         continue
-                    if ((old_format_re1.match(line) is not None
-                         or old_format_re2.match(line) is not None
-                         or old_format_re3.match(line) is not None
-                         or old_format_re4.match(line) is not None
-                         or old_format_re5.match(line) is not None
-                         or old_format_re6.match(line) is not None
-                         or old_format_re7.match(line) is not None
-                         or old_format_re8.match(line) is not None)
-                            and state != first_heading):
+                    if (
+                        old_format_re1.match(line) is not None
+                        or old_format_re2.match(line) is not None
+                        or old_format_re3.match(line) is not None
+                        or old_format_re4.match(line) is not None
+                        or old_format_re5.match(line) is not None
+                        or old_format_re6.match(line) is not None
+                        or old_format_re7.match(line) is not None
+                        or old_format_re8.match(line) is not None
+                    ) and state != first_heading:
                         self._blocks[-1].add_trailing_line(line)
                         old_state = state
                         state = slurp_to_end
                         continue
                     self._parse_error(
-                        'Unexpected line while looking for %s: %s' %
-                        (state, line), strict)
+                        "Unexpected line while looking for %s: %s" % (state, line), strict
+                    )
                     if state == first_heading:
                         self.initial_blank_lines.append(line)
                     else:
@@ -660,12 +653,10 @@ class Changelog(object):
                     changes.append(line)
                     state = more_changes_or_trailer
                 elif end_match is not None:
-                    if end_match.group(3) != '  ':
-                        self._parse_error(
-                            'Badly formatted trailer line: %s' % line, strict)
+                    if end_match.group(3) != "  ":
+                        self._parse_error("Badly formatted trailer line: %s" % line, strict)
                         current_block._trailer_separator = end_match.group(3)
-                    current_block.author = '%s <%s>' \
-                        % (end_match.group(1), end_match.group(2))
+                    current_block.author = "%s <%s>" % (end_match.group(1), end_match.group(2))
                     current_block.date = end_match.group(4)
                     current_block._changes = changes
                     self._blocks.append(current_block)
@@ -674,8 +665,7 @@ class Changelog(object):
                     state = next_heading_or_eof
                 elif end_no_details_match is not None:
                     if not allow_empty_author:
-                        self._parse_error(
-                            'Badly formatted trailer line: %s' % line, strict)
+                        self._parse_error("Badly formatted trailer line: %s" % line, strict)
                         continue
                     current_block._changes = changes
                     self._blocks.append(current_block)
@@ -688,13 +678,16 @@ class Changelog(object):
                     cvs_match = cvs_keyword.match(line)
                     comments_match = comments.match(line)
                     more_comments_match = more_comments.match(line)
-                    if (cvs_match is not None or comments_match is not None
-                            or more_comments_match is not None):
+                    if (
+                        cvs_match is not None
+                        or comments_match is not None
+                        or more_comments_match is not None
+                    ):
                         changes.append(line)
                         continue
                     self._parse_error(
-                        'Unexpected line while looking for %s: %s' %
-                        (state, line), strict)
+                        "Unexpected line while looking for %s: %s" % (state, line), strict
+                    )
                     changes.append(line)
             elif state == slurp_to_end:
                 if old_state == next_heading_or_eof:
@@ -702,11 +695,12 @@ class Changelog(object):
                 else:
                     changes.append(line)
             else:
-                assert False, 'Unknown state: %s' % state
+                raise AssertionError(f"Unknown state: {state}")
 
-        if (state not in (next_heading_or_eof, slurp_to_end)
-                or (state == slurp_to_end and old_state != next_heading_or_eof)):
-            self._parse_error('Found eof where expected %s' % state, strict)
+        if state not in (next_heading_or_eof, slurp_to_end) or (
+            state == slurp_to_end and old_state != next_heading_or_eof
+        ):
+            self._parse_error("Found eof where expected %s" % state, strict)
             current_block._changes = changes
             current_block._no_trailer = True
             self._blocks.append(current_block)
@@ -728,37 +722,36 @@ class Changelog(object):
 
     # -------------------------------------------------------------------------
     version = property(
-        get_version, set_version,
+        get_version,
+        set_version,
         doc="""Version object for latest changelog block.
-            (Property that can both get and set the version.)"""
+            (Property that can both get and set the version.)""",
     )
 
     # -------------------------------------------------------------------------
     # For convenience, let's expose some of the version properties
     full_version = property(
-        lambda self: self.version.full_version,
-        doc='The full version number of the last version'
+        lambda self: self.version.full_version, doc="The full version number of the last version"
     )
     # -------------------------------------------------------------------------
     epoch = property(
         lambda self: self.version.epoch,
-        doc='The epoch number of the last revision, or `None` '
-        'if no epoch was used.'
+        doc="The epoch number of the last revision, or `None` " "if no epoch was used.",
     )
     # -------------------------------------------------------------------------
     debian_version = property(
         lambda self: self.version.debian_revision,
-        doc='The debian part of the version number of the last version.'
+        doc="The debian part of the version number of the last version.",
     )
     # -------------------------------------------------------------------------
     debian_revision = property(
         lambda self: self.version.debian_revision,
-        doc='The debian part of the version number of the last version.'
+        doc="The debian part of the version number of the last version.",
     )
     # -------------------------------------------------------------------------
     upstream_version = property(
         lambda self: self.version.upstream_version,
-        doc='The upstream part of the version number of the last version.'
+        doc="The upstream part of the version number of the last version.",
     )
 
     # -------------------------------------------------------------------------
@@ -774,10 +767,7 @@ class Changelog(object):
         self._blocks[0].package = package
 
     # -------------------------------------------------------------------------
-    package = property(
-        get_package, set_package,
-        doc='Name of the package in the last version'
-    )
+    package = property(get_package, set_package, doc="Name of the package in the last version")
 
     # -------------------------------------------------------------------------
     def get_versions(self):
@@ -792,7 +782,7 @@ class Changelog(object):
 A list of :class:`debian.debian_support.Version` objects that the package
 went through. These version objects provide all version attributes such as
 `epoch`, `debian_revision`, `upstream_version`.
-These attributes cannot be assigned to."""
+These attributes cannot be assigned to.""",
     )
 
     # -------------------------------------------------------------------------
@@ -803,10 +793,10 @@ These attributes cannot be assigned to."""
     def _format(self):
         # type: () -> str
         pieces = []
-        pieces.append(six.u('\n').join(self.initial_blank_lines))
+        pieces.append(six.u("\n").join(self.initial_blank_lines))
         for block in self._blocks:
             pieces.append(six.text_type(block))
-        return six.u('').join(pieces)
+        return six.u("").join(pieces)
 
     # -------------------------------------------------------------------------
     __str__ = _format
@@ -849,10 +839,11 @@ These attributes cannot be assigned to."""
 
     # -------------------------------------------------------------------------
     distributions = property(
-        lambda self: self._blocks[0].distributions, set_distributions,
+        lambda self: self._blocks[0].distributions,
+        set_distributions,
         doc="""\
 A string indicating the distributions that the package will be uploaded to
-in the most recent version."""
+in the most recent version.""",
     )
 
     # -------------------------------------------------------------------------
@@ -863,10 +854,11 @@ in the most recent version."""
 
     # -------------------------------------------------------------------------
     urgency = property(
-        lambda self: self._blocks[0].urgency, set_urgency,
+        lambda self: self._blocks[0].urgency,
+        set_urgency,
         doc="""\
 A string indicating the urgency with which the most recent version will
-be uploaded."""
+be uploaded.""",
     )
 
     # -------------------------------------------------------------------------
@@ -891,10 +883,11 @@ be uploaded."""
 
     # -------------------------------------------------------------------------
     author = property(
-        lambda self: self._blocks[0].author, set_author,
+        lambda self: self._blocks[0].author,
+        set_author,
         doc="""\
         The author of the most recent change.
-        This should be a properly formatted name/email pair."""
+        This should be a properly formatted name/email pair.""",
     )
 
     # -------------------------------------------------------------------------
@@ -909,26 +902,28 @@ be uploaded."""
 
     # -------------------------------------------------------------------------
     date = property(
-        lambda self: self._blocks[0].date, set_date,
+        lambda self: self._blocks[0].date,
+        set_date,
         doc="""\
         The date associated with the current entry.
         Should be a properly formatted string with the date and timezone.
-        See the :func:`format_date()` function."""
+        See the :func:`format_date()` function.""",
     )
 
     # -------------------------------------------------------------------------
-    def new_block(self,
-                  package=None,          # type: Optional[str]
-                  version=None,          # type: Optional[Union[Version, str]]
-                  distributions=None,    # type: Optional[str]
-                  urgency=None,          # type: Optional[str]
-                  urgency_comment=None,  # type: Optional[str]
-                  changes=None,          # type: Optional[List[Text]]
-                  author=None,           # type: Optional[Text]
-                  date=None,             # type: Optional[str]
-                  other_pairs=None,      # type: Dict[str, str]
-                  encoding=None,         # type: Optional[str]
-                  ):
+    def new_block(
+        self,
+        package=None,  # type: Optional[str]
+        version=None,  # type: Optional[Union[Version, str]]
+        distributions=None,  # type: Optional[str]
+        urgency=None,  # type: Optional[str]
+        urgency_comment=None,  # type: Optional[str]
+        changes=None,  # type: Optional[List[Text]]
+        author=None,  # type: Optional[Text]
+        date=None,  # type: Optional[str]
+        other_pairs=None,  # type: Dict[str, str]
+        encoding=None,  # type: Optional[str]
+    ):
         # type: (...) -> None
         """Add a new changelog block to the changelog.
 
@@ -940,10 +935,19 @@ be uploaded."""
         before the changelog is formatted as a str or written to a file.
         """
         encoding = encoding or self._encoding
-        block = ChangeBlock(package, version, distributions,
-                            urgency, urgency_comment,
-                            changes, author, date, other_pairs, encoding)
-        block.add_trailing_line('')
+        block = ChangeBlock(
+            package,
+            version,
+            distributions,
+            urgency,
+            urgency_comment,
+            changes,
+            author,
+            date,
+            other_pairs,
+            encoding,
+        )
+        block.add_trailing_line("")
         self._blocks.insert(0, block)
 
     # -------------------------------------------------------------------------
@@ -973,46 +977,46 @@ def get_maintainer():
         be determined.
     """
     env = os.environ
-    regex = re.compile(r'^(.*)\s+<(.*)>$')
+    regex = re.compile(r"^(.*)\s+<(.*)>$")
 
     # Split email and name
-    if 'DEBEMAIL' in env:
-        match_obj = regex.match(env['DEBEMAIL'])
+    if "DEBEMAIL" in env:
+        match_obj = regex.match(env["DEBEMAIL"])
         if match_obj:
-            if 'DEBFULLNAME' not in env:
-                env['DEBFULLNAME'] = match_obj.group(1)
-            env['DEBEMAIL'] = match_obj.group(2)
-    if 'DEBEMAIL' not in env or 'DEBFULLNAME' not in env:
-        if 'EMAIL' in env:
-            match_obj = regex.match(env['EMAIL'])
+            if "DEBFULLNAME" not in env:
+                env["DEBFULLNAME"] = match_obj.group(1)
+            env["DEBEMAIL"] = match_obj.group(2)
+    if "DEBEMAIL" not in env or "DEBFULLNAME" not in env:
+        if "EMAIL" in env:
+            match_obj = regex.match(env["EMAIL"])
             if match_obj:
-                if 'DEBFULLNAME' not in env:
-                    env['DEBFULLNAME'] = match_obj.group(1)
-                env['EMAIL'] = match_obj.group(2)
+                if "DEBFULLNAME" not in env:
+                    env["DEBFULLNAME"] = match_obj.group(1)
+                env["EMAIL"] = match_obj.group(2)
 
     # Get maintainer's name
-    maintainer = None   # type: Optional[Text]
-    if 'DEBFULLNAME' in env:
-        maintainer = env['DEBFULLNAME']
-    elif 'NAME' in env:
-        maintainer = env['NAME']
+    maintainer = None  # type: Optional[Text]
+    if "DEBFULLNAME" in env:
+        maintainer = env["DEBFULLNAME"]
+    elif "NAME" in env:
+        maintainer = env["NAME"]
     else:
         # Use password database if no data in environment variables
         try:
-            maintainer = re.sub(r',.*', '', pwd.getpwuid(os.getuid()).pw_gecos)
+            maintainer = re.sub(r",.*", "", pwd.getpwuid(os.getuid()).pw_gecos)
         except (KeyError, AttributeError):
             pass
 
     # Get maintainer's mail address
-    email_address = None   # type: Optional[Text]
-    if 'DEBEMAIL' in env:
-        email_address = env['DEBEMAIL']
-    elif 'EMAIL' in env:
-        email_address = env['EMAIL']
+    email_address = None  # type: Optional[Text]
+    if "DEBEMAIL" in env:
+        email_address = env["DEBEMAIL"]
+    elif "EMAIL" in env:
+        email_address = env["EMAIL"]
     else:
         addr = None
-        if os.path.exists('/etc/mailname'):
-            f = open('/etc/mailname')
+        if os.path.exists("/etc/mailname"):
+            f = open("/etc/mailname")
             try:
                 addr = f.readline().strip()
             finally:
@@ -1024,7 +1028,7 @@ def get_maintainer():
             if not user:
                 addr = None
             else:
-                addr = '%s@%s' % (user, addr)
+                addr = "%s@%s" % (user, addr)
 
         if addr:
             email_address = addr

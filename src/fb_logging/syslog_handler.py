@@ -15,12 +15,12 @@ import sys
 from logging.handlers import SYSLOG_UDP_PORT
 from logging.handlers import SysLogHandler
 
-__version__ = '0.3.3'
+__version__ = "0.3.3"
 
 if sys.version_info[0] < 3:
-    raise RuntimeError('This module may only be used with Python > 3.1.')
+    raise RuntimeError("This module may only be used with Python > 3.1.")
 if sys.version_info[0] == 3 and sys.version_info[1] <= 1:
-    raise RuntimeError('This module may only be used with Python > 3.1')
+    raise RuntimeError("This module may only be used with Python > 3.1")
 
 
 # =============================================================================
@@ -31,10 +31,12 @@ class FbSysLogHandler(SysLogHandler):
     """
 
     def __init__(
-        self, address=('localhost', SYSLOG_UDP_PORT),
-            facility=SysLogHandler.LOG_USER,
-            socktype=None,
-            encoding='utf-8'):
+        self,
+        address=("localhost", SYSLOG_UDP_PORT),
+        facility=SysLogHandler.LOG_USER,
+        socktype=None,
+        encoding="utf-8",
+    ):
         """Initialize the FbSysLogHandler.
 
         To log to a local syslogd, `FbSysLogHandler(address="/dev/log")`
@@ -62,11 +64,9 @@ class FbSysLogHandler(SysLogHandler):
                 raise OSError(errno.ENOENT, "File doesn't exists", address)
             mode = os.stat(address).st_mode
             if not stat.S_ISSOCK(mode):
-                raise OSError(
-                    errno.EPERM, 'File is not a UNIX socket file', address)
+                raise OSError(errno.EPERM, "File is not a UNIX socket file", address)
             if not os.access(address, os.W_OK):
-                raise OSError(
-                    errno.EPERM, 'No write access to socket', address)
+                raise OSError(errno.EPERM, "No write access to socket", address)
 
             do_ux_socket = True
 
@@ -84,7 +84,7 @@ class FbSysLogHandler(SysLogHandler):
     # -------------------------------------------------------------------------
     def _connect_unixsocket(self, address):
 
-        use_socktype = getattr(self, 'socktype', None)
+        use_socktype = getattr(self, "socktype", None)
 
         if use_socktype is None:
             use_socktype = socket.SOCK_DGRAM
@@ -124,7 +124,7 @@ class FbSysLogHandler(SysLogHandler):
 
 
 # =============================================================================
-if __name__ == '__main__':
+if __name__ == "__main__":
 
     pass
 

@@ -8,7 +8,7 @@ import re
 from collections.abc import Sequence
 from numbers import Number
 
-__version__ = '0.6.2'
+__version__ = "0.6.2"
 
 
 # =============================================================================
@@ -23,7 +23,7 @@ class ColorNotFoundError(KeyError):
     # -------------------------------------------------------------------------
     def __str__(self):
         """Typecast into str."""
-        return 'Color {!r} not found.'.format(self.color)
+        return "Color {!r} not found.".format(self.color)
 
 
 # =============================================================================
@@ -38,8 +38,9 @@ class WrongColorTypeError(TypeError):
     # -------------------------------------------------------------------------
     def __str__(self):
         """Typecast into str."""
-        return 'Color {c!r} has wrong type {t}.'.format(
-            c=self.color, t=self.color.__class__.__name__)
+        return "Color {c!r} has wrong type {t}.".format(
+            c=self.color, t=self.color.__class__.__name__
+        )
 
 
 # =============================================================================
@@ -89,56 +90,56 @@ class Colors:
     BRIGHT_WHITE_BG = 107
 
     legacy_colors = {
-        'GREY30': 'BRIGHT_BLACK',
-        'GREY65': 'DARK_WHITE',
-        'GREY70': 'BRIGHT_WHITE',
-        'GREY20_BG': 'BLACK_BG',
-        'GREY33_BG': 'BRIGHT_BLACK_BG',
-        'GREY80_BG': 'WHITE_BG',
-        'RED': 'BRIGHT_RED',
-        'GREEN': 'BRIGHT_GREEN',
-        'YELLOW': 'BRIGHT_YELLOW',
-        'BLUE': 'BRIGHT_BLUE',
-        'MAGENTA': 'BRIGHT_MAGENTA',
-        'CYAN': 'BRIGHT_CYAN',
-        'WHITE': 'BRIGHT_WHITE',
-        'LIGHT_BLACK': 'BRIGHT_BLACK',
-        'LIGHT_RED': 'BRIGHT_RED',
-        'LIGHT_GREEN': 'BRIGHT_GREEN',
-        'LIGHT_YELLOW': 'BRIGHT_YELLOW',
-        'LIGHT_BLUE': 'BRIGHT_BLUE',
-        'LIGHT_MAGENTA': 'BRIGHT_MAGENTA',
-        'LIGHT_CYAN': 'BRIGHT_CYAN',
-        'LIGHT_WHITE': 'BRIGHT_WHITE',
-        'LIGHT_BLACK_BG': 'BRIGHT_BLACK_BG',
-        'LIGHT_RED_BG': 'BRIGHT_RED_BG',
-        'LIGHT_GREEN_BG': 'BRIGHT_GREEN_BG',
-        'LIGHT_YELLOW_BG': 'BRIGHT_YELLOW_BG',
-        'LIGHT_BLUE_BG': 'BRIGHT_BLUE_BG',
-        'LIGHT_MAGENTA_BG': 'BRIGHT_MAGENTA_BG',
-        'LIGHT_CYAN_BG': 'BRIGHT_CYAN_BG',
-        'LIGHT_WHITE_BG': 'BRIGHT_WHITE_BG',
-        'AQUA': 'BRIGHT_CYAN',
-        'AUQA': 'BRIGHT_CYAN',
-        'LIGHT_AQUA': 'BRIGHT_CYAN',
-        'LIGHT_AUQA': 'BRIGHT_CYAN',
-        'BRIGHT_AQUA': 'BRIGHT_CYAN',
-        'BRIGHT_AUQA': 'BRIGHT_CYAN',
-        'DARK_AQUA': 'DARK_CYAN',
-        'DARK_AUQA': 'DARK_CYAN',
-        'AQUA_BG': 'CYAN_BG',
-        'AUQA_BG': 'CYAN_BG',
-        'LIGHT_AQUA_BG': 'BRIGHT_CYAN_BG',
-        'LIGHT_AUQA_BG': 'BRIGHT_CYAN_BG',
-        'BRIGHT_AQUA_BG': 'BRIGHT_CYAN_BG',
-        'BRIGHT_AUQA_BG': 'BRIGHT_CYAN_BG',
-        'PURPLE': 'BRIGHT_MAGENTA',
-        'LIGHT_PURPLE': 'BRIGHT_MAGENTA',
-        'BRIGHT_PURPLE': 'BRIGHT_MAGENTA',
-        'DARK_PURPLE': 'DARK_MAGENTA',
-        'PURPLE_BG': 'MAGENTA_BG',
-        'LIGHT_PURPLE_BG': 'BRIGHT_MAGENTA_BG',
-        'BRIGHT_PURPLE_BG': 'BRIGHT_MAGENTA_BG',
+        "GREY30": "BRIGHT_BLACK",
+        "GREY65": "DARK_WHITE",
+        "GREY70": "BRIGHT_WHITE",
+        "GREY20_BG": "BLACK_BG",
+        "GREY33_BG": "BRIGHT_BLACK_BG",
+        "GREY80_BG": "WHITE_BG",
+        "RED": "BRIGHT_RED",
+        "GREEN": "BRIGHT_GREEN",
+        "YELLOW": "BRIGHT_YELLOW",
+        "BLUE": "BRIGHT_BLUE",
+        "MAGENTA": "BRIGHT_MAGENTA",
+        "CYAN": "BRIGHT_CYAN",
+        "WHITE": "BRIGHT_WHITE",
+        "LIGHT_BLACK": "BRIGHT_BLACK",
+        "LIGHT_RED": "BRIGHT_RED",
+        "LIGHT_GREEN": "BRIGHT_GREEN",
+        "LIGHT_YELLOW": "BRIGHT_YELLOW",
+        "LIGHT_BLUE": "BRIGHT_BLUE",
+        "LIGHT_MAGENTA": "BRIGHT_MAGENTA",
+        "LIGHT_CYAN": "BRIGHT_CYAN",
+        "LIGHT_WHITE": "BRIGHT_WHITE",
+        "LIGHT_BLACK_BG": "BRIGHT_BLACK_BG",
+        "LIGHT_RED_BG": "BRIGHT_RED_BG",
+        "LIGHT_GREEN_BG": "BRIGHT_GREEN_BG",
+        "LIGHT_YELLOW_BG": "BRIGHT_YELLOW_BG",
+        "LIGHT_BLUE_BG": "BRIGHT_BLUE_BG",
+        "LIGHT_MAGENTA_BG": "BRIGHT_MAGENTA_BG",
+        "LIGHT_CYAN_BG": "BRIGHT_CYAN_BG",
+        "LIGHT_WHITE_BG": "BRIGHT_WHITE_BG",
+        "AQUA": "BRIGHT_CYAN",
+        "AUQA": "BRIGHT_CYAN",
+        "LIGHT_AQUA": "BRIGHT_CYAN",
+        "LIGHT_AUQA": "BRIGHT_CYAN",
+        "BRIGHT_AQUA": "BRIGHT_CYAN",
+        "BRIGHT_AUQA": "BRIGHT_CYAN",
+        "DARK_AQUA": "DARK_CYAN",
+        "DARK_AUQA": "DARK_CYAN",
+        "AQUA_BG": "CYAN_BG",
+        "AUQA_BG": "CYAN_BG",
+        "LIGHT_AQUA_BG": "BRIGHT_CYAN_BG",
+        "LIGHT_AUQA_BG": "BRIGHT_CYAN_BG",
+        "BRIGHT_AQUA_BG": "BRIGHT_CYAN_BG",
+        "BRIGHT_AUQA_BG": "BRIGHT_CYAN_BG",
+        "PURPLE": "BRIGHT_MAGENTA",
+        "LIGHT_PURPLE": "BRIGHT_MAGENTA",
+        "BRIGHT_PURPLE": "BRIGHT_MAGENTA",
+        "DARK_PURPLE": "DARK_MAGENTA",
+        "PURPLE_BG": "MAGENTA_BG",
+        "LIGHT_PURPLE_BG": "BRIGHT_MAGENTA_BG",
+        "BRIGHT_PURPLE_BG": "BRIGHT_MAGENTA_BG",
     }
 
     # -------------------------------------------------------------------------
@@ -182,7 +183,7 @@ class Colors:
                 raise ColorNotFoundError(color)
             if v_int < 0 or v_int > 255:
                 raise ColorNotFoundError(color)
-            return '\x1b[38;5;{}m'.format(v_int)
+            return "\x1b[38;5;{}m".format(v_int)
 
         raise WrongColorTypeError(color)
 
@@ -198,7 +199,7 @@ class Colors:
                 raise ColorNotFoundError(color)
             if v_int < 0 or v_int > 255:
                 raise ColorNotFoundError(color)
-            return '\x1b[48;5;{}m'.format(v_int)
+            return "\x1b[48;5;{}m".format(v_int)
 
         raise WrongColorTypeError(color)
 
@@ -206,7 +207,7 @@ class Colors:
     @classmethod
     def colorize_8bit(cls, message, color_fg=None, color_bg=None, font_effect=None):
         """Colorize the given message with a 8-bit color."""
-        start_out = ''
+        start_out = ""
         if color_fg is not None:
             start_out += cls.termout_8bit_fg(color_fg)
         if color_bg is not None:
@@ -214,7 +215,7 @@ class Colors:
         if font_effect is not None:
             start_out += cls.termcode_4bit(font_effect)
 
-        return start_out + message + cls.termout('reset')
+        return start_out + message + cls.termout("reset")
 
     # -------------------------------------------------------------------------
     @classmethod
@@ -239,8 +240,7 @@ class Colors:
                 if v_int < 0 or v_int > 255:
                     raise ColorNotFoundError(color)
 
-            return '\x1b[38;2;{};{};{}m'.format(
-                color[0], color[1], color[2])
+            return "\x1b[38;2;{};{};{}m".format(color[0], color[1], color[2])
 
         raise WrongColorTypeError(color)
 
@@ -267,8 +267,7 @@ class Colors:
                 if v_int < 0 or v_int > 255:
                     raise ColorNotFoundError(color)
 
-            return '\x1b[48;2;{};{};{}m'.format(
-                color[0], color[1], color[2])
+            return "\x1b[48;2;{};{};{}m".format(color[0], color[1], color[2])
 
         raise WrongColorTypeError(color)
 
@@ -276,13 +275,13 @@ class Colors:
     @classmethod
     def colorize_24bit(cls, message, color_fg=None, color_bg=None):
         """Colorize the given message with a 24-bit color."""
-        start_out = ''
+        start_out = ""
         if color_fg is not None:
             start_out += cls.termout_fg(color_fg)
         if color_bg is not None:
             start_out += cls.termout_bg(color_bg)
 
-        return start_out + message + cls.termout('reset')
+        return start_out + message + cls.termout("reset")
 
     # -------------------------------------------------------------------------
     @classmethod
@@ -297,7 +296,7 @@ class Colors:
         """
         if isinstance(color, (str, bytes)):
             num = cls.termcode_4bit(color)
-            return '\x1b[{}m'.format(num)
+            return "\x1b[{}m".format(num)
 
         if isinstance(color, Number):
             return cls.termout_8bit_fg(color)
@@ -320,21 +319,21 @@ class Colors:
         @return: the colorized message
         @rtype: str
         """
-        start_out = ''
+        start_out = ""
         if isinstance(color, Sequence) and not isinstance(color, (str, bytes)):
             for single_color in color:
                 start_out += cls.termout(single_color)
         else:
             start_out = cls.termout(color)
 
-        return start_out + message + cls.termout('reset')
+        return start_out + message + cls.termout("reset")
 
     # -------------------------------------------------------------------------
     @classmethod
     def keys(cls):
         """Return all colornames of this class."""
         ret = []
-        re_capital = re.compile(r'^[A-Z][A-Z_0-9]*$')
+        re_capital = re.compile(r"^[A-Z][A-Z_0-9]*$")
         for key in sorted(cls.__dict__.keys()):
             if re_capital.match(key):
                 ret.append(key)
@@ -364,7 +363,8 @@ def colorstr_8bit(message, color_fg=None, color_bg=None, font_effect=None):
     @rtype: str
     """
     return Colors.colorize_8bit(
-        message, color_fg=color_fg, color_bg=color_bg, font_effect=font_effect)
+        message, color_fg=color_fg, color_bg=color_bg, font_effect=font_effect
+    )
 
 
 # =============================================================================
@@ -374,8 +374,7 @@ def colorstr_24bit(message, color_fg=None, color_bg=None):
     @return: the colorized message
     @rtype: str
     """
-    return Colors.colorize_24bit(
-        message, color_fg=color_fg, color_bg=color_bg)
+    return Colors.colorize_24bit(message, color_fg=color_fg, color_bg=color_bg)
 
 
 # =============================================================================
@@ -387,23 +386,23 @@ class ColoredFormatter(logging.Formatter):
     """
 
     level_color_bright = {
-        'TRACE': None,
-        'DEBUG': 'blue',
-        'INFO': 'cyan',
-        'NOTICE': 'green',
-        'WARNING': 'yellow',
-        'ERROR': ('bold', 'bright_red'),
-        'CRITICAL': ('bold', 'yellow', 'red_bg'),
+        "TRACE": None,
+        "DEBUG": "blue",
+        "INFO": "cyan",
+        "NOTICE": "green",
+        "WARNING": "yellow",
+        "ERROR": ("bold", "bright_red"),
+        "CRITICAL": ("bold", "yellow", "red_bg"),
     }
 
     level_color_dark = {
-        'TRACE': None,
-        'DEBUG': 'dark_blue',
-        'INFO': 'dark_cyan',
-        'NOTICE': 'dark_green',
-        'WARNING': 'dark_yellow',
-        'ERROR': 'dark_red',
-        'CRITICAL': ('bold', 'yellow', 'red_bg'),
+        "TRACE": None,
+        "DEBUG": "dark_blue",
+        "INFO": "dark_cyan",
+        "NOTICE": "dark_green",
+        "WARNING": "dark_yellow",
+        "ERROR": "dark_red",
+        "CRITICAL": ("bold", "yellow", "red_bg"),
     }
 
     # -------------------------------------------------------------------------
@@ -433,7 +432,7 @@ class ColoredFormatter(logging.Formatter):
     @property
     def colorize_msg(self):
         """Return whether the logging message should also be colorized."""
-        return getattr(self, '_colorize_msg', False)
+        return getattr(self, "_colorize_msg", False)
 
     @colorize_msg.setter
     def colorize_msg(self, value):
@@ -443,67 +442,67 @@ class ColoredFormatter(logging.Formatter):
     @property
     def color_debug(self):
         """Return the color used to output debug messages."""
-        return self.level_color['DEBUG']
+        return self.level_color["DEBUG"]
 
     @color_debug.setter
     def color_debug(self, value):
-        self.level_color['DEBUG'] = value
+        self.level_color["DEBUG"] = value
 
     # -----------------------------------------------------------
     @property
     def color_info(self):
         """Return the color used to output info messages."""
-        return self.level_color['INFO']
+        return self.level_color["INFO"]
 
     @color_info.setter
     def color_info(self, value):
-        self.level_color['INFO'] = value
+        self.level_color["INFO"] = value
 
     # -----------------------------------------------------------
     @property
     def color_warning(self):
         """Return the color used to output warning messages."""
-        return self.level_color['WARNING']
+        return self.level_color["WARNING"]
 
     @color_warning.setter
     def color_warning(self, value):
-        self.level_color['WARNING'] = value
+        self.level_color["WARNING"] = value
 
     # -----------------------------------------------------------
     @property
     def color_error(self):
         """Return the color used to output error messages."""
-        return self.level_color['ERROR']
+        return self.level_color["ERROR"]
 
     @color_error.setter
     def color_error(self, value):
-        self.level_color['ERROR'] = value
+        self.level_color["ERROR"] = value
 
     # -----------------------------------------------------------
     @property
     def color_critical(self):
         """Return the color used to output critical messages."""
-        return self.level_color['CRITICAL']
+        return self.level_color["CRITICAL"]
 
     @color_critical.setter
     def color_critical(self, value):
-        self.level_color['CRITICAL'] = value
+        self.level_color["CRITICAL"] = value
 
     # -------------------------------------------------------------------------
-    def format(self, record):                                           # noqa A003.
+    def format(self, record):  # noqa A003.
         """Format the specified record as text."""
         rcrd = copy.copy(record)
         levelname = rcrd.levelname
 
         if levelname in self.level_color:
 
-            rcrd.name = colorstr(rcrd.name, 'bold')
-            rcrd.filename = colorstr(rcrd.filename, 'bold')
-            rcrd.module = colorstr(rcrd.module, 'bold')
-            rcrd.funcName = colorstr(rcrd.funcName, 'bold')
-            rcrd.pathname = colorstr(rcrd.pathname, 'bold')
-            rcrd.processName = colorstr(rcrd.processName, 'bold')
-            rcrd.threadName = colorstr(rcrd.threadName, 'bold')
+            rcrd.name = colorstr(rcrd.name, "bold")
+            rcrd.filename = colorstr(rcrd.filename, "bold")
+            rcrd.module = colorstr(rcrd.module, "bold")
+            rcrd.funcName = colorstr(rcrd.funcName, "bold")
+            rcrd.pathname = colorstr(rcrd.pathname, "bold")
+            rcrd.processName = colorstr(rcrd.processName, "bold")
+            rcrd.threadName = colorstr(rcrd.threadName, "bold")
 
             clr = self.level_color[levelname]
             if clr is not None:

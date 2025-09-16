@@ -28,8 +28,8 @@ my_path = Path(__file__)
 my_real_path = my_path.resolve()
 bin_path = my_real_path.parent
 base_dir = bin_path.parent
-lib_dir = base_dir.joinpath('lib')
-module_dir = lib_dir.joinpath('fb_logging')
+lib_dir = base_dir.joinpath("lib")
+module_dir = lib_dir.joinpath("fb_logging")
 
 if module_dir.exists():
     sys.path.insert(0, str(lib_dir))
@@ -39,7 +39,7 @@ from fb_logging import __version__ as __pkg_version__
 from fb_logging.colored import ColoredFormatter
 from fb_logging.deb_changelog import Changelog
 
-__version__ = '0.4.1'
+__version__ = "0.4.1"
 
 LOG = logging.getLogger(__name__)
 
@@ -52,8 +52,7 @@ def pp(value, indent=4, width=150, depth=None):
     @return: pretty print string
     @rtype: str
     """
-    pretty_printer = pprint.PrettyPrinter(
-        indent=indent, width=width, depth=depth)
+    pretty_printer = pprint.PrettyPrinter(indent=indent, width=width, depth=depth)
     return pretty_printer.pformat(value)
 
 
@@ -75,10 +74,10 @@ class FileOptionAction(argparse.Action):
 
         path = Path(values)
         if not path.exists():
-            msg = 'File {!r} does not exists.'.format(values)
+            msg = "File {!r} does not exists.".format(values)
             raise argparse.ArgumentError(self, msg)
         if not path.is_file():
-            msg = 'File {!r} is not a regular file.'.format(values)
+            msg = "File {!r} is not a regular file.".format(values)
             raise argparse.ArgumentError(self, msg)
 
         setattr(namespace, self.dest, path.resolve())
@@ -92,10 +91,10 @@ class Dch2SpecLogApp(object):
     Converts a Debian changelog into log entries of a RPM spec file.
     """
 
-    re_emptyline = re.compile(r'^\s*$')
-    re_start_line = re.compile(r'^  \* (.*)')
-    re_next_line = re.compile(r'^    (.*)')
-    re_day_str = re.compile(r'\s+\d\d:\d\d:\d\d\s+[+-]?\d{4}$')
+    re_emptyline = re.compile(r"^\s*$")
+    re_start_line = re.compile(r"^  \* (.*)")
+    re_next_line = re.compile(r"^    (.*)")
+    re_day_str = re.compile(r"\s+\d\d:\d\d:\d\d\s+[+-]?\d{4}$")
 
     # -------------------------------------------------------------------------
     @classmethod
@@ -118,51 +117,54 @@ class Dch2SpecLogApp(object):
         @return: both stdout and stderr can perform ANSI color sequences
         @rtype: bool
         """
-        cur_term = ''
-        if 'TERM' in os.environ:
-            cur_term = os.environ['TERM'].lower().strip()
+        cur_term = ""
+        if "TERM" in os.environ:
+            cur_term = os.environ["TERM"].lower().strip()
 
         colored_term_list = (
-            r'ansi',
-            r'linux.*',
-            r'screen.*',
-            r'[xeak]term.*',
-            r'gnome.*',
-            r'rxvt.*',
-            r'interix',
+            r"ansi",
+            r"linux.*",
+            r"screen.*",
+            r"[xeak]term.*",
+            r"gnome.*",
+            r"rxvt.*",
+            r"interix",
         )
-        term_pattern = r'^(?:' + r'|'.join(colored_term_list) + r')$'
+        term_pattern = r"^(?:" + r"|".join(colored_term_list) + r")$"
         re_term = re.compile(term_pattern)
 
         ansi_term = False
         env_term_has_colors = False
 
         if cur_term:
-            if cur_term == 'ansi':
+            if cur_term == "ansi":
                 env_term_has_colors = True
                 ansi_term = True
             elif re_term.search(cur_term):
                 env_term_has_colors = True
         if debug:
-            sys.stderr.write('ansi_term: {a!r}, env_term_has_colors: {h!r}\n'.format(
-                a=ansi_term, h=env_term_has_colors))
+            sys.stderr.write(
+                "ansi_term: {a!r}, env_term_has_colors: {h!r}\n".format(
+                    a=ansi_term, h=env_term_has_colors
+                )
+            )
 
         has_colors = False
         if env_term_has_colors:
             has_colors = True
         for handle in [sys.stdout, sys.stderr]:
-            if (hasattr(handle, 'isatty') and handle.isatty()):
+            if hasattr(handle, "isatty") and handle.isatty():
                 if debug:
-                    msg = '{} is a tty.'.format(handle.name)
-                    sys.stderr.write(msg + '\n')
-                if (platform.system() == 'Windows' and not ansi_term):
+                    msg = "{} is a tty.".format(handle.name)
+                    sys.stderr.write(msg + "\n")
+                if platform.system() == "Windows" and not ansi_term:
                     if debug:
-                        sys.stderr.write('Platform is Windows and not ansi_term.\n')
+                        sys.stderr.write("Platform is Windows and not ansi_term.\n")
                     has_colors = False
             else:
                 if debug:
-                    msg = '{} is not a tty.'.format(handle.name)
-                    sys.stderr.write(msg + '\n')
+                    msg = "{} is not a tty.".format(handle.name)
+                    sys.stderr.write(msg + "\n")
                 if ansi_term:
                     pass
                 else:
@@ -178,15 +180,15 @@ class Dch2SpecLogApp(object):
         self.terminal_has_colors = False
 
         self.description = (
-            'Converts a Debian changelog file into log entries usable as '
-            'log entries in a Spec file used to build RPM packages. '
-            'If called without a file name, it reads the Debian changelog from STDIN. '
-            'It returns the entries on STDOUT.'
+            "Converts a Debian changelog file into log entries usable as "
+            "log entries in a Spec file used to build RPM packages. "
+            "If called without a file name, it reads the Debian changelog from STDIN. "
+            "It returns the entries on STDOUT."
         )
 
         self.verbose = int(verbose)
         if self.verbose < 0:
-            msg = 'Wrong verbose level {!r}, must be >= 0'.format(verbose)
+            msg = "Wrong verbose level {!r}, must be >= 0".format(verbose)
             raise ValueError(msg)
 
         self.arg_parser = None
@@ -221,38 +223,58 @@ class Dch2SpecLogApp(object):
         @raise PBApplicationError: on some errors
         """
         self.arg_parser = argparse.ArgumentParser(
-            prog=self.appname, description=self.description, add_help=False,)
-
-        self.arg_parser.add_argument(
-            '--color', action='store', dest='color', const='yes',
-            default='auto', nargs='?', choices=['yes', 'no', 'auto'],
-            help='Use colored output for messages.',
+            prog=self.appname,
+            description=self.description,
+            add_help=False,
         )
 
         self.arg_parser.add_argument(
-            '-v', '--verbose', action='count', dest='verbose',
-            help='Increase the verbosity level',
+            "--color",
+            action="store",
+            dest="color",
+            const="yes",
+            default="auto",
+            nargs="?",
+            choices=["yes", "no", "auto"],
+            help="Use colored output for messages.",
         )
 
         self.arg_parser.add_argument(
-            '-h', '--help', action='help', dest='help',
-            help='Show this help message and exit.'
-        )
-        self.arg_parser.add_argument(
-            '--usage', action='store_true', dest='usage',
-            help='Display brief usage message and exit.'
-        )
-        v_msg = 'Version of %(prog)s: {}'.format(self.version)
-        self.arg_parser.add_argument(
-            '-V', '--version', action='version', version=v_msg,
-            help="Show program's version number and exit."
+            "-v",
+            "--verbose",
+            action="count",
+            dest="verbose",
+            help="Increase the verbosity level",
         )
 
         self.arg_parser.add_argument(
-            'file', metavar='CHANGELOG_FILE', type=str, nargs='?',
-            action=FileOptionAction, help=(
-                'The Debian changelog file to convert into log entries of a RPM spec file. '
-                'If omitted, STDIN will be used.'),
+            "-h", "--help", action="help", dest="help", help="Show this help message and exit."
+        )
+        self.arg_parser.add_argument(
+            "--usage",
+            action="store_true",
+            dest="usage",
+            help="Display brief usage message and exit.",
+        )
+        v_msg = "Version of %(prog)s: {}".format(self.version)
+        self.arg_parser.add_argument(
+            "-V",
+            "--version",
+            action="version",
+            version=v_msg,
+            help="Show program's version number and exit.",
+        )
+
+        self.arg_parser.add_argument(
+            "file",
+            metavar="CHANGELOG_FILE",
+            type=str,
+            nargs="?",
+            action=FileOptionAction,
+            help=(
+                "The Debian changelog file to convert into log entries of a RPM spec file. "
+                "If omitted, STDIN will be used."
+            ),
         )
 
     # -------------------------------------------------------------------------
@@ -267,9 +289,9 @@ class Dch2SpecLogApp(object):
         if self.args.verbose is not None and self.args.verbose > self.verbose:
             self.verbose = self.args.verbose
 
-        if self.args.color == 'yes':
+        if self.args.color == "yes":
             self.terminal_has_colors = True
-        elif self.args.color == 'no':
+        elif self.args.color == "no":
             self.terminal_has_colors = False
         else:
             self.terminal_has_colors = self.terminal_can_color()
@@ -295,16 +317,16 @@ class Dch2SpecLogApp(object):
         root_logger.setLevel(log_level)
 
         # create formatter
-        format_str = ''
+        format_str = ""
         if self.verbose:
-            format_str = '[%(asctime)s]: '
-        format_str += self.appname + ': '
+            format_str = "[%(asctime)s]: "
+        format_str += self.appname + ": "
         if self.verbose:
             if self.verbose > 1:
-                format_str += '%(name)s(%(lineno)d) %(funcName)s() '
+                format_str += "%(name)s(%(lineno)d) %(funcName)s() "
             else:
-                format_str += '%(name)s '
-        format_str += '%(levelname)s - %(message)s'
+                format_str += "%(name)s "
+        format_str += "%(levelname)s - %(message)s"
         formatter = None
         if self.terminal_has_colors:
             formatter = ColoredFormatter(format_str)
@@ -328,11 +350,11 @@ class Dch2SpecLogApp(object):
         Makes the application object callable.
         """
         if self.changelog_file:
-            LOG.debug('Reading {!r} ...'.format(str(self.changelog_file)))
-            with self.changelog_file.open('r', encoding='utf-8', errors='backslashreplace') as fh:
+            LOG.debug("Reading {!r} ...".format(str(self.changelog_file)))
+            with self.changelog_file.open("r", encoding="utf-8", errors="backslashreplace") as fh:
                 self.convert(fh, str(self.changelog_file))
         else:
-            self.convert(sys.stdin, 'STDIN')
+            self.convert(sys.stdin, "STDIN")
 
     # -------------------------------------------------------------------------
     def mangle_changes(self, changes):
@@ -355,14 +377,16 @@ class Dch2SpecLogApp(object):
             m = self.re_next_line.match(line)
             if m:
                 if change:
-                    change += ' ' + m.group(1)
+                    change += " " + m.group(1)
                 else:
                     change = m.group(1)
                 continue
 
             warnings.warn(
-                'Could not evaluate Changelog entry {!r}.'.format(line),
-                SyntaxWarning, stacklevel=1)
+                "Could not evaluate Changelog entry {!r}.".format(line),
+                SyntaxWarning,
+                stacklevel=1,
+            )
 
         if change:
             clist.append(change)
@@ -375,59 +399,64 @@ class Dch2SpecLogApp(object):
         ch = None
 
         with warnings.catch_warnings(record=True) as w:
-            warnings.simplefilter('always')
+            warnings.simplefilter("always")
             ch = Changelog(fh)
 
             if len(w):
-                msg = 'There were {nr} warnings on reading {f!r}.'.format(nr=len(w), f=filename)
+                msg = "There were {nr} warnings on reading {f!r}.".format(nr=len(w), f=filename)
                 LOG.warning(msg)
                 for msg in w:
                     category = msg.category.__name__
-                    s = f'{category}: {msg.message}\n'
+                    s = f"{category}: {msg.message}\n"
                     LOG.warning(s)
                 sys.exit(5)
 
-        LOG.debug('Changelog {f!r} has {nr} entries.'.format(f=filename, nr=len(ch)))
+        LOG.debug("Changelog {f!r} has {nr} entries.".format(f=filename, nr=len(ch)))
 
         days = {}
 
         for block in ch:
 
             lines = []
-            day_str = self.re_day_str.sub('', block.date)
-            date = datetime.datetime.strptime(day_str, '%a, %d %b %Y')
+            day_str = self.re_day_str.sub("", block.date)
+            date = datetime.datetime.strptime(day_str, "%a, %d %b %Y")
 
-            day = date.strftime('%Y-%m-%d')
+            day = date.strftime("%Y-%m-%d")
             author = block.author
-            version = str(block.version) + '-1'
-            lines.append('*   {date} {author} {version}'.format(
-                date=date, author=author, version=version))
+            version = str(block.version) + "-1"
+            lines.append(
+                "*   {date} {author} {version}".format(date=date, author=author, version=version)
+            )
 
             changes = self.mangle_changes(block._changes)
 
             if day not in days:
                 days[day] = {
-                    'date': date.strftime('%a %b %d %Y'),
-                    'author': author,
-                    'version': version,
-                    'changes': changes,
+                    "date": date.strftime("%a %b %d %Y"),
+                    "author": author,
+                    "version": version,
+                    "changes": changes,
                 }
             else:
                 for change in changes:
-                    days[day]['changes'].append(change)
+                    days[day]["changes"].append(change)
 
         for day in sorted(days.keys(), reverse=True):
             lines = []
             block = days[day]
-            lines.append('*   {date} {author} {version}'.format(
-                date=block['date'], author=block['author'], version=block['version']))
+            lines.append(
+                "*   {date} {author} {version}".format(
+                    date=block["date"], author=block["author"], version=block["version"]
+                )
+            )
 
-            for change in block['changes']:
+            for change in block["changes"]:
                 for line in textwrap.wrap(
-                        change, width=70, initial_indent='-   ', subsequent_indent='    '):
+                    change, width=70, initial_indent="-   ", subsequent_indent="    "
+                ):
                     lines.append(line)
 
-            print('\n'.join(lines))
+            print("\n".join(lines))
 
 
 # =============================================================================
@@ -436,8 +465,10 @@ def main():
     app = Dch2SpecLogApp()
 
     if app.verbose > 2:
-        print('{c}-Object:\n{a}'.format(
-            c=app.__class__.__name__, a=pp(app.__dict__)), file=sys.stderr)
+        print(
+            "{c}-Object:\n{a}".format(c=app.__class__.__name__, a=pp(app.__dict__)),
+            file=sys.stderr,
+        )
 
     app()
 
