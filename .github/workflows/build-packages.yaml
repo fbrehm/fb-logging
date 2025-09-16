@@ -141,7 +141,7 @@ jobs:
       - name: 'Install Debian Python Build Environment'
         uses: fbrehm/debian-install-python-buildenv@main
         with:
-          additional_packages: 'python3-click python3-semver'
+          additional_packages: 'python3-click python3-semver pybuild-plugin-pyproject flit'
 
       - name: "Set and show Environment"
         shell: bash
