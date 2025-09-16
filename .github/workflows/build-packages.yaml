@@ -32,6 +32,7 @@ env:
   PKG_NAME: 'fb-logging'
   MODULE_DIR: 'src/fb_logging'
   INDEX_FILE: 'src/fb_logging/__init__.py'
+  RETENTION_DAYS: 15
 
 ################################################################################
 jobs:
@@ -124,5 +125,135 @@ jobs:
           flake8 --version
           echo "And fire ..."
           flake8 "${MODULE_DIR}" test
+
+  ###########################
+  build_debian_sources:
+    runs-on: ubuntu-latest
+    name: Building Debian Source Packages
+    if: ${{ github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/test') || startsWith(github.ref, 'refs/heads/build') || startsWith(github.ref, 'refs/tags/') }}
+    container: debian:bookworm
+    needs:
+      - linter
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/prepare-debian-container
+      - uses: ./.github/actions/debian-install-buildenv
+
+      - name: 'Install Debian Python Build Environment'
+        uses: fbrehm/debian-install-python-buildenv@main
+        with:
+          additional_packages: 'python3-click python3-semver'
+
+      - name: "Set and show Environment"
+        shell: bash
+        run: |
+          export PKG_NAME=$( head -n 1 debian/changelog | awk '{print $1}' )
+          export PKG_VERSION=$( head -n 1 debian/changelog | sed -e "s/^[^(]*(//" -e "s/).*//" )
+          export SIGNING_HOOK_SCRIPT="${HOME}/signing-hook-script.sh"
+
+          echo "PKG_NAME=${PKG_NAME}" >>"$GITHUB_ENV"
+          echo "PKG_VERSION=${PKG_VERSION}" >>"$GITHUB_ENV"
+          echo "SIGNING_HOOK_SCRIPT=${SIGNING_HOOK_SCRIPT}" >>"$GITHUB_ENV"
+
+          echo "::notice::Building Debian source package on Debian ${DEBIAN_VERSION}."
+          if [[ -f /etc/os-release ]] ; then
+              echo -e "\nOS release for building source package:"
+              cat /etc/os-release
+          fi
+          echo -e "\nBash enviroment:"
+          env | sort
+
+
+      - name: 'Preparing GPG for signing files without entering a password'
+        uses: fbrehm/github-setup-gpg@main
+        with:
+          public_key: ${{ secrets.GPG_PUBLIC_KEY }}
+          private_key: ${{ secrets.GPG_PRIVATE_KEY }}
+          key_password: ${{ secrets.GPG_KEY_PASSWORD }}
+          password_file: ${{ env.GPG_PASSWORD_FILE }}
+          key_id: ${{ env.GPG_KEY_ID }}
+
+      - name: 'Create signing hook script of building source package.'
+        shell: bash
+        run: |
+          dsc_file="${PKG_NAME}_${PKG_VERSION}.dsc"
+          buildinfo_file="${PKG_NAME}_${PKG_VERSION}_source.buildinfo"
+          changes_file="${PKG_NAME}_${PKG_VERSION}_source.changes"
+          password_file_abs=$( readlink --canonicalize-missing "${GPG_PASSWORD_FILE}" )
+
+          if [[ -e "${password_file_abs}" ]] ; then
+            hash_bang='#!/usr/bin/env bash'
+            shell_lines=$( cat <<-EOF
+          	${hash_bang}
+          	echo
+          	echo "This is the signing script."
+          	echo "==========================="
+          	echo
+          	printf "Command line: "
+          	echo \$0 \$*
+          	printf "Pwd: "
+          	pwd
+          	echo
+          	echo "Current sources:"
+          	ls -l --color=always '${dsc_file}' '${buildinfo_file}' '${changes_file}'
+          	echo
+          	cmd="echo 'y' | debsign -k${{ inputs.key_id }} '${dsc_file}' '${buildinfo_file}' '${changes_file}'"
+          	echo "Executing: \$cmd"
+          	eval \$cmd
+          	echo
+          	echo "Signed sources:"
+          	ls -l --color=always '${dsc_file}' '${buildinfo_file}' '${changes_file}'
+          	echo
+          	EOF
+            )
+
+            echo "${shell_lines}" > "${SIGNING_HOOK_SCRIPT}"
+            chmod +x --verbose "${SIGNING_HOOK_SCRIPT}"
+
+            echo -e "\nGenerated ${SIGNING_HOOK_SCRIPT}:"
+            cat "${SIGNING_HOOK_SCRIPT}"
+            echo "<--"
+
+            echo -e "\nThe imported private keys:"
+            gpg --list-secret-keys
+            echo "<-- EOF"
+
+          else
+
+            echo -e "\nDon't create '${SIGNING_HOOK_SCRIPT}' because of failing necessary data."
+
+          fi
+
+      - name: 'Finally build the source package.'
+        shell: bash
+        run: |
+          PASSWORD_FILE_ABS=$( readlink --canonicalize-missing "${GPG_PASSWORD_FILE}" )
+          if [[ -e "${PASSWORD_FILE_ABS}" && -x "${SIGNING_HOOK_SCRIPT}" ]] ; then
+            echo "::notice title=build-debian-sorce-package::Building signed Debian source package for ${PKG_NAME}-${PKG_VERSION}"
+            echo "y" | debuild --signing-hook="${SIGNING_HOOK_SCRIPT}" -S -i
+          else
+            echo "::notice title=build-debian-sorce-package::Building unsigned Debian source package for ${PKG_NAME}-${PKG_VERSION}"
+            debuild -S -i --no-sign
+          fi
+
+          echo -e "\nGenerated stuff:"
+          ls -lA --color=always ..
+          echo "<-- EOF"
+
+          echo -e "\nMoving all to the right place ..."
+          mkdir -pv debian/pkgs/src
+          mv -vi ../*.dsc ../*.tar.* ../*.build* ../*.changes debian/pkgs/src
+
+          echo -e "\nStuff now at the right place:"
+          ls -lA --color=always debian/pkgs/*/*
+          echo "<-- EOF"
+
+      - name: 'Upload Source Package'
+        uses: actions/upload-artifact@v4
+        with:
+          name: debian_sources
+          path: debian/pkgs/*/*
+          retention-days: ${ env.RETENTION_DAYS }}
+
 
 # vim: et tabstop=2 expandtab shiftwidth=2 softtabstop=2 list
