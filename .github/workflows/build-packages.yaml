@@ -455,14 +455,14 @@ jobs:
             image: 'rockylinux:9'
             epel_package: 'epel-release'
             has_powertools: false
-          - title: 'Enterprise Linux 10'
-            el_version: '10'
-            py_minor_version: '10'
-            py_version_dot: '3'
-            py_version_nodot: '3'
-            image: 'rockylinux:10'
-            has_powertools: false
-            epel_package: 'epel-release'
+          # - title: 'Enterprise Linux 10'
+          #   el_version: '10'
+          #   py_minor_version: '10'
+          #   py_version_dot: '3'
+          #   py_version_nodot: '3'
+          #   image: 'rockylinux:10'
+          #   has_powertools: false
+          #   epel_package: 'epel-release'
     container: ${{ matrix.image }}
     env:
       EL_TITLE: ${{ matrix.title }}
@@ -477,6 +477,7 @@ jobs:
       MAN_SECTION: 1
 
     steps:
+      - uses: actions/checkout@v4
       - name: "Set and show Environment"
         shell: bash
         run: |
@@ -517,6 +518,12 @@ jobs:
           echo "::notice::Python version: $(python3 --version)"
           echo ""
 
+          echo -e "\nBash enviroment:"
+          env | sort
+
+      - name: "Checking and updating locales."
+        shell: bash
+        run: |
           echo -e "\nAll locales:"
           locale -a
           echo -e "\nInstalling locales ..."
@@ -542,9 +549,6 @@ jobs:
           echo "LC_ALL=${LC_ALL}" >>"$GITHUB_ENV"
           echo -e "\nCurrent locales again:"
           locale
-
-          echo -e "\nBash enviroment:"
-          env | sort
 
       - name: "Adding own YUM repository"
         shell: bash
@@ -576,6 +580,30 @@ jobs:
           echo -e "\nContent of '${REPO_FILE}':"
           cat "${REPO_FILE}"
           echo "<--"
+
+      - name: "Install EPEL repo"
+        shell: bash
+        run: dnf --assumeyes install "${EPEL_PACKAGE}"
+
+      - name: "Show all used YUM repos"
+        shell: bash
+        run: |
+          echo -e "All current installed YUM repo definitions:"
+          dnf ${DNF_ENABLE_REPO} repolist --all
+
+      - name: Upgrade all packages
+        shell: bash
+        env:
+          LC_ALL: "en_US.utf8"
+        run: |
+          echo "Cleaning dnf ..."
+          dnf clean all
+          echo
+          echo "dnf makecache ..."
+          dnf makecache
+          echo
+          echo "Upgrading all packages"
+          dnf --assumeyes upgrade
 
 
 # vim: et tabstop=2 expandtab shiftwidth=2 softtabstop=2 list
