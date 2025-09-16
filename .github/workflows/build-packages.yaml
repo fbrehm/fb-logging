@@ -253,7 +253,7 @@ jobs:
         with:
           name: debian_sources
           path: debian/pkgs/*/*
-          retention-days: ${ env.RETENTION_DAYS }}
+          retention-days: ${{ env.RETENTION_DAYS }}
 
 
 # vim: et tabstop=2 expandtab shiftwidth=2 softtabstop=2 list
