@@ -33,6 +33,10 @@ env:
   MODULE_DIR: 'src/fb_logging'
   INDEX_FILE: 'src/fb_logging/__init__.py'
   RETENTION_DAYS: 15
+  OWN_REPO_SERVER_URL: 'https://repo.uhu-banane.de'
+  OWN_YUM_REPO_NAME: 'frank-brehm'
+  OWN_YUM_REPO_DESCRIPTION: 'Frank Brehms Yum repository for Enterprise Linux %s'
+  OWN_YUM_REPO_ROOT_PATH: '/Yum'
 
 ################################################################################
 jobs:
@@ -563,7 +567,7 @@ jobs:
           fi
 
           URL="${OWN_REPO_SERVER_URL}${OWN_YUM_REPO_ROOT_PATH}/el-${EL_VERSION}"
-          DESC=$(  printf "${OWN_YUM_REPO_DESCRIPTION}" "${EL_VERSION}" )
+          DESC=$( printf "${OWN_YUM_REPO_DESCRIPTION}" "${EL_VERSION}" )
 
           echo -e "\nCreating '${REPO_FILE}' ..."
           lines=$( cat <<-EOF
