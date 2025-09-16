@@ -80,9 +80,9 @@ jobs:
       - name: "Checking package version against tag."
         shell: bash
         run: |
-          PACKAGE_VERSION=$( cat "${INDEX_FILE}" | \
-              grep -P '^__version__(\s|=)' | \
-                  sed -e "s/^[^'\"]*['\"]//" -e "s/['\"][ 	]*\$//" )
+          echo ""
+          echo "Getting package version from '${INDEX_FILE}' ..."
+          PACKAGE_VERSION=$( cat "${INDEX_FILE}" | grep -P '^__version__(\s|=)' | sed -e "s/^[^'\"]*['\"]//" -e "s/['\"][ 	]*\$//" )
           echo "::notice::Package version: '${PACKAGE_VERSION}'"
           if echo "${GITREF}" | grep -q -P '^refs/tags/' ; then
               TAG_VERSION=$( echo "${GITREF}" | sed -e 's|^refs/tags/||' )
@@ -97,9 +97,9 @@ jobs:
       - name: "Comparing package version in debian/changlog and in ${INDEX_FILE}."
         shell: bash
         run: |
+          echo ""
           echo "Getting package version from '${INDEX_FILE}' ..."
-          PACKAGE_VERSION=$( cat "${INDEX_FILE}" | \
-              grep -P '^__version__(\sed -e "s/^[^'\"]*['\"]//" -e "s/['\"][ »]*\$//" )
+          PACKAGE_VERSION=$( cat "${INDEX_FILE}" | grep -P '^__version__(\sed -e "s/^[^'\"]*['\"]//" -e "s/['\"][ »]*\$//" )
           echo "::notice::Package version: '${PACKAGE_VERSION}'"
           if [[ -f debian/changelog ]] ; then
             DEBIAN_PKG_VERSION=$( head -n 1 debian/changelog | sed -e 's/^[^(]*(//' -e 's/).*//' )
@@ -118,7 +118,10 @@ jobs:
       - name: Execute Flake 8
         shell: bash
         run: |
+          echo ""
           flake8 --version
+          echo ""
+          echo "Executing flake8 ..."
           flake8 "${MODULE_DIR}" test
 
 # vim: et tabstop=2 expandtab shiftwidth=2 softtabstop=2 list
