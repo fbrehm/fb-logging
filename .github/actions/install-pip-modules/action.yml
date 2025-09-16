@@ -26,14 +26,12 @@ runs:
       id: create-venv
       shell: bash
       run: |
-        echo ""
         echo "Creating Python virtual environment '.venv' ..."
         python3 -m venv --system-site-packages .venv
     - name: Upgrading Pip
       id: pip-upgrade
       shell: bash
       run: |
-        echo ""
         echo "Activating virtual environment '.venv'."
         source .venv/bin/activate
         echo "Upgrading Pip."
@@ -46,12 +44,10 @@ runs:
         FLIT_ROOT_INSTALL: 1
       shell: bash
       run: |
-        echo ""
         echo "Activating virtual environment '.venv'."
         source .venv/bin/activate
         echo "Installing flit with pip ..."
         pip install flit
-        echo ""
         echo "Installing all necessary packages with flit ..."
         if [[ "${INSTALL_PYTEST}" == false ]] ; then
             echo "Installing linting modules ..."
@@ -67,7 +63,6 @@ runs:
         USE_POETRY: ${{ inputs.use_poetry }}
       shell: bash
       run: |
-        echo ""
         echo "All installed Python modules:"
         source .venv/bin/activate
         pip3 list --format columns
