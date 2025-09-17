@@ -41,7 +41,7 @@ echo "Pwd: $( pwd )"
 
 %install
 %pyproject_install
-%pyproject_save_files -L %{name}
+%pyproject_save_files fb_logging
 
 # cd ../%{builddir}
 # echo "Pwd: $( pwd )"
