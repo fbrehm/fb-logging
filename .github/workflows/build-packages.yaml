@@ -701,7 +701,7 @@ jobs:
 
           cmd="dnf ${DNF_ENABLE_REPO} --assumeyes install ${PYTHON}"
           cmd+=" ${PYTHON}-setuptools ${PYTHON}-pip ${PYTHON}-devel ${PYTHON}-babel"
-          cmd+=" ${PYTHON}-pytz ${PYTHON}-chardet ${PYTHON}-six"
+          cmd+=" ${PYTHON}-pytz ${PYTHON}-chardet ${PYTHON}-six ${PYTHON}-semver"
           cmd+=" ${PYTHON}-flit ${PYTHON}-click pyproject-rpm-macros"
 
           echo -e "\nCalling: ${cmd}"
