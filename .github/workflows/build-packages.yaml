@@ -751,7 +751,7 @@ jobs:
               echo -e "\nCurrent PATH: '${PATH}'"
 
               echo -e "\nInstalling entrypoints ..."
-              echo "Which flit: $( which flit )"
+              echo "Which flit: $( type -p flit )"
               flit install --deps production --python .venv/bin/python3
 
               echo -e "\nInstalling click-man ..."
@@ -820,7 +820,7 @@ jobs:
                   source .venv/bin/activate
               fi
           fi
-          echo "Which dch2speclog: $( which dch2speclog )"
+          echo "Which dch2speclog: $( type -p dch2speclog )"
           dch2speclog debian/changelog >> "${SPECFILE}"
 
           echo -e "\nGenerated '${SPECFILE}':"

@@ -34,12 +34,18 @@ echo "Preparing '${builddir}-' ..."
 
 %build
 cd ../%{builddir}
-python@@@py_version_dot@@@ setup.py build
+echo "Pwd: $( pwd )"
+echo "Buildroot: %{buildroot}"
+mkdir -pv %{buildroot}/usr
 
 %install
 cd ../%{builddir}
+echo "Pwd: $( pwd )"
 echo "Buildroot: %{buildroot}"
-python@@@py_version_dot@@@ setup.py install --prefix=%{_prefix} --root=%{buildroot}
+pip3 install --user -v . --no-deps --root %{buildroot} --use-pep517
+# python@@@py_version_dot@@@ setup.py install --prefix=%{_prefix} --root=%{buildroot}
+ls -l %{buildroot}
+
 
 %files
 %defattr(-,root,root,-)
