@@ -576,21 +576,23 @@ jobs:
           echo "<--"
 
           echo -e " \nGet all entry points ..."
-          ENTRYPONTS=''
-          for entrypoint in $( awk -f "get-entrypoints.awk" pyproject.toml ); do
-              if [[ -n "${ENTRYPONTS}" ]] ; then
-                  ENTRYPONTS+=" "
-              fi
-              ENTRYPONTS+="${entrypoint}"
-          done
-          echo "ENTRYPONTS=${ENTRYPONTS}" >>"$GITHUB_ENV"
-          if [[ -n "${ENTRYPONTS}" ]] ; then
-              echo -e "\nFound entrypoints:"
-              for entrypoint in ${ENTRYPONTS}; do
-                  echo " * ${entrypoint}"
+          ENTRYPOINTS=''
+          result=$( awk -f "get-entrypoints.awk" pyproject.toml )
+          echo "Got entrypoints: '${result}'"
+          if [[ -n "${result}" ]] ; then
+              echo "Evaluate entrypoints ..."
+              for entrypoint in $( awk -f "get-entrypoints.awk" pyproject.toml ); do
+                  if [[ -n "${ENTRYPOINTS}" ]] ; then
+                      ENTRYPOINTS+=" "
+                  fi
+                  ENTRYPOINTS+="${entrypoint}"
               done
+          fi
+          echo "ENTRYPOINTS=${ENTRYPOINTS}" >>"$GITHUB_ENV"
+          if [[ -n "${ENTRYPOINTS}" ]] ; then
+              echo "::notice::Found entrypoints: ${ENTRYPOINTS}"
           else
-              echo "Did not found any entrypoints."
+              echo "::notice::Did not found any entrypoints."
           fi
 
       - name: "Checking and updating locales."
@@ -736,7 +738,7 @@ jobs:
       - name: 'Creating man pages'
         shell: bash
         run: |
-          if [[ -n "${ENTRYPONTS}" ]] ; then
+          if [[ -n "${ENTRYPOINTS}" ]] ; then
               man_dir="usr/share/man/man${MAN_SECTION}"
               echo -e "\nGenerating MAN pages in '${man_dir}'."
 
@@ -750,13 +752,15 @@ jobs:
               echo -e "\nInstalling click-man ..."
               pip3 install click-man
 
-              for entrypoint in ${ENTRYPONTS}; do
+              for entrypoint in ${ENTRYPOINTS}; do
                   cmd="click-man --target \"${man_dir}\" --man-version ${MAN_SECTION} \"${entrypoint}\""
                   echo -e "\nCalling: ${cmd}"
                   eval ${cmd}
               done
 
               ls -l --color=always "${man_dir}"
+          else
+              echo "::notice::No entrypoints found for creating man pages."
           fi
 
           # for script in bin/* ; do
