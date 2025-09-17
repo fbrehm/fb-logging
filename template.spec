@@ -50,7 +50,7 @@ echo "Pwd: $( pwd )"
 # # python@@@py_version_dot@@@ setup.py install --prefix=%{_prefix} --root=%{buildroot}
 # ls -l %{buildroot}
 
-%files
+%files -f %{pyproject_files}
 %defattr(-,root,root,-)
 %license LICENSE
 %doc LICENSE README.md requirements.txt debian/changelog
