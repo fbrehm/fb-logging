@@ -779,7 +779,7 @@ jobs:
           mkdir -pv rpmdir/SOURCES
 
           workdir=$(pwd)
-          root_objects=$( ls -A1 | egrep -vw ".git|rpmdir" )
+          root_objects=$( ls -A1 | egrep -vw ".git|rpmdir|.venv" )
           echo -e "\nRoot objects:"
           for o in ${root_objects} ; do
               echo " * ${o}"
@@ -803,7 +803,7 @@ jobs:
         shell: bash
         run: |
           echo -e "\nCreating spec file '${SPECFILE}' ..."
-          template="${{ inputs.template_specfile }}"
+          template="${SPECFILE_TEMPLATE}"
           if [[ "${SPECFILE}" == "${SPECFILE_TEMPLATE}" ]] ; then
               template="${SPECFILE_TEMPLATE}.bak0"
               mv -v "${SPECFILE_TEMPLATE}" "${template}"
