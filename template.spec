@@ -12,12 +12,11 @@ Distribution:   Frank Brehm
 URL:            https://github.com/fbrehm/fb-logging
 Source0:        fb-logging.%{version}.tar.gz
 
-BuildRequires:  python@@@py_version_nodot@@@
-BuildRequires:  python@@@py_version_nodot@@@-libs
-BuildRequires:  python@@@py_version_nodot@@@-devel
-BuildRequires:  python@@@py_version_nodot@@@-setuptools
-Requires:       python@@@py_version_nodot@@@
-Requires:       python@@@py_version_nodot@@@-libs
+BuildRequires:  python%{python3_pkgversion}
+BuildRequires:  python%{python3_pkgversion}-devel
+BuildRequires:  pyproject-rpm-macros
+Requires:       python%{python3_pkgversion}
+Requires:       python%{python3_pkgversion}-libs
 BuildArch:      noarch
 
 %description
@@ -30,7 +29,8 @@ This is the Python@@@py_version_nodot@@@ version.
 
 %prep
 echo "Preparing '${builddir}-' ..."
-%autosetup -p1
+echo "Pwd: $( pwd )"
+echo "Shoud have been executed (%)autosetup -p1 ..."
 
 %generate_buildrequires
 %pyproject_buildrequires
@@ -54,7 +54,5 @@ echo "Preparing '${builddir}-' ..."
 %defattr(-,root,root,-)
 %license LICENSE
 %doc LICENSE README.md requirements.txt debian/changelog
-# %{_bindir}/*
-# %{python3_sitelib}/*
 
 %changelog
