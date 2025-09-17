@@ -54,5 +54,6 @@ echo "Pwd: $( pwd )"
 %defattr(-,root,root,-)
 %license LICENSE
 %doc LICENSE README.md requirements.txt debian/changelog
+%{_bindir}/*
 
 %changelog
