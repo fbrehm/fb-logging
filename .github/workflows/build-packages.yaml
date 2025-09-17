@@ -528,6 +528,71 @@ jobs:
           echo "Ensuring '/usr/local/bin'"
           mkdir -p -v /usr/local/bin
 
+          echo -n "\nCreating get-entrypoints.awk ..."
+          lines=$( cat <<-EOF
+          	BEGIN {
+          	    target_section = "project.scripts"
+          	    in_section = 0
+          	}
+
+          	{
+          	    # Cleaning row: removing leading and trailing whitespaces and cut before comment character
+          	    line = $0
+          	    sub(/^[ \t]+/, "", line)
+          	    sub(/[ \t]+$/, "", line)
+          	    sub(/[ \t]*[#;].*$/, "", line)
+
+          	    # Skip on empty row
+          	    if (line == "") {
+          	        next
+          	    }
+
+          	    # Check for section header
+          	    if (line ~ /^\[.*\]$/) {
+          	        section = substr(line, 2, length(line) - 2)
+          	        if (section == target_section) {
+          	            in_section = 1
+          	        } else {
+          	            in_section = 0
+          	        }
+          	        next
+          	    }
+
+          	    # Perform key-value-pair in target section
+          	    if (in_section == 1) {
+          	        if (line ~ /^[a-zA-Z0-9_-]+[ \t]*=[ \t]*.*$/) {
+          	            # extract and print key
+          	            split(line, a, /[ \t]*=[ \t]*/)
+          	            print a[1]
+          	        }
+          	    }
+          	}
+          	EOF
+          )
+          echo "${lines}" > "get-entrypoints.awk"
+
+          echo -e "\nContent of 'get-entrypoints.awk':"
+          cat "get-entrypoints.awk"
+          echo "<--"
+
+          echo -e "\nGet all entry points ..."
+          ENTRYPONTS=''
+          for entrypoint in $( awk -f "get-entrypoints.awk" pyproject.toml ; do
+              if [[ -n "${ENTRYPONTS}" ]] ; then
+                  ENTRYPONTS+=" "
+              fi
+              ENTRYPONTS+="${entrypoint}"
+          done
+          echo "ENTRYPONTS=${ENTRYPONTS}" >>"$GITHUB_ENV"
+          if [[ -n "${ENTRYPONTS}" ]] ; then
+              echo -e "\nFound entrypoints:"
+              for entrypoint in ${ENTRYPONTS}; do
+                  echo " * ${entrypoint}"
+              done
+          else
+              echo "Did not found any entrypoints."
+          fi
+
       - name: "Checking and updating locales."
         shell: bash
         run: |
@@ -642,10 +707,13 @@ jobs:
           ls -l --color=always /bin/python* /bin/pip* || true
 
           echo -e "\nInstalling Python-Debian, packaging and click-man with pip3 ..."
-          pip3 install python-debian packaging click-man
+          pip3 install python-debian packaging
 
           echo -e "\nPip3 list:"
           pip3 list --format columns
+
+      - mame: "Installing all necessary PIP modules in .venv ..."
+        uses: ./.github/actions/install-pip-modules
 
       - name: 'Installing build tools'
         shell: bash
@@ -668,17 +736,28 @@ jobs:
       - name: 'Creating man pages'
         shell: bash
         run: |
-          man_dir="usr/share/man/man${MAN_SECTION}"
-          echo -e "\nGenerating MAN pages in '${man_dir}'."
+          if [[ -n "${ENTRYPONTS}" ]] ; then
+              man_dir="usr/share/man/man${MAN_SECTION}"
+              echo -e "\nGenerating MAN pages in '${man_dir}'."
 
-          mkdir -p -v "${man_dir}"
-          echo -e "\nCurrent PATH: '${PATH}'"
+              mkdir -p -v "${man_dir}"
+              source .venv/bin/activate
+              echo -e "\nCurrent PATH: '${PATH}'"
 
-          cmd="/usr/local/bin/click-man --target \"${man_dir}\" --man-version ${MAN_SECTION}"
-          echo -e "\nCalling: ${cmd}"
-          eval ${cmd}
+              echo -e "\nInstalling entrypoints ..."
+              flit install --deps production --python .venv/bin/python3
 
-          ls -l --color=always "${man_dir}"
+              echo -e "\nInstalling click-man ..."
+              pip3 install click-man
+
+              for entrypoint in ${ENTRYPONTS}; do
+                  cmd="click-man --target \"${man_dir}\" --man-version ${MAN_SECTION} \"${entrypoint}\""
+                  echo -e "\nCalling: ${cmd}"
+                  eval ${cmd}
+              done
+
+              ls -l --color=always "${man_dir}"
+          fi
 
           # for script in bin/* ; do
           #     if [[ ! -x "${script}" ]] ; then

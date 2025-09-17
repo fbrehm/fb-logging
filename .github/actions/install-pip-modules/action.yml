@@ -59,8 +59,6 @@ runs:
         fi
     - name: Show installed Python modules
       id: show-py-modules
-      env:
-        USE_POETRY: ${{ inputs.use_poetry }}
       shell: bash
       run: |
         echo "All installed Python modules:"
