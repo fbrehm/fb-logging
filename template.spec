@@ -30,28 +30,31 @@ This is the Python@@@py_version_nodot@@@ version.
 
 %prep
 echo "Preparing '${builddir}-' ..."
-%setup -n %{builddir}
+%autosetup -p1
+
+%generate_buildrequires
+%pyproject_buildrequires
+
 
 %build
-cd ../%{builddir}
-echo "Pwd: $( pwd )"
-echo "Buildroot: %{buildroot}"
-mkdir -pv %{buildroot}/usr
+%pyproject_wheel
 
 %install
-cd ../%{builddir}
-echo "Pwd: $( pwd )"
-echo "Buildroot: %{buildroot}"
-pip3 install --user -v . --no-deps --root %{buildroot} --use-pep517
-# python@@@py_version_dot@@@ setup.py install --prefix=%{_prefix} --root=%{buildroot}
-ls -l %{buildroot}
+%pyproject_install
+%pyproject_save_files -L %{name}
 
+# cd ../%{builddir}
+# echo "Pwd: $( pwd )"
+# echo "Buildroot: %{buildroot}"
+# pip3 install --user -v . --no-deps --root %{buildroot} --use-pep517
+# # python@@@py_version_dot@@@ setup.py install --prefix=%{_prefix} --root=%{buildroot}
+# ls -l %{buildroot}
 
 %files
 %defattr(-,root,root,-)
 %license LICENSE
 %doc LICENSE README.md requirements.txt debian/changelog
-%{_bindir}/*
-%{python3_sitelib}/*
+# %{_bindir}/*
+# %{python3_sitelib}/*
 
 %changelog
