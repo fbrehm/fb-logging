@@ -571,13 +571,13 @@ jobs:
           )
           echo "${lines}" > "get-entrypoints.awk"
 
-          echo -e "\nContent of 'get-entrypoints.awk':"
+          echo -e " \nContent of 'get-entrypoints.awk':"
           cat "get-entrypoints.awk"
           echo "<--"
 
-          echo -e "\nGet all entry points ..."
+          echo -e " \nGet all entry points ..."
           ENTRYPONTS=''
-          for entrypoint in $( awk -f "get-entrypoints.awk" pyproject.toml ; do
+          for entrypoint in $( awk -f "get-entrypoints.awk" pyproject.toml ); do
               if [[ -n "${ENTRYPONTS}" ]] ; then
                   ENTRYPONTS+=" "
               fi
