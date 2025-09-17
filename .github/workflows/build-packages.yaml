@@ -712,7 +712,7 @@ jobs:
           echo -e "\nPip3 list:"
           pip3 list --format columns
 
-      - mame: "Installing all necessary PIP modules in .venv ..."
+      - name: "Installing all necessary PIP modules in .venv ..."
         uses: ./.github/actions/install-pip-modules
 
       - name: 'Installing build tools'
