@@ -737,6 +737,8 @@ jobs:
 
       - name: 'Creating man pages'
         shell: bash
+        env:
+          FLIT_ROOT_INSTALL: 1
         run: |
           if [[ -n "${ENTRYPOINTS}" ]] ; then
               man_dir="usr/share/man/man${MAN_SECTION}"
@@ -747,6 +749,7 @@ jobs:
               echo -e "\nCurrent PATH: '${PATH}'"
 
               echo -e "\nInstalling entrypoints ..."
+              echo "Which flit: $( which flit )"
               flit install --deps production --python .venv/bin/python3
 
               echo -e "\nInstalling click-man ..."
