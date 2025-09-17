@@ -205,7 +205,7 @@ jobs:
           	echo "Current sources:"
           	ls -l --color=always '${dsc_file}' '${buildinfo_file}' '${changes_file}'
           	echo
-          	cmd="echo 'y' | debsign -k${{ inputs.key_id }} '${dsc_file}' '${buildinfo_file}' '${changes_file}'"
+          	cmd="echo 'y' | debsign -k${{ env.GPG_KEY_ID }} '${dsc_file}' '${buildinfo_file}' '${changes_file}'"
           	echo "Executing: \$cmd"
           	eval \$cmd
           	echo
@@ -835,12 +835,12 @@ jobs:
           echo "%__python3 /bin/python${{ matrix.py_version_dot }}" > "${rpm_macros}"
           echo "%_signature gpg"                                    >>"${rpm_macros}"
 
-          if [[ -e "${{ inputs.password_file }}" ]] ; then
+          if [[ -e "${{ env.GPG_PASSWORD_FILE }}" ]] ; then
               gpg_cmd="gpg --verbose --no-armor --batch --pinentry-mode loopback --no-secmem-warning"
               gpg_cmd+=" --passphrase '${{ secrets.key_password }}'"
               gpg_cmd+=" -u \"%{_gpg_name}\" -sbo %{__signature_filename} %{__plaintext_filename}"
 
-              echo "%_gpg_name ${{ inputs.key_id }}"                    >>"${rpm_macros}"
+              echo "%_gpg_name ${GPG_KEY_ID}"                    >>"${rpm_macros}"
               echo "%__gpg_sign_cmd %{__gpg} ${gpg_cmd}"                >>"${rpm_macros}"
           fi
 
@@ -875,7 +875,7 @@ jobs:
           echo -e "\nExecuting ${cmd}"
           eval ${cmd}
 
-          if [[ -e "${{ inputs.password_file }}" ]] ; then
+          if [[ -e "${{ env.GPG_PASSWORD_FILE }}" ]] ; then
               echo -e "\nSigning packages ..."
               for f in $( find rpmdir -type f -iname "*.rpm" ) ; do
                   echo "  * ${f} ..."
@@ -899,7 +899,7 @@ jobs:
           path: |
             rpmdir/RPMS/*/*.rpm
             rpmdir/SRPMS/*.rpm
-          retention-days: ${{ inputs.retention_days }}
+          retention-days: ${{ env.RETENTION_DAYS }}
 
 
 # vim: et tabstop=2 expandtab shiftwidth=2 softtabstop=2 list
