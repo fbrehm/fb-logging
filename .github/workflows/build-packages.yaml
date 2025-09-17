@@ -493,7 +493,7 @@ jobs:
           export OS_TITLE=$( cat /etc/os-release | \
               grep '^PRETTY_NAME=' | \
               sed -e 's/^PRETTY_NAME=//' -e 's/"//g' )
-          export RPM_SRC_DIR_BASE="${PYTHON}_${PKG_NAME}-${PKG_VERSION}"
+          export RPM_SRC_DIR_BASE="${PYTHON}-${PKG_NAME}-${PKG_VERSION}"
           export RPM_SRC_DIR="rpmdir/SOURCES/${RPM_SRC_DIR_BASE}"
           export SPECFILE="${PKG_NAME}.spec"
           export SPECFILE_TEMPLATE="template.spec"

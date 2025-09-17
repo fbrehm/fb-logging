@@ -30,7 +30,7 @@ This is the Python@@@py_version_nodot@@@ version.
 %prep
 echo "Preparing '${builddir}-' ..."
 echo "Pwd: $( pwd )"
-echo "Shoud have been executed (%)autosetup -p1 ..."
+%autosetup -p1 -v
 
 %generate_buildrequires
 %pyproject_buildrequires
