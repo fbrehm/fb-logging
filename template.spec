@@ -61,6 +61,5 @@ ls -lA '%{buildroot}'
 %license LICENSE
 %doc LICENSE README.md requirements.txt debian/changelog
 %{_bindir}/*
-%{_mandir}/*
 
 %changelog

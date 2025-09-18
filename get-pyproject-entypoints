@@ -1,0 +1,25 @@
+#!/bin/bash
+
+cd "$( dirname "$0" )" || exit 6
+
+if [[ ! -f pyproject.toml ]] ; then
+    echo "File 'pyproject.toml' not found." >&2
+    exit 5
+fi
+
+ENTRYPOINTS=''
+
+result=$( awk -f pyproject-entrypoints.awk pyproject.toml )
+
+if [[ -n "${result}" ]] ; then
+    for entrypoint in ${result} ; do
+        if [[ -n "${ENTRYPOINTS}" ]] ; then
+            ENTRYPOINTS+=" "
+        fi
+        ENTRYPOINTS+="${entrypoint}"
+    done
+fi
+
+echo "${ENTRYPOINTS}"
+
+# vim: ts=4 et

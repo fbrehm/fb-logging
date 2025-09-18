@@ -1,3 +1,4 @@
+
 BEGIN {
     target_section = "project.scripts"
     in_section = 0
@@ -36,3 +37,5 @@ BEGIN {
     }
 }
 
+
+# vim: ts=4 et list
