@@ -54,13 +54,17 @@ jobs:
       - uses: actions/checkout@v5
       - name: Show Environment
         run: python --version
+
       - uses: ./.github/actions/prepare-debian-container
+
       - name: "Ensuring existence of directory 'data' ..."
         shell: bash
         run: mkdir --parents --verbose data
+
       - uses: ./.github/actions/install-pip-modules
         with:
           install_pytest: true
+
       - name: Executing PyTest
         id: exec-pytest
         shell: bash
@@ -79,10 +83,13 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       - uses: ./.github/actions/prepare-debian-container
+
       - name: "Ensuring existence of directory 'data' ..."
         shell: bash
         run: mkdir --parents --verbose data
-      - uses: ./.github/actions/install-pip-modules
+
+      - name: "Installing all necessary PIP modules in .venv ..."
+        uses: ./.github/actions/install-pip-modules
         with:
           install_linter_tools: true
 
@@ -312,6 +319,9 @@ jobs:
         shell: bash
         run: mkdir --parents --verbose data
 
+      - name: "Installing all necessary PIP modules in .venv ..."
+        uses: ./.github/actions/install-pip-modules
+
       - name: Setting timezone
         if: ${{ matrix.distributor == 'Ubuntu' }}
         run: |
@@ -351,6 +361,38 @@ jobs:
           echo ""
           echo "Removing setup.py ..."
           rm -fv setup.py
+
+      - name: 'Creating man pages'
+        shell: bash
+        env:
+          FLIT_ROOT_INSTALL: 1
+        run: |
+          if [[ -n "${ENTRYPOINTS}" ]] ; then
+              man_dir="data/share/man/man${MAN_SECTION}"
+              echo -e "\nGenerating MAN pages in '${man_dir}'."
+
+              mkdir -p -v "${man_dir}"
+              source .venv/bin/activate
+              echo -e "\nCurrent PATH: '${PATH}'"
+
+              echo -e "\nInstalling entrypoints ..."
+              echo "Which flit: $( type -p flit )"
+              flit install --deps production --python .venv/bin/python3
+
+              echo -e "\nInstalling click-man ..."
+              pip3 install click-man
+
+              for entrypoint in ${ENTRYPOINTS}; do
+                  cmd="click-man --target \"${man_dir}\" --man-version ${MAN_SECTION} \"${entrypoint}\""
+                  echo -e "\nCalling: ${cmd}"
+                  eval ${cmd}
+              done
+
+              ls -l --color=always "${man_dir}"
+              gzip -v9 "${man_dir}"/*
+          else
+              echo "::notice::No entrypoints found for creating man pages."
+          fi
 
       - name: 'Preparing GPG for signing files without entering a password'
         uses: fbrehm/github-setup-gpg@main
@@ -743,15 +785,6 @@ jobs:
           echo -e "\nCalling: ${cmd}"
           eval ${cmd}
 
-      - name: 'Preparing GPG for signing files without entering a password'
-        uses: fbrehm/github-setup-gpg@main
-        with:
-          public_key: ${{ secrets.GPG_PUBLIC_KEY }}
-          private_key: ${{ secrets.GPG_PRIVATE_KEY }}
-          key_password: ${{ secrets.GPG_KEY_PASSWORD }}
-          password_file: ${{ env.GPG_PASSWORD_FILE }}
-          key_id: ${{ env.GPG_KEY_ID }}
-
       - name: 'Creating man pages'
         shell: bash
         env:
@@ -783,6 +816,15 @@ jobs:
           else
               echo "::notice::No entrypoints found for creating man pages."
           fi
+
+      - name: 'Preparing GPG for signing files without entering a password'
+        uses: fbrehm/github-setup-gpg@main
+        with:
+          public_key: ${{ secrets.GPG_PUBLIC_KEY }}
+          private_key: ${{ secrets.GPG_PRIVATE_KEY }}
+          key_password: ${{ secrets.GPG_KEY_PASSWORD }}
+          password_file: ${{ env.GPG_PASSWORD_FILE }}
+          key_id: ${{ env.GPG_KEY_ID }}
 
       - name: 'Create RPM build environment'
         shell: bash
