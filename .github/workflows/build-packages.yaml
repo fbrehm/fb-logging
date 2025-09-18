@@ -37,6 +37,7 @@ env:
   OWN_YUM_REPO_NAME: 'frank-brehm'
   OWN_YUM_REPO_DESCRIPTION: 'Frank Brehms Yum repository for Enterprise Linux %s'
   OWN_YUM_REPO_ROOT_PATH: '/Yum'
+  MAN_SECTION: 1
 
 ################################################################################
 jobs:
@@ -567,7 +568,6 @@ jobs:
       USED_CHARSET: 'utf8'
       USED_LOCALE: 'en_US'
       USED_LC: 'en_US.utf8'
-      MAN_SECTION: 1
 
     steps:
       - uses: actions/checkout@v5
@@ -621,73 +621,6 @@ jobs:
 
           echo "Ensuring '/usr/local/bin'"
           mkdir -p -v /usr/local/bin
-
-          # echo -n "\nCreating get-entrypoints.awk ..."
-          # lines=$( cat <<-EOF
-          # 	BEGIN {
-          # 	    target_section = "project.scripts"
-          # 	    in_section = 0
-          # 	}
-
-          # 	{
-          # 	    # Cleaning row: removing leading and trailing whitespaces and cut before comment character
-          # 	    line = \$0
-          # 	    sub(/^[ \t]+/, "", line)
-          # 	    sub(/[ \t]+\$/, "", line)
-          # 	    sub(/[ \t]*[#;].*\$/, "", line)
-
-          # 	    # Skip on empty row
-          # 	    if (line == "") {
-          # 	        next
-          # 	    }
-
-          # 	    # Check for section header
-          # 	    if (line ~ /^\[.*\]\$/) {
-          # 	        section = substr(line, 2, length(line) - 2)
-          # 	        if (section == target_section) {
-          # 	            in_section = 1
-          # 	        } else {
-          # 	            in_section = 0
-          # 	        }
-          # 	        next
-          # 	    }
-
-          # 	    # Perform key-value-pair in target section
-          # 	    if (in_section == 1) {
-          # 	        if (line ~ /^[a-zA-Z0-9_-]+[ \t]*=[ \t]*.*\$/) {
-          # 	            # extract and print key
-          # 	            split(line, a, /[ \t]*=[ \t]*/)
-          # 	            print a[1]
-          # 	        }
-          # 	    }
-          # 	}
-          # 	EOF
-          # )
-          # echo "${lines}" > "get-entrypoints.awk"
-
-          # echo -e " \nContent of 'get-entrypoints.awk':"
-          # cat "get-entrypoints.awk"
-          # echo "<--"
-
-          # echo -e " \nGet all entry points ..."
-          # ENTRYPOINTS=''
-          # result=$( awk -f "get-entrypoints.awk" pyproject.toml )
-          # echo "Got entrypoints: '${result}'"
-          # if [[ -n "${result}" ]] ; then
-          #     echo "Evaluate entrypoints ..."
-          #     for entrypoint in $( awk -f "get-entrypoints.awk" pyproject.toml ); do
-          #         if [[ -n "${ENTRYPOINTS}" ]] ; then
-          #             ENTRYPOINTS+=" "
-          #         fi
-          #         ENTRYPOINTS+="${entrypoint}"
-          #     done
-          # fi
-          # echo "ENTRYPOINTS=${ENTRYPOINTS}" >>"$GITHUB_ENV"
-          # if [[ -n "${ENTRYPOINTS}" ]] ; then
-          #     echo "::notice::Found entrypoints: ${ENTRYPOINTS}"
-          # else
-          #     echo "::notice::Did not found any entrypoints."
-          # fi
 
       - name: "Retrieving all entrypoints"
         uses: ./.github/actions/pyproject-get-entryponts
