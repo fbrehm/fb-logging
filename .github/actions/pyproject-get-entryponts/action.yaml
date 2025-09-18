@@ -72,10 +72,10 @@ runs:
         echo -e " \nGet all entry points ..."
         ENTRYPOINTS=''
         result=$( awk -f "${awk_file}" pyproject.toml )
-        echo "Got entrypoints: '${result}'"
+        echo "Got entrypoints from AWK script: '${result}'"
         if [[ -n "${result}" ]] ; then
             echo "Evaluate entrypoints ..."
-            for entrypoint in $( awk -f "get-entrypoints.awk" pyproject.toml ); do
+            for entrypoint in ${result}; do
                 if [[ -n "${ENTRYPOINTS}" ]] ; then
                     ENTRYPOINTS+=" "
                 fi
@@ -90,5 +90,6 @@ runs:
             echo "::notice::Found entrypoints: ${ENTRYPOINTS}"
         else
             echo "::notice::Did not found any entrypoints."
+        fi
 
 # vim: et tabstop=2 expandtab shiftwidth=2 softtabstop=2 list
