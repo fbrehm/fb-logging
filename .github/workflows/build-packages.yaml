@@ -743,7 +743,7 @@ jobs:
           FLIT_ROOT_INSTALL: 1
         run: |
           if [[ -n "${ENTRYPOINTS}" ]] ; then
-              man_dir="usr/share/man/man${MAN_SECTION}"
+              man_dir="data/share/man/man${MAN_SECTION}"
               echo -e "\nGenerating MAN pages in '${man_dir}'."
 
               mkdir -p -v "${man_dir}"
