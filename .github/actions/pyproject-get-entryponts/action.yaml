@@ -9,10 +9,12 @@ runs:
     - name: 'Check for pyproject.toml'
       shell: bash
       run: |
+        echo "Checking for availibility of pyproject.toml"
         if [[ ! -f pyproject.toml ]] ; then
             echo "::error::File pyproject.toml not found."
             exit 5
         fi
+        echo "Found pyproject.toml."
 
     - name: "Get entrypoints."
       shell: bash
@@ -69,7 +71,7 @@ runs:
 
         echo -e " \nGet all entry points ..."
         ENTRYPOINTS=''
-        result=$( awk -f "get-entrypoints.awk" pyproject.toml )
+        result=$( awk -f "${awk_file}" pyproject.toml )
         echo "Got entrypoints: '${result}'"
         if [[ -n "${result}" ]] ; then
             echo "Evaluate entrypoints ..."
@@ -80,6 +82,7 @@ runs:
                 ENTRYPOINTS+="${entrypoint}"
             done
         fi
+        rm -fv "${awk_file}"
 
         echo "ENTRYPOINTS=${ENTRYPOINTS}" >>"$GITHUB_ENV"
 
