@@ -1,0 +1,91 @@
+---
+name: Retrieving all entrypoints from pyproject.toml
+author: Frank Brehm
+description: Retrieving all entrypoints from pyproject.toml and saves them in GITHUB_ENV
+
+runs:
+  using: "composite"
+  steps:
+    - name: 'Check for pyproject.toml'
+      shell: bash
+      run: |
+        if [[ ! -f pyproject.toml ]] ; then
+            echo "::error::File pyproject.toml not found."
+            exit 5
+        fi
+
+    - name: "Get entrypoints."
+      shell: bash
+      run: |
+        echo "Creating AWK script ..."
+        lines=$( cat <<-EOF
+        	BEGIN {
+        	    target_section = "project.scripts"
+        	    in_section = 0
+        	}
+
+        	{
+        	    # Cleaning row: removing leading and trailing whitespaces and cut before comment character
+        	    line = \$0
+        	    sub(/^[ \t]+/, "", line)
+        	    sub(/[ \t]+\$/, "", line)
+        	    sub(/[ \t]*[#;].*\$/, "", line)
+
+        	    # Skip on empty row
+        	    if (line == "") {
+        	        next
+        	    }
+
+        	    # Check for section header
+        	    if (line ~ /^\[.*\]\$/) {
+        	        section = substr(line, 2, length(line) - 2)
+        	        if (section == target_section) {
+        	            in_section = 1
+        	        } else {
+        	            in_section = 0
+        	        }
+        	        next
+        	    }
+
+        	    # Perform key-value-pair in target section
+        	    if (in_section == 1) {
+        	        if (line ~ /^[a-zA-Z0-9_-]+[ \t]*=[ \t]*.*\$/) {
+        	            # extract and print key
+        	            split(line, a, /[ \t]*=[ \t]*/)
+        	            print a[1]
+        	        }
+        	    }
+        	}
+        	EOF
+        )
+
+        awk_file=$( mktemp get-entrypoints.XXXXXXXX.awk )
+        echo "Creating AWK script: '${awk_file}'."
+        echo "${lines}" > "${awk_file}"
+
+        echo "::group::Content of AWK script:"
+        cat "${awk_file}"
+        echo "::endgroup::"
+
+        echo -e " \nGet all entry points ..."
+        ENTRYPOINTS=''
+        result=$( awk -f "get-entrypoints.awk" pyproject.toml )
+        echo "Got entrypoints: '${result}'"
+        if [[ -n "${result}" ]] ; then
+            echo "Evaluate entrypoints ..."
+            for entrypoint in $( awk -f "get-entrypoints.awk" pyproject.toml ); do
+                if [[ -n "${ENTRYPOINTS}" ]] ; then
+                    ENTRYPOINTS+=" "
+                fi
+                ENTRYPOINTS+="${entrypoint}"
+            done
+        fi
+
+        echo "ENTRYPOINTS=${ENTRYPOINTS}" >>"$GITHUB_ENV"
+
+        if [[ -n "${ENTRYPOINTS}" ]] ; then
+            echo "::notice::Found entrypoints: ${ENTRYPOINTS}"
+        else
+            echo "::notice::Did not found any entrypoints."
+
+# vim: et tabstop=2 expandtab shiftwidth=2 softtabstop=2 list
