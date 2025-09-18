@@ -12,6 +12,10 @@ inputs:
     description: Should linter tools like pylint, flake8, shellcheck a.s.o be installed.
     required: false
     default: false
+  install_py_venv_package:
+    description: 'Install the OS package python3-venv for creating the virtual environment'
+    required: false
+    default: false
 
 runs:
   using: "composite"
@@ -22,12 +26,17 @@ runs:
       run: |
         echo "Current Python version:"
         python3 --version
+
     - name: Creating Python virtual environment
       id: create-venv
       shell: bash
       run: |
         echo "Creating Python virtual environment '.venv' ..."
+        if [[ "${{ inputs.install_py_venv_package }}" == true ]] ; then
+            apt install python3-venv --yes
+        fi
         python3 -m venv --system-site-packages .venv
+
     - name: Upgrading Pip
       id: pip-upgrade
       shell: bash
@@ -38,6 +47,7 @@ runs:
         echo "::group::PIP upgrade pip"
         pip install --upgrade pip
         echo "::endgroup::"
+
     - name: Install Python Requirements
       id: inst-requirements
       env:
@@ -65,6 +75,7 @@ runs:
             flit install --only-deps --deps production --extras testing --python .venv/bin/python3
             echo "::endgroup::"
         fi
+
     - name: Show installed Python modules
       id: show-py-modules
       shell: bash

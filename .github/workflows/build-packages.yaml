@@ -342,11 +342,13 @@ jobs:
           echo "."
           echo "::group::APT install python3"
           apt install python3 --yes
-          echo "::notice::Python version: $(python3 --version)"
           echo "::endgroup::"
+          echo "::notice::Python version: $(python3 --version)"
 
       - name: "Installing all necessary PIP modules in .venv ..."
         uses: ./.github/actions/install-pip-modules
+        with:
+          install_py_venv_package: true
 
       - name: Setting timezone
         if: ${{ matrix.distributor == 'Ubuntu' }}
