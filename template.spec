@@ -1,7 +1,7 @@
 %define version @@@Version@@@
-%define builddir python@@@py_version_nodot@@@_fb-logging-%{version}
+%define builddir %{_builddir}/python%{python3_pkgversion}-fb-logging-%{version}
 
-Name:           python@@@py_version_nodot@@@-fb-logging
+Name:           python%{python3_pkgversion}-fb-logging
 Version:        %{version}
 Release:        @@@Release@@@%{?dist}
 Summary:        Python modules to extend the logging mechanism in Python.
@@ -28,7 +28,7 @@ This package provides the following script:
 This is the Python@@@py_version_nodot@@@ version.
 
 %prep
-echo "Preparing '${builddir}-' ..."
+echo "Preparing '${builddir}' ..."
 echo "Pwd: $( pwd )"
 %autosetup -p1 -v
 
@@ -42,6 +42,12 @@ echo "Pwd: $( pwd )"
 %install
 %pyproject_install
 %pyproject_save_files fb_logging
+
+echo "Whats in '%{builddir}':"
+ls -lA '%{builddir}'
+
+echo "Whats in '%{buildroot}':"
+ls -lA '%{buildroot}'
 
 # cd ../%{builddir}
 # echo "Pwd: $( pwd )"
