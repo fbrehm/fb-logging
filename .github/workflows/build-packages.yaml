@@ -55,6 +55,9 @@ jobs:
       - name: Show Environment
         run: python --version
       - uses: ./.github/actions/prepare-debian-container
+      - name: "Ensuring existence of directory 'data' ..."
+        shell: bash
+        run: mkdir --parents --verbose data
       - uses: ./.github/actions/install-pip-modules
         with:
           install_pytest: true
@@ -76,6 +79,9 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       - uses: ./.github/actions/prepare-debian-container
+      - name: "Ensuring existence of directory 'data' ..."
+        shell: bash
+        run: mkdir --parents --verbose data
       - uses: ./.github/actions/install-pip-modules
         with:
           install_linter_tools: true
@@ -301,6 +307,11 @@ jobs:
     container: ${{ matrix.container }}
     steps:
       - uses: actions/checkout@v5
+
+      - name: "Ensuring existence of directory 'data' ..."
+        shell: bash
+        run: mkdir --parents --verbose data
+
       - name: Setting timezone
         if: ${{ matrix.distributor == 'Ubuntu' }}
         run: |
@@ -715,6 +726,10 @@ jobs:
 
           echo -e "\nPip3 list:"
           pip3 list --format columns
+
+      - name: "Ensuring existence of directory 'data' ..."
+        shell: bash
+        run: mkdir --parents --verbose data
 
       - name: "Installing all necessary PIP modules in .venv ..."
         uses: ./.github/actions/install-pip-modules
