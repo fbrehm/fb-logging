@@ -177,13 +177,15 @@ jobs:
               echo -e "\nOS release for building source package:"
               cat /etc/os-release
           fi
-          echo -e "\nBash enviroment:"
+          echo -e ".\nBash enviroment:"
           env | sort
-          echo ""
+          echo "."
           echo "::notice::Python version: $(python3 --version)"
-          echo ""
-          echo "Removing setup.py ..."
-          rm -fv setup.py
+          if [[ -f setup.py ]] ; then
+              echo ""
+              echo "Removing setup.py ..."
+              rm -fv setup.py
+          fi
 
       - name: 'Preparing GPG for signing files without entering a password'
         uses: fbrehm/github-setup-gpg@main
@@ -319,6 +321,17 @@ jobs:
         shell: bash
         run: mkdir --parents --verbose data
 
+      - name: "Installing Python 3 .."
+        shell: bash
+        run: |
+          echo "."
+          echo "Installing Python 3 ..."
+          echo "."
+          echo "::group::APT install python3"
+          apt install python3 --yes
+          echo "::notice::Python version: $(python3 --version)"
+          echo "::endgroup::"
+
       - name: "Installing all necessary PIP modules in .venv ..."
         uses: ./.github/actions/install-pip-modules
 
@@ -328,6 +341,7 @@ jobs:
           echo "Setting system timezone to ${USED_TIMEZONE} ..."
           ln -fvs /usr/share/zoneinfo/${USED_TIMEZONE} /etc/localtime
           export DEBIAN_FRONTEND=noninteractive
+
       - uses: ./.github/actions/prepare-debian-container
 
       - name: 'Install Debian Python Build Environment'
@@ -356,11 +370,11 @@ jobs:
           fi
           echo -e "\nBash enviroment:"
           env | sort
-          echo ""
-          echo "::notice::Python version: $(python3 --version)"
-          echo ""
-          echo "Removing setup.py ..."
-          rm -fv setup.py
+          if [[ -f setup.py ]] ; then
+              echo ""
+              echo "Removing setup.py ..."
+              rm -fv setup.py
+          fi
 
       - name: 'Creating man pages'
         shell: bash
@@ -467,11 +481,15 @@ jobs:
         run: |
           PASSWORD_FILE_ABS=$( readlink --canonicalize-missing "${GPG_PASSWORD_FILE}" )
           if [[ -e "${PASSWORD_FILE_ABS}" && -x "${SIGNING_HOOK_SCRIPT}" ]] ; then
-            echo "::notice title=build-debian-binary-packages::Building signed Debian binary packages for ${PKG_NAME}-${PKG_VERSION}"
-            echo "y" | debuild --signing-hook="${SIGNING_HOOK_SCRIPT}" -b -i -us -uc -ui
+              echo "::notice title=build-debian-binary-packages::Building signed Debian binary packages for ${PKG_NAME}-${PKG_VERSION}"
+              echo "::group::Building signed Debian binary packages"
+              echo "y" | debuild --signing-hook="${SIGNING_HOOK_SCRIPT}" -b -i -us -uc -ui
+              echo "::endgroup::"
           else
-            echo "::notice title=build-debian-binary-packages::Building unsigned Debian binary packages for ${PKG_NAME}-${PKG_VERSION}"
-            debuild -b -i --no-sign
+              echo "::notice title=build-debian-binary-packages::Building unsigned Debian binary packages for ${PKG_NAME}-${PKG_VERSION}"
+              echo "::group::Building unsigned Debian binary packages"
+              debuild -b -i --no-sign
+              echo "::endgroup::"
           fi
 
           echo -e "\nGenerated stuff:"
@@ -535,6 +553,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v5
+
       - name: "Set and show Environment"
         shell: bash
         run: |
@@ -729,10 +748,14 @@ jobs:
           dnf clean all
           echo
           echo "dnf makecache ..."
+          echo "::group::DNF makecache"
           dnf makecache
+          echo "::endgroup::"
           echo
           echo "Upgrading all packages"
+          echo "::group::DNF upgrade"
           dnf ${DNF_ENABLE_REPO} --assumeyes upgrade
+          echo "::endgroup::"
 
       - name: 'Install TZdata'
         shell: bash
@@ -758,13 +781,17 @@ jobs:
           cmd+=" ${PYTHON}-flit ${PYTHON}-click pyproject-rpm-macros"
 
           echo -e "\nCalling: ${cmd}"
+          echo "::group::DNF install Python3"
           eval ${cmd}
+          echo "::endgroup::"
 
           echo -e "\nPython binaries:"
           ls -l --color=always /bin/python* /bin/pip* || true
 
-          echo -e "\nInstalling Python-Debian, packaging and click-man with pip3 ..."
+          echo -e "\nInstalling Python-Debian and packaging  with pip3 ..."
+          echo "::group::PIP install Python-Debian and packaging"
           pip3 install python-debian packaging
+          echo "::endgroup::"
 
           echo -e "\nPip3 list:"
           pip3 list --format columns
@@ -783,7 +810,9 @@ jobs:
 
           cmd="dnf ${DNF_ENABLE_REPO} --assumeyes install gnupg2 rpm-build rpm-sign gettext"
           echo -e "\nCalling: ${cmd}"
+          echo "::group::DNF install build tools"
           eval ${cmd}
+          echo "::endgroup::"
 
       - name: 'Creating man pages'
         shell: bash
@@ -852,7 +881,9 @@ jobs:
           tarball="rpmdir/SOURCES/${tarball_base}"
           tarball_abs=$( readlink --canonicalize-missing "${tarball}" )
           echo -e "\nCreating '${tarball_abs}' ..."
+          echo "::group::Create tar for rpmbuild"
           tar --directory=rpmdir/SOURCES --create --verbose --gzip  --file "${tarball_abs}" "${RPM_SRC_DIR_BASE}"
+          echo "::endgroup::"
           echo -e "\nSource file:"
           ls -lA --color=always rpmdir/SOURCES/*.tar.gz
 
@@ -881,8 +912,10 @@ jobs:
           dch2speclog debian/changelog >> "${SPECFILE}"
 
           echo -e "\nGenerated '${SPECFILE}':"
+          echo "::group::SPEC file"
           cat "${SPECFILE}"
           echo "<--"
+          echo "::endgroup::"
 
       - name: 'Creating .rpmmacros'
         shell: bash
@@ -930,7 +963,9 @@ jobs:
         run: |
           cmd="rpmbuild -ba --nocheck --verbose --define \"_topdir $(pwd)/rpmdir\" \"${SPECFILE}\""
           echo -e "\nExecuting ${cmd}"
+          echo "::group::RPM build"
           eval ${cmd}
+          echo "::endgroup::"
 
           if [[ -e "${{ env.GPG_PASSWORD_FILE }}" ]] ; then
               echo -e "\nSigning packages ..."

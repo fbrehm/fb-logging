@@ -11,8 +11,10 @@ runs:
         apt update --yes
         echo "Apt list upgradeable ..."
         apt list --upgradeable
+        echo "::group::APT dist-upgrade"
         echo "Apt dist-upgrade ..."
         apt dist-upgrade --yes
+        echo "::endgroup::"
     - name: Install locales and gettext
       id: install-gettext
       shell: bash

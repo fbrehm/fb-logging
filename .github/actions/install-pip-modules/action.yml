@@ -35,7 +35,9 @@ runs:
         echo "Activating virtual environment '.venv'."
         source .venv/bin/activate
         echo "Upgrading Pip."
+        echo "::group::PIP upgrade pip"
         pip install --upgrade pip
+        echo "::endgroup::"
     - name: Install Python Requirements
       id: inst-requirements
       env:
@@ -47,15 +49,21 @@ runs:
         echo "Activating virtual environment '.venv'."
         source .venv/bin/activate
         echo "Installing flit with pip ..."
+        echo "::group::PIP install flit"
         pip install flit
+        echo "::endgroup::"
         echo "Installing all necessary packages with flit ..."
         if [[ "${INSTALL_PYTEST}" == false ]] ; then
             echo "Installing linting modules ..."
+            echo "::group::Flit install lint"
             flit install --only-deps --deps production --extras lint --python .venv/bin/python3
+            echo "::endgroup::"
         fi
         if [[ "${INSTALL_LINTER_TOOLS}" == false ]] ; then
             echo "Installing test modules ..."
+            echo "::group::Flit install testing"
             flit install --only-deps --deps production --extras testing --python .venv/bin/python3
+            echo "::endgroup::"
         fi
     - name: Show installed Python modules
       id: show-py-modules
