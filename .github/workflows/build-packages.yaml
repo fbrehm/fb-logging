@@ -321,6 +321,19 @@ jobs:
         shell: bash
         run: mkdir --parents --verbose data
 
+      - name: "Update all packages ..."
+        id: apt-update
+        shell: bash
+        run: |
+          echo "Apt update ..."
+          apt update --yes
+          echo "Apt list upgradeable ..."
+          apt list --upgradeable
+          echo "Apt dist-upgrade ..."
+          echo "::group::APT dist-upgrade"
+          apt dist-upgrade --yes
+          echo "::endgroup::"
+
       - name: "Installing Python 3 .."
         shell: bash
         run: |
