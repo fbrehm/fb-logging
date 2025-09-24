@@ -55,7 +55,7 @@ jobs:
     name: "Calling shared build workflow"
     needs:
       - prepare-image
-    uses: fbrehm/actions/.github/workflows/pyproject-build-packages.yaml@develop
+    uses: fbrehm/actions/.github/workflows/pyproject-build-packages.yaml@main
     with:
       has_i18n: false
       additional_locales: ''
@@ -74,7 +74,7 @@ jobs:
       smtp_server_port: ${{ needs.prepare-image.outputs.smtp_server_port }}
       smtp_sender_address: ${{ needs.prepare-image.outputs.smtp_sender_address }}
       smtp_recipient_addresses: ${{ needs.prepare-image.outputs.smtp_recipient_addresses }}
-      revision: 65
+      revision: 66
     secrets:
       pypi_token: ${{ secrets.PYPI_TOKEN }}
       public_key: ${{ secrets.GPG_PUBLIC_KEY }}
