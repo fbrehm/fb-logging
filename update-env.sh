@@ -22,8 +22,12 @@ BASENAME=$( basename "${0}" )
 BASE_DIR=$( dirname "$0" )
 cd "${BASE_DIR}"
 BASE_DIR=$( readlink -f . )
+MAN_SECTION=1
+MAN_PARENT_DIR="data/share/man"
+MAN_DIR="${MAN_PARENT_DIR}/man${MAN_SECTION}"
 
-declare -a VALID_PY_VERSIONS=("3.12" "3.11" "3.10" "3.9" "3.8" "3.7" "3.6")
+declare -a VALID_PY_VERSIONS=("3.13" "3.12" "3.11" "3.10" "3.9")
+VENV='.venv'
 
 PIP_OPTIONS=
 export VIRTUAL_ENV_DISABLE_PROMPT=y
@@ -271,11 +275,11 @@ init_venv() {
 
     empty_line
     line
-    info "Preparing virtual environment …"
+    info "Preparing and using virtual environment '${CYAN}${VENV}${NORMAL}' …"
     empty_line
 
 
-    if [[ ! -f venv/bin/activate ]] ; then
+    if [[ ! -f "${VENV}/bin/activate" ]] ; then
         found="n"
         for py_version in "${VALID_PY_VERSIONS[@]}" ; do
             python="python${py_version}"
@@ -285,7 +289,7 @@ init_venv() {
                 empty_line
                 info "Found '${GREEN}${python}${NORMAL}'."
                 empty_line
-                "${python}" -m venv venv
+                "${python}" -m venv "${VENV}"
                 break
             fi
         done
@@ -299,7 +303,7 @@ init_venv() {
     fi
 
     # shellcheck disable=SC1091
-    . venv/bin/activate || exit 5
+    . "${VENV}/bin/activate" || exit 5
 
 }
 
@@ -313,27 +317,57 @@ upgrade_pip() {
 }
 
 #------------------------------------------------------------------------------
-upgrade_setuptools() {
+upgrade_flit() {
     line
-    info "Upgrading setuptools + wheel + six …"
+    info "Upgrading flit + wheel …"
     empty_line
-    pip install ${PIP_OPTIONS} --upgrade --upgrade-strategy eager setuptools wheel six
+    pip install ${PIP_OPTIONS} --upgrade --upgrade-strategy eager flit
     empty_line
 }
 
 #------------------------------------------------------------------------------
+install_modules_by_flit() {
+    line
+    info "Installing all necessary packages with flit ..."
+    empty_line
+    flit install --only-deps --deps all --python "${VENV}/bin/python3"
+}
+
+#------------------------------------------------------------------------------
 upgrade_modules() {
+    local packages=''
+    local package=''
+
     line
     info "Installing and/or upgrading necessary modules …"
     empty_line
-    pip install ${PIP_OPTIONS} --upgrade --upgrade-strategy eager --requirement requirements.txt
-    empty_line
-    if [[ -f requirements-lint.txt ]] ; then
-        info "Installing and/or upgrading necessary modules for linting …"
+    packages=$( pip3 list --outdated --exclude-editable --format json 2>/dev/null  | jq -r .[].name )
+    if [[ -n "${packages}" ]] ; then
+        msg="Packages to update:"
+        for package in ${packages} ; do
+            msg+="\n * ${CYAN}${package}${NORMAL}"
+        done
+        info "${msg}"
         empty_line
-        pip install ${PIP_OPTIONS} --upgrade --upgrade-strategy eager --requirement requirements-lint.txt
-        empty_line
+        # shellcheck disable=SC2086
+        pip install ${PIP_OPTIONS} --upgrade --upgrade-strategy eager ${packages}
+    else
+        info "No packages to update found."
     fi
+}
+
+#------------------------------------------------------------------------------
+install_local_package() {
+
+    line
+    echo "Installing local package into '${CYAN}${VENV}${NORMAL}' …"
+    empty_line
+    info "Ensuring directory '${CYAN}${MAN_PARENT_DIR}${NORMAL}' …"
+    mkdir -pv "${MAN_PARENT_DIR}"
+
+    empty_line
+    flit install --symlink --deps production --python "${VENV}/bin/python3"
+
 }
 
 #------------------------------------------------------------------------------
@@ -346,6 +380,37 @@ list_modules() {
     empty_line
     pip list --format columns
     empty_line
+}
+
+#------------------------------------------------------------------------------
+generate_manpages() {
+
+    local entrypoints
+    local entrypoint
+    local cmd
+
+    line
+    info "Generate man pages of scripts ..."
+
+    entrypoints=$( ./get-pyproject-entypoints )
+
+    if [[ -z "${entrypoints}" ]] ; then
+        info "No entrypoints found for creating man pages."
+        return 0
+    fi
+
+    info "Ensuring directory '${CYAN}${MAN_DIR}${NORMAL}' …"
+    mkdir -pv "${MAN_DIR}"
+
+    for entrypoint in ${entrypoints} ; do
+        empty_line
+        info "Generating man page for '${CYAN}${entrypoint}${NORMAL}' …"
+        cmd="click-man --target \"${MAN_DIR}\" --man-version ${MAN_SECTION} \"${entrypoint}\""
+        echo -e "\nCalling: ${cmd}"
+        # shellcheck disable=SC2086
+        eval ${cmd}
+    done
+
 }
 
 #------------------------------------------------------------------------------
@@ -372,9 +437,12 @@ main() {
     get_options "$@"
     init_venv
     upgrade_pip
-    upgrade_setuptools
+    upgrade_flit
+    install_modules_by_flit
     upgrade_modules
+    install_local_package
     list_modules
+    generate_manpages
     compile_i18n
 
     line

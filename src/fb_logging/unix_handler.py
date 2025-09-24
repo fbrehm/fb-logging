@@ -17,10 +17,10 @@ from numbers import Number
 
 # Own modules
 
-__version__ = '1.2.2'
+__version__ = "1.2.2"
 
 if sys.version_info[0] < 3:
-    raise RuntimeError('This module may only be used with Python > 3.1.')
+    raise RuntimeError("This module may only be used with Python > 3.1.")
 
 
 # =============================================================================
@@ -37,28 +37,28 @@ class UnixSyslogHandler(logging.Handler):
     #
     # priorities (these are ordered)
 
-    LOG_EMERG = 0    # system is unusable
-    LOG_ALERT = 1    # action must be taken immediately
-    LOG_CRIT = 2     # critical conditions
-    LOG_ERR = 3      # error conditions
+    LOG_EMERG = 0  # system is unusable
+    LOG_ALERT = 1  # action must be taken immediately
+    LOG_CRIT = 2  # critical conditions
+    LOG_ERR = 3  # error conditions
     LOG_WARNING = 4  # warning conditions
-    LOG_NOTICE = 5   # normal but significant condition
-    LOG_INFO = 6     # informational
-    LOG_DEBUG = 7    # debug-level messages
+    LOG_NOTICE = 5  # normal but significant condition
+    LOG_INFO = 6  # informational
+    LOG_DEBUG = 7  # debug-level messages
 
     # facility codes
-    LOG_KERN = 0       # kernel messages
-    LOG_USER = 1       # random user-level messages
-    LOG_MAIL = 2       # mail system
-    LOG_DAEMON = 3     # system daemons
-    LOG_AUTH = 4       # security/authorization messages
-    LOG_SYSLOG = 5     # messages generated internally by syslogd
-    LOG_LPR = 6        # line printer subsystem
-    LOG_NEWS = 7       # network news subsystem
-    LOG_UUCP = 8       # UUCP subsystem
-    LOG_CRON = 9       # clock daemon
+    LOG_KERN = 0  # kernel messages
+    LOG_USER = 1  # random user-level messages
+    LOG_MAIL = 2  # mail system
+    LOG_DAEMON = 3  # system daemons
+    LOG_AUTH = 4  # security/authorization messages
+    LOG_SYSLOG = 5  # messages generated internally by syslogd
+    LOG_LPR = 6  # line printer subsystem
+    LOG_NEWS = 7  # network news subsystem
+    LOG_UUCP = 8  # UUCP subsystem
+    LOG_CRON = 9  # clock daemon
     LOG_AUTHPRIV = 10  # security/authorization messages (private)
-    LOG_FTP = 11       # FTP daemon
+    LOG_FTP = 11  # FTP daemon
 
     # other codes through 15 reserved for system use
     LOG_LOCAL0 = 16  # reserved for local use
@@ -71,21 +71,21 @@ class UnixSyslogHandler(logging.Handler):
     LOG_LOCAL7 = 23  # reserved for local use
     # options for syslog.openlog()
     # LOG_PID, LOG_CONS, LOG_NDELAY, LOG_NOWAIT
-    LOG_PID = syslog.LOG_PID        # log the pid with each message
-    LOG_CONS = syslog.LOG_CONS      # log on the console if errors in sending
+    LOG_PID = syslog.LOG_PID  # log the pid with each message
+    LOG_CONS = syslog.LOG_CONS  # log on the console if errors in sending
     LOG_NDELAY = syslog.LOG_NDELAY  # don't delay open
     # if forking to log on console, don't wait()
     LOG_NOWAIT = syslog.LOG_NOWAIT
 
     priority_names = {
-        'alert': LOG_ALERT,
-        'crit': LOG_CRIT,
-        'debug': LOG_DEBUG,
-        'emerg': LOG_EMERG,
-        'err': LOG_ERR,
-        'info': LOG_INFO,
-        'notice': LOG_NOTICE,
-        'warning': LOG_WARNING,
+        "alert": LOG_ALERT,
+        "crit": LOG_CRIT,
+        "debug": LOG_DEBUG,
+        "emerg": LOG_EMERG,
+        "err": LOG_ERR,
+        "info": LOG_INFO,
+        "notice": LOG_NOTICE,
+        "warning": LOG_WARNING,
     }
 
     priority_ids = {}
@@ -95,31 +95,31 @@ class UnixSyslogHandler(logging.Handler):
             priority_ids[val] = key
 
     # Deprecated priority names
-    priority_names['error'] = LOG_ERR
-    priority_names['panic'] = LOG_EMERG
-    priority_names['critical'] = LOG_CRIT
-    priority_names['warn'] = LOG_WARNING
+    priority_names["error"] = LOG_ERR
+    priority_names["panic"] = LOG_EMERG
+    priority_names["critical"] = LOG_CRIT
+    priority_names["warn"] = LOG_WARNING
 
     facility_names = {
-        'auth': LOG_AUTH,
-        'authpriv': LOG_AUTHPRIV,
-        'cron': LOG_CRON,
-        'daemon': LOG_DAEMON,
-        'ftp': LOG_FTP,
-        'kern': LOG_KERN,
-        'lpr': LOG_LPR,
-        'mail': LOG_MAIL,
-        'news': LOG_NEWS,
-        'user': LOG_USER,
-        'uucp': LOG_UUCP,
-        'local0': LOG_LOCAL0,
-        'local1': LOG_LOCAL1,
-        'local2': LOG_LOCAL2,
-        'local3': LOG_LOCAL3,
-        'local4': LOG_LOCAL4,
-        'local5': LOG_LOCAL5,
-        'local6': LOG_LOCAL6,
-        'local7': LOG_LOCAL7,
+        "auth": LOG_AUTH,
+        "authpriv": LOG_AUTHPRIV,
+        "cron": LOG_CRON,
+        "daemon": LOG_DAEMON,
+        "ftp": LOG_FTP,
+        "kern": LOG_KERN,
+        "lpr": LOG_LPR,
+        "mail": LOG_MAIL,
+        "news": LOG_NEWS,
+        "user": LOG_USER,
+        "uucp": LOG_UUCP,
+        "local0": LOG_LOCAL0,
+        "local1": LOG_LOCAL1,
+        "local2": LOG_LOCAL2,
+        "local3": LOG_LOCAL3,
+        "local4": LOG_LOCAL4,
+        "local5": LOG_LOCAL5,
+        "local6": LOG_LOCAL6,
+        "local7": LOG_LOCAL7,
     }
 
     facility_ids = {}
@@ -129,18 +129,18 @@ class UnixSyslogHandler(logging.Handler):
             facility_ids[val] = key
 
     # Deprecated facility names
-    facility_names['security'] = LOG_AUTH
+    facility_names["security"] = LOG_AUTH
 
     priority_map = {
-        'DEBUG': 'debug',
-        'INFO': 'info',
-        'WARNING': 'warning',
-        'ERROR': 'err',
-        'CRITICAL': 'crit'
+        "DEBUG": "debug",
+        "INFO": "info",
+        "WARNING": "warning",
+        "ERROR": "err",
+        "CRITICAL": "crit",
     }
 
     # -------------------------------------------------------------------------
-    def __init__(self, ident=None, logopt=None, facility=None, encoding='utf-8'):
+    def __init__(self, ident=None, logopt=None, facility=None, encoding="utf-8"):
         """Initialize a handler.
 
         @param ident: Identifier of the syslog message, uses basename
@@ -156,7 +156,7 @@ class UnixSyslogHandler(logging.Handler):
         @type encoding: str
         """
         self._opened = False
-        self._facility = 'user'
+        self._facility = "user"
 
         if logopt is None:
             logopt = self.LOG_PID
@@ -167,7 +167,7 @@ class UnixSyslogHandler(logging.Handler):
 
         if ident is not None:
             ident = ident.strip()
-            if ident == '':
+            if ident == "":
                 ident = None
         if ident is None:
             ident = os.path.basename(sys.argv[0])
@@ -202,30 +202,30 @@ class UnixSyslogHandler(logging.Handler):
     @property
     def opened(self):
         """Return, whether the syslog object already opened."""
-        return getattr(self, '_opened', False)
+        return getattr(self, "_opened", False)
 
     # -------------------------------------------------------------------------
     @property
     def facility(self):
         """Return the syslog facility name to use."""
-        return getattr(self, '_facility', 'user')
+        return getattr(self, "_facility", "user")
 
     @facility.setter
     def facility(self, value):
         if self.opened:
             return
 
-        used_facility = 'user'
+        used_facility = "user"
         if isinstance(value, Number):
             v = int(value)
             if v not in self.facility_ids:
-                msg = 'Invalid value {!r} for facility.'.format(value)
+                msg = "Invalid value {!r} for facility.".format(value)
                 raise ValueError(msg)
             used_facility = self.facility_ids[v]
         else:
             used_facility = str(value).lower()
             if used_facility not in self.facility_names:
-                msg = 'Invalid value {!r} for facility.'.format(value)
+                msg = "Invalid value {!r} for facility.".format(value)
                 raise ValueError(msg)
         self._facility = used_facility
 
@@ -233,8 +233,7 @@ class UnixSyslogHandler(logging.Handler):
     @property
     def facility_id(self):
         """Return the numeric value of the syslog facility."""
-        return self.facility_names.get(
-            self.facility, self.facility_names['user'])
+        return self.facility_names.get(self.facility, self.facility_names["user"])
 
     # -------------------------------------------------------------------------
     def close(self):
@@ -259,7 +258,7 @@ class UnixSyslogHandler(logging.Handler):
         @return: the numeric logging level code
         @rtype: str
         """
-        return self.priority_map.get(level_name.upper(), 'warning')
+        return self.priority_map.get(level_name.upper(), "warning")
 
     # -------------------------------------------------------------------------
     def emit(self, record):
@@ -287,7 +286,7 @@ class UnixSyslogHandler(logging.Handler):
 
 
 # =============================================================================
-if __name__ == '__main__':
+if __name__ == "__main__":
 
     pass
 
