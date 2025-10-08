@@ -16,7 +16,7 @@ variables:
   # NOTIFY_ADDRESS: 'frank.brehm@pixelpark.com'
   PKG_NAME: 'fb-logging'
   PYTHON_INIT_FILE: 'lib/fb_logging/__init__.py'
-  PYTHON_TEST_PATHS: 'bin lib setup.py'
+  # PYTHON_TEST_PATHS: 'src'
   # SENDER_ADDRESS: 'gitlab-ci@pixelpark.com'
   SHELLSCRIPTS: 'get-debian-version get-rpm-release get-rpm-version'
   SSH_PRIV_KEY_YUM_REPO: 'nada'
@@ -36,6 +36,6 @@ variables:
   # YUM_REPO_DIR: "/srv/www/repo${YUM_REPO_DIR_HTTP}"
   YUM_REPO_GPG_KEY_PUB: 'nada'
   YUM_REPO_GPG_KEY_SEC: ''
-  REVISION: 73
+  REVISION: 74
 
 # vim: et tabstop=2 expandtab shiftwidth=2 softtabstop=2 list
