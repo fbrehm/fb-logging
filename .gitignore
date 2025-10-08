@@ -136,4 +136,6 @@ dmypy.json
 
 /.orig
 
+/get*.awk
+
 /data/share/man
