@@ -1,8 +1,9 @@
-fb-logging (1.3.0) UNRELEASED; urgency=medium
+fb-logging (1.3.1) all; urgency=medium
 
   * Changing build tool from setuptools to flit
+  * Fixing .gitlab-ci.yml for new build chain
 
- -- Frank Brehm <frank@brehm-online.com>  Sat, 13 Sep 2025 16:29:56 +0200
+ -- Frank Brehm <frank.brehm@pixelpark.com>  Thu, 09 Oct 2025 16:44:09 +0200
 
 fb-logging (1.2.1) all; urgency=medium
 
