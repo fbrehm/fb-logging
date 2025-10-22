@@ -19,11 +19,8 @@ class ColorNotFoundError(KeyError):
     def __init__(self, color):
         """Construct this exception."""
         self.color = color
-
-    # -------------------------------------------------------------------------
-    def __str__(self):
-        """Typecast into str."""
-        return "Color {!r} not found.".format(self.color)
+        self.msg = "Color {!r} not found.".format(self.color)
+        super().__init__(self.msg)
 
 
 # =============================================================================
@@ -34,13 +31,10 @@ class WrongColorTypeError(TypeError):
     def __init__(self, color):
         """Construct this exception."""
         self.color = color
-
-    # -------------------------------------------------------------------------
-    def __str__(self):
-        """Typecast into str."""
-        return "Color {c!r} has wrong type {t}.".format(
+        self.msg = "Color {c!r} has wrong type {t}.".format(
             c=self.color, t=self.color.__class__.__name__
         )
+        super().__init__(self.msg)
 
 
 # =============================================================================

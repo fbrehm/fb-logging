@@ -11,7 +11,7 @@
 __author__ = "Frank Brehm <frank@brehm-online.com>"
 __copyright__ = "(C) 2025 by Frank Brehm, Berlin"
 __contact__ = "frank@brehm-online.com"
-__version__ = "1.3.1"
+__version__ = "1.3.2"
 __license__ = "LGPL-3"
 
 # Standard modules
@@ -56,15 +56,10 @@ class WrongLogFacilityIdTypeError(SyslogFacitityError, TypeError):
     # -------------------------------------------------------------------------
     def __init__(self, value):
         """Construct this exception."""
-        self.value = value
-
-    # -------------------------------------------------------------------------
-    def __str__(self):
-        """Typecast into str."""
-        msg = "Wrong variable {v!r} ({t}) given as a syslog facility id.".format(
-            v=self.value, t=self.value.__class__.__name__
+        self.msg = "Wrong variable {v!r} ({t}) given as a syslog facility id.".format(
+            v=value, t=value.__class__.__name__
         )
-        return msg
+        super().__init__(self.msg)
 
 
 # =============================================================================
@@ -78,13 +73,8 @@ class WrongLogFacilityIdValueError(SyslogFacitityError, ValueError):
     # -------------------------------------------------------------------------
     def __init__(self, value):
         """Construct this exception."""
-        self.value = value
-
-    # -------------------------------------------------------------------------
-    def __str__(self):
-        """Typecast into str."""
-        msg = "Wrong variable {} given as a syslog facility id.".format(self.value)
-        return msg
+        self.msg = "Wrong variable {} given as a syslog facility id.".format(value)
+        super().__init__(self.msg)
 
 
 # =============================================================================
@@ -99,14 +89,10 @@ class WrongLogFacilityNameTypeError(SyslogFacitityError, TypeError):
     def __init__(self, value):
         """Construct this exception."""
         self.value = value
-
-    # -------------------------------------------------------------------------
-    def __str__(self):
-        """Typecast into str."""
-        msg = "Wrong variable {v!r} ({t}) given as a syslog facility name.".format(
+        self.msg = "Wrong variable {v!r} ({t}) given as a syslog facility name.".format(
             v=self.value, t=self.value.__class__.__name__
         )
-        return msg
+        super().__init__(self.msg)
 
 
 # =============================================================================
@@ -121,12 +107,8 @@ class WrongLogFacilityNameValueError(SyslogFacitityError, ValueError):
     def __init__(self, value):
         """Construct this exception."""
         self.value = value
-
-    # -------------------------------------------------------------------------
-    def __str__(self):
-        """Typecast into str."""
-        msg = "Wrong variable {!r} given as a syslog facility name.".format(self.value)
-        return msg
+        self.msg = "Wrong variable {!r} given as a syslog facility name.".format(self.value)
+        super().__init__(self.msg)
 
 
 # =============================================================================
