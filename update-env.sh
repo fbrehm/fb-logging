@@ -25,9 +25,7 @@ BASENAME=$( basename "${0}" )
 BASE_DIR=$( dirname "$0" )
 cd "${BASE_DIR}"
 BASE_DIR=$( readlink -f . )
-MAN_SECTION=1
 MAN_PARENT_DIR="data/share/man"
-MAN_DIR="${MAN_PARENT_DIR}/man${MAN_SECTION}"
 
 declare -a VALID_PY_VERSIONS=("3.13" "3.12" "3.11" "3.10" "3.9")
 VENV='.venv'
@@ -526,7 +524,7 @@ upgrade_modules() {
 install_local_package() {
 
     line
-    echo "Installing local package into '${CYAN}${VENV}${NORMAL}' …"
+    info "Installing local package into '${CYAN}${VENV}${NORMAL}' …"
     empty_line
     info "Ensuring directory '${CYAN}${MAN_PARENT_DIR}${NORMAL}' …"
     mkdir -pv "${MAN_PARENT_DIR}"
@@ -627,34 +625,6 @@ ensure_datadir() {
 }
 
 #------------------------------------------------------------------------------
-generate_manpages() {
-
-    line
-    if [[ -z "${ENTRYPOINTS}" ]] ; then
-        info "No entrypoints found for creating man pages."
-        return 0
-    fi
-
-    local entrypoint
-    local cmd
-
-    info "Generate man pages of scripts ..."
-
-    info "Ensuring directory '${CYAN}${MAN_DIR}${NORMAL}' …"
-    mkdir -pv "${MAN_DIR}"
-
-    for entrypoint in ${ENTRYPOINTS} ; do
-        empty_line
-        info "Generating man page for '${CYAN}${entrypoint}${NORMAL}' …"
-        cmd="click-man --target \"${MAN_DIR}\" --man-version ${MAN_SECTION} \"${entrypoint}\""
-        debug "Calling: ${cmd}"
-        # shellcheck disable=SC2086
-        eval ${cmd} || true
-    done
-
-}
-
-#------------------------------------------------------------------------------
 compile_i18n() {
 
     if [[ -x compile-xlate-msgs.sh ]]; then
@@ -687,11 +657,10 @@ main() {
     upgrade_modules
     install_local_package
     list_modules
-    generate_manpages
     compile_i18n
 
     line
-    info "Fertig."
+    info "Finished."
     empty_line
 
 }
