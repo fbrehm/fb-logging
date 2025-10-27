@@ -18,6 +18,7 @@ variables:
   PYTHON_INIT_FILE: 'src/fb_logging/__init__.py'
   # PYTHON_TEST_PATHS: 'src'
   # SENDER_ADDRESS: 'gitlab-ci@pixelpark.com'
+  # BUILD_RPMS_FOR: 'el-9'
   SHELLSCRIPTS: 'get-debian-version'
   SSH_PRIV_KEY_YUM_REPO: 'nada'
   TEST_LOCALES: 'en_US.UTF-8'
