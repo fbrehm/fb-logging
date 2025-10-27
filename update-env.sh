@@ -8,13 +8,16 @@ VERBOSE="n"
 DEBUG="n"
 QUIET='n'
 
-VERSION="2.4"
+VERSION="3.0"
 
 # console colors:
 RED=""
-YELLOW=""
 GREEN=""
-# BLUE=""
+YELLOW=""
+# shellcheck disable=SC2034
+BLUE=""
+# shellcheck disable=SC2034
+MAGENTA=""
 CYAN=""
 NORMAL=""
 
@@ -22,15 +25,18 @@ BASENAME=$( basename "${0}" )
 BASE_DIR=$( dirname "$0" )
 cd "${BASE_DIR}"
 BASE_DIR=$( readlink -f . )
-MAN_SECTION=1
 MAN_PARENT_DIR="data/share/man"
-MAN_DIR="${MAN_PARENT_DIR}/man${MAN_SECTION}"
 
 declare -a VALID_PY_VERSIONS=("3.13" "3.12" "3.11" "3.10" "3.9")
 VENV='.venv'
 
 PIP_OPTIONS=
 export VIRTUAL_ENV_DISABLE_PROMPT=y
+
+TMPFILE_GETVALUE=
+TMPFILE_GETKEYS=
+ENTRYPOINTS=''
+DATA_DIR=
 
 #-------------------------------------------------------------------
 detect_color() {
@@ -60,17 +66,23 @@ detect_color() {
 
     # console colors:
     if [ "${use_color}" = "true" ] ; then
-        RED="\033[38;5;196m"
-        YELLOW="\033[38;5;226m"
-        GREEN="\033[38;5;46m"
-        # BLUE="\033[38;5;27m"
-        CYAN="\033[38;5;36m"
-        NORMAL="\033[39m"
+        RED=$( tput setaf 9 )
+        GREEN=$( tput setaf 10 )
+        YELLOW=$( tput setaf 11 )
+        # shellcheck disable=SC2034
+        BLUE=$( tput setaf 12 )
+        # shellcheck disable=SC2034
+        MAGENTA=$( tput setaf 13 )
+        CYAN=$( tput setaf 14 )
+        NORMAL=$( tput op )
     else
         RED=""
         YELLOW=""
         GREEN=""
-        # BLUE=""
+        # shellcheck disable=SC2034
+        BLUE=""
+        # shellcheck disable=SC2034
+        MAGENTA=""
         CYAN=""
         NORMAL=""
     fi
@@ -254,13 +266,15 @@ get_options() {
     if type -t msgfmt >/dev/null ; then
         :
     else
-        echo "Command '${RED}msgfmt${NORMAL}' not found, please install package '${YELLOW}gettext${NORMAL}' or appropriate." >&2
+        error "Command '${RED}msgfmt${NORMAL}' not found, please install package '${YELLOW}gettext${NORMAL}' or appropriate."
         exit 6
     fi
 
     if [[ "${VERBOSE}" == "y" ]] ; then
         PIP_OPTIONS="--verbose"
     elif [[ "${QUIET}" == "y" ]] ; then
+        PIP_OPTIONS="--quiet --quiet"
+    else
         PIP_OPTIONS="--quiet"
     fi
 
@@ -308,10 +322,159 @@ init_venv() {
 }
 
 #------------------------------------------------------------------------------
+RM() {
+
+    local cmd="rm"
+    if [[ "${VERBOSE}" == "y" ]] ; then
+        cmd+=" --verbose"
+    fi
+    debug "Executing: ${cmd} $*"
+    # shellcheck disable=SC2086,SC2294
+    eval ${cmd} "$@"
+
+}
+
+#------------------------------------------------------------------------------
+cleanup_awk_scripts() {
+
+    debug "Cleaning up AWK scripts ..."
+
+    if [[ -n "${TMPFILE_GETVALUE}" && -f "${TMPFILE_GETVALUE}" ]] ; then
+        debug "Removing '${CYAN}${TMPFILE_GETVALUE}${NORMAL}' ..."
+        RM "${TMPFILE_GETVALUE}"
+    fi
+
+    if [[ -n "${TMPFILE_GETKEYS}" && -f "${TMPFILE_GETKEYS}" ]] ; then
+        debug "Removing '${CYAN}${TMPFILE_GETKEYS}${NORMAL}' ..."
+        RM "${TMPFILE_GETKEYS}"
+    fi
+
+}
+
+#------------------------------------------------------------------------------
+create_awk_scripts() {
+
+    line
+    info "Creating AWK scripts for evaluating pyproject.toml."
+
+    TMPFILE_GETVALUE=$( mktemp 'get-inifile-value-XXXXXXXX.awk' )
+    TMPFILE_GETKEYS=$( mktemp 'get-inifile-keys-XXXXXXXX.awk' )
+
+    trap cleanup_awk_scripts INT TERM EXIT ABRT
+
+    lines=$( cat <<-EOF
+		# Script for extracting a value from an INI-file
+		#
+		# Example for calling:
+		# awk -f get_ini_value.awk -v target_section="[build-system]" -v key="build-backend" pyproject.toml
+
+		BEGIN {
+		  # Defaults
+		  found_section = 0
+		}
+
+		{
+		  # Strip leading and trailing white spaces
+		  line = \$0
+		  gsub(/^[ \t]+|[ \t]+\$/, "", line)
+
+		  # Step comments and empty rows
+		  if (line ~ /^;/ || line ~ /^#/) {
+		    next
+		  }
+		  if (length(line) == 0) {
+		    next
+		  }
+
+		  # Check for the correct section
+		  if (line ~ /^\[.*\]\$/) {
+		    section = substr(line, 2, length(line) - 2)
+		    if (section == target_section) {
+		      found_section = 1
+		    } else {
+		      found_section = 0
+		    }
+		    next
+		  }
+
+		  # If we are in the correct section
+		  if (found_section == 1) {
+		    if (line ~ "^" key "[ \t]*=.*") {
+		      split(line, arr, /[ \t]*=[ \t]*/)
+
+		      value = arr[2]
+
+		      gsub(/^"|"\$/, "", value)
+		      gsub(/^'|'\$/, "", value)
+
+		      print value
+
+		      exit
+		    }
+		  }
+		}
+		EOF
+    )
+
+    echo "${lines}" > "${TMPFILE_GETVALUE}"
+    debug "Created '${CYAN}${TMPFILE_GETVALUE}${NORMAL}'."
+
+    lines=$( cat <<-EOF
+		# Script for extracting all keys of a section of an INI-file
+		#
+		# Example for calling:
+		# awk -f get_ini_keys.awk -v target_section="project.scripts" pyproject.toml
+
+		BEGIN {
+		    in_section = 0
+		}
+
+		{
+		    # Cleaning row: removing leading and trailing whitespaces and cut before comment character
+		    line = \$0
+		    sub(/^[ \t]+/, "", line)
+		    sub(/[ \t]+\$/, "", line)
+		    sub(/[ \t]*[#;].*\$/, "", line)
+
+		    # Skip on empty row
+		    if (line == "") {
+		        next
+		    }
+
+		    # Check for section header
+		    if (line ~ /^\[.*\]\$/) {
+		        section = substr(line, 2, length(line) - 2)
+		        if (section == target_section) {
+		            in_section = 1
+		        } else {
+		            in_section = 0
+		        }
+		        next
+		    }
+
+		    # Perform key-value-pair in target section
+		    if (in_section == 1) {
+		        if (line ~ /^[a-zA-Z0-9_-]+[ \t]*=[ \t]*.*\$/) {
+		            # extract and print key
+		            split(line, a, /[ \t]*=[ \t]*/)
+		            print a[1]
+		        }
+		    }
+		}
+		EOF
+    )
+
+    echo "${lines}" > "${TMPFILE_GETKEYS}"
+    debug "Created '${CYAN}${TMPFILE_GETKEYS}${NORMAL}'."
+
+}
+
+#------------------------------------------------------------------------------
 upgrade_pip() {
     line
     info "Upgrading PIP …"
     empty_line
+    # shellcheck disable=SC2086
     pip install ${PIP_OPTIONS} --upgrade --upgrade-strategy eager pip
     empty_line
 }
@@ -321,6 +484,7 @@ upgrade_flit() {
     line
     info "Upgrading flit + wheel …"
     empty_line
+    # shellcheck disable=SC2086
     pip install ${PIP_OPTIONS} --upgrade --upgrade-strategy eager flit
     empty_line
 }
@@ -360,7 +524,7 @@ upgrade_modules() {
 install_local_package() {
 
     line
-    echo "Installing local package into '${CYAN}${VENV}${NORMAL}' …"
+    info "Installing local package into '${CYAN}${VENV}${NORMAL}' …"
     empty_line
     info "Ensuring directory '${CYAN}${MAN_PARENT_DIR}${NORMAL}' …"
     mkdir -pv "${MAN_PARENT_DIR}"
@@ -383,33 +547,80 @@ list_modules() {
 }
 
 #------------------------------------------------------------------------------
-generate_manpages() {
-
-    local entrypoints
-    local entrypoint
-    local cmd
+eval_entrypoints() {
 
     line
-    info "Generate man pages of scripts ..."
+    info "Get all entrypoints ..."
+    ENTRYPOINTS=''
+    local entrypoint
+    local cmd
+    local result
 
-    entrypoints=$( ./get-pyproject-entypoints )
+    cmd="awk -f '${TMPFILE_GETKEYS}' -v target_section=project.scripts pyproject.toml"
+    debug "Calling ${cmd}"
+    # shellcheck disable=SC2086,SC2294
+    result=$( eval ${cmd} )
+    debug "Got raw entrypoints from AWK script: '${result}'"
 
-    if [[ -z "${entrypoints}" ]] ; then
-        info "No entrypoints found for creating man pages."
+    if [[ -n "${result}" ]] ; then
+        debug "Evaluate entrypoints ..."
+        for entrypoint in ${result}; do
+            if [[ -n "${ENTRYPOINTS}" ]] ; then
+                ENTRYPOINTS+=" "
+            fi
+            ENTRYPOINTS+="${entrypoint}"
+        done
+    fi
+
+    if [[ -n "${ENTRYPOINTS}" ]] ; then
+        info "Found entrypoints: ${CYAN}${ENTRYPOINTS}${NORMAL}"
+    else
+        info "Did not found any entrypoints."
+    fi
+
+}
+
+#------------------------------------------------------------------------------
+eval_datadir() {
+
+    line
+    info "Get directory for external data."
+
+    DATA_DIR=''
+
+    cmd="awk -f '${TMPFILE_GETVALUE}' -v target_section=tool.flit.external-data -v key=directory pyproject.toml"
+    debug "Calling ${cmd}"
+    # shellcheck disable=SC2086,SC2294
+    DATA_DIR=$( eval ${cmd} )
+
+    if [[ -n "${DATA_DIR}" ]] ; then
+        info "Found data directory: '${CYAN}${DATA_DIR}${NORMAL}'"
+    else
+        info "Did not found data directory."
+    fi
+
+}
+
+#------------------------------------------------------------------------------
+ensure_datadir() {
+
+    if [[ -z "${DATA_DIR}" ]] ; then
         return 0
     fi
 
-    info "Ensuring directory '${CYAN}${MAN_DIR}${NORMAL}' …"
-    mkdir -pv "${MAN_DIR}"
+    line
+    info "Ensuring directory for external data '${CYAN}${DATA_DIR}${NORMAL}' ..."
 
-    for entrypoint in ${entrypoints} ; do
-        empty_line
-        info "Generating man page for '${CYAN}${entrypoint}${NORMAL}' …"
-        cmd="click-man --target \"${MAN_DIR}\" --man-version ${MAN_SECTION} \"${entrypoint}\""
-        echo -e "\nCalling: ${cmd}"
-        # shellcheck disable=SC2086
-        eval ${cmd}
-    done
+    if [[ -e "${DATA_DIR}" ]] ; then
+        if [[ -d "${DATA_DIR}" ]] ; then
+            return 0
+        fi
+        error "Path exists, but is not a directory."
+        exit 7
+    fi
+
+    info "Creating directory '${CYAN}${DATA_DIR}${NORMAL}' ..."
+    mkdir --parent --verbose "${DATA_DIR}"
 
 }
 
@@ -435,6 +646,10 @@ compile_i18n() {
 main() {
 
     get_options "$@"
+    create_awk_scripts
+    eval_entrypoints
+    eval_datadir
+    ensure_datadir
     init_venv
     upgrade_pip
     upgrade_flit
@@ -442,11 +657,10 @@ main() {
     upgrade_modules
     install_local_package
     list_modules
-    generate_manpages
     compile_i18n
 
     line
-    info "Fertig."
+    info "Finished."
     empty_line
 
 }

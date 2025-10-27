@@ -2,7 +2,7 @@
 
 include:
   - project: 'python/packaging'
-    ref: main
+    ref: develop
     file: 'gitlab/pyproject-create-all.yaml'
 
 # ---------------------------
@@ -36,6 +36,6 @@ variables:
   # YUM_REPO_DIR: "/srv/www/repo${YUM_REPO_DIR_HTTP}"
   YUM_REPO_GPG_KEY_PUB: 'nada'
   YUM_REPO_GPG_KEY_SEC: ''
-  REVISION: 1
+  REVISION: 8
 
 # vim: et tabstop=2 expandtab shiftwidth=2 softtabstop=2 list
