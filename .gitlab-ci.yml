@@ -39,4 +39,5 @@ variables:
   YUM_REPO_GPG_KEY_SEC: ''
   REVISION: 8
 
+
 # vim: et tabstop=2 expandtab shiftwidth=2 softtabstop=2 list
