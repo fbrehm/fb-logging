@@ -20,7 +20,10 @@ from datetime import date
 from io import IOBase, StringIO, TextIOBase
 from typing import Any, Optional
 
-from semver import Version
+try:
+    from semver import Version
+except ImportError:
+    from semver import VersionInfo as Version
 
 
 # =============================================================================
