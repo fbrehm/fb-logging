@@ -23,7 +23,7 @@ except ImportError:
 srcdir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'src'))
 sys.path.insert(0, srcdir)
 
-from general import FbLoggingTestcase, get_arg_verbose, init_root_logger
+from general import FbLoggingTestcase, get_arg_verbose, init_root_logger, pp
 
 __app__ = 'test_changelog'
 LOG = logging.getLogger(__app__)
@@ -61,6 +61,21 @@ class ChangelogTestcase(FbLoggingTestcase):
         ver = fb_logging.changelog.__version__
         LOG.debug(f"Version of fb_logging.changelog: {ver!r}.")
 
+    # -------------------------------------------------------------------------
+    def test_load(self):
+        """Test loading a changelog as a Changelog object."""
+        LOG.info(self.get_method_doc())
+
+        from fb_logging import changelog
+
+        with self.changelog_file.open("rb") as fp:
+            changes = changelog.load(fp)
+
+        count = len(changes)
+        LOG.debug(f"Found {count} changes in {str(self.changelog_file)!r}.")
+        if self.verbose > 2:
+            LOG.debug("Changes object:\n" + pp(changes))
+
 
 # =============================================================================
 if __name__ == '__main__':
@@ -76,6 +91,7 @@ if __name__ == '__main__':
     suite = unittest.TestSuite()
 
     suite.addTest(ChangelogTestcase('test_import_module', verbose))
+    suite.addTest(ChangelogTestcase('test_load', verbose))
 
     runner = unittest.TextTestRunner(verbosity=verbose)
 
