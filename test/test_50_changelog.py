@@ -43,6 +43,8 @@ class ChangelogTestcase(FbLoggingTestcase):
         self.workdir = self.test_dir.parent
 
         self.changelog_file = self.workdir / 'CHANGELOG.md'
+        self.changelog_ok = self.test_dir / 'CHANGELOG-ok.md'
+        self.changelog_broken = self.test_dir / 'CHANGELOG-broken.md'
 
         if not self.changelog_file.exists():
             raise RuntimeError(f"File {str(self.changelog_file)!r} not found.")
@@ -50,7 +52,7 @@ class ChangelogTestcase(FbLoggingTestcase):
         if not self.changelog_file.is_file():
             raise RuntimeError(f"Path {str(self.changelog_file)!r} is not a regular file.")
 
-        LOG.debug(f"Using {str(self.changelog_file)!r} for testing.")
+        LOG.debug(f"Using {str(self.changelog_ok)!r} for testing.")
 
     # -------------------------------------------------------------------------
     def test_import_module(self):
@@ -68,13 +70,30 @@ class ChangelogTestcase(FbLoggingTestcase):
 
         from fb_logging import changelog
 
-        with self.changelog_file.open("rb") as fp:
+        with self.changelog_ok.open("rb") as fp:
             changes = changelog.load(fp)
 
         count = len(changes)
-        LOG.debug(f"Found {count} changes in {str(self.changelog_file)!r}.")
+        LOG.debug(f"Found {count} changes in {str(self.changelog_ok)!r}.")
         if self.verbose > 2:
             LOG.debug("Changes object:\n" + pp(changes))
+
+    # -------------------------------------------------------------------------
+    def test_load_broken(self):
+        """Test for raising an exception on trying to load an invalid CHANGELOG file."""
+        LOG.info(self.get_method_doc())
+
+        from fb_logging import changelog
+        from fb_logging.changelog import ChangelogParsingError
+
+        LOG.debug(f"Testing broken Changelog file {str(self.changelog_broken)!r} ...")
+
+        with self.assertRaises(ChangelogParsingError) as cm:
+            with self.changelog_broken.open("rb") as fp:
+                changes = changelog.load(fp)
+                print(pp(changes))
+        e = cm.exception
+        LOG.debug('Got a {c}: {e}.'.format(c=e.__class__.__name__, e=e))
 
 
 # =============================================================================
@@ -92,6 +111,7 @@ if __name__ == '__main__':
 
     suite.addTest(ChangelogTestcase('test_import_module', verbose))
     suite.addTest(ChangelogTestcase('test_load', verbose))
+    suite.addTest(ChangelogTestcase('test_load_broken', verbose))
 
     runner = unittest.TextTestRunner(verbosity=verbose)
 
