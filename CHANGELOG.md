@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Adding CHANGELOG.md.
 * Adding `test/test_50_changelog.py` for testing `fb_logging.changelog`.
+* Adding module `fb_logging.check_changelog` for entrypoint `check-changelog`.
+* Adding test for broken changelog file.
 
 ### Fixed
 
