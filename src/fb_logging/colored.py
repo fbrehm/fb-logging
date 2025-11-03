@@ -10,7 +10,6 @@ from numbers import Number
 
 __version__ = "0.6.2"
 
-
 # =============================================================================
 class ColorNotFoundError(KeyError):
     """Class for an exception in case that a color was not found."""
