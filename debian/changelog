@@ -1,4 +1,4 @@
-fb-logging (1.3.6) UNRELEASED; urgency=medium
+fb-logging (1.3.6) all; urgency=medium
 
   * Adding CHANGELOG.md.
   * Adding test/test_50_changelog.py for testing fb_logging.changelog.
