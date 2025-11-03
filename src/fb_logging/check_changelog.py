@@ -20,6 +20,7 @@ from pathlib import Path
 
 # 3rd party modules
 import click
+
 # from click import Option, UsageError
 
 file = Path(__file__).resolve()
@@ -28,7 +29,7 @@ sys.path.insert(0, str(root))
 
 try:
     sys.path.remove(str(parent))
-except ValueError:                         # Already removed
+except ValueError:  # Already removed
     pass
 
 # Own modules
@@ -38,7 +39,7 @@ from fb_logging.changelog import load as changelog_load
 from fb_logging.colored import ColoredFormatter
 from fb_logging.colored import colorstr
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 
 LOG = logging.getLogger(__name__)
 
@@ -172,9 +173,13 @@ class CheckChangelogApp(object):
 
     # -------------------------------------------------------------------------
     def __init__(
-        self, changelog_file, action='check',
-        appname=None, verbose=0, version=__pkg_version__, has_colors=None,
-
+        self,
+        changelog_file,
+        action="check",
+        appname=None,
+        verbose=0,
+        version=__pkg_version__,
+        has_colors=None,
     ):
         """Initialise the application object."""
         if changelog_file is None:
@@ -317,28 +322,27 @@ class CheckChangelogApp(object):
                 filename = "STDIN"
                 changes = changelog_load(sys.stdin)
         except ChangelogParsingError as e:
-            fn = self.colored(filename, 'RED')
+            fn = self.colored(filename, "RED")
             LOG.error(f"Wrong formatted {fn}: " + str(e))
             sys.exit(5)
 
         if self.action == "last":
             if len(changes):
-                if str(changes[0]['version'].lower()) == 'unreleased' and len(changes) > 1:
-                    print(str(changes[1]['version']))
+                if str(changes[0]["version"].lower()) == "unreleased" and len(changes) > 1:
+                    print(str(changes[1]["version"]))
                 else:
-                    print(str(changes[0]['version']))
+                    print(str(changes[0]["version"]))
             sys.exit(0)
 
         if self.action == "list":
             for change in changes:
-                print(str(change['version']))
+                print(str(change["version"]))
             sys.exit(0)
 
-        star = self.colored('*', 'GREEN')
-        fn = self.colored(filename, 'CYAN')
-        nr_changes = self.colored(str(len(changes)) + " changes", 'CYAN')
-        print(f"{star} File {fn} seems to be a valid CHANGELOG file, "
-              f"found {nr_changes}.")
+        star = self.colored("*", "GREEN")
+        fn = self.colored(filename, "CYAN")
+        nr_changes = self.colored(str(len(changes)) + " changes", "CYAN")
+        print(f"{star} File {fn} seems to be a valid CHANGELOG file, " f"found {nr_changes}.")
         sys.exit(0)
 
 
@@ -371,7 +375,8 @@ def main(ctx, changelog_file, action, has_color, verbose):
     If CHANGELOG_FILE is omitted, then the input will be read from STDIN.
     """
     ctx.obj = CheckChangelogApp(
-        changelog_file, action=action, verbose=verbose, has_colors=has_color)
+        changelog_file, action=action, verbose=verbose, has_colors=has_color
+    )
 
     if verbose > 2:
         click.echo(

@@ -20,12 +20,12 @@ try:
 except ImportError:
     import unittest
 
-srcdir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'src'))
+srcdir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "src"))
 sys.path.insert(0, srcdir)
 
 from general import FbLoggingTestcase, get_arg_verbose, init_root_logger, pp
 
-__app__ = 'test_changelog'
+__app__ = "test_changelog"
 LOG = logging.getLogger(__app__)
 
 
@@ -42,9 +42,9 @@ class ChangelogTestcase(FbLoggingTestcase):
         self.test_dir = Path(__file__).parent.resolve()
         self.workdir = self.test_dir.parent
 
-        self.changelog_file = self.workdir / 'CHANGELOG.md'
-        self.changelog_ok = self.test_dir / 'CHANGELOG-ok.md'
-        self.changelog_broken = self.test_dir / 'CHANGELOG-broken.md'
+        self.changelog_file = self.workdir / "CHANGELOG.md"
+        self.changelog_ok = self.test_dir / "CHANGELOG-ok.md"
+        self.changelog_broken = self.test_dir / "CHANGELOG-broken.md"
 
         if not self.changelog_file.exists():
             raise RuntimeError(f"File {str(self.changelog_file)!r} not found.")
@@ -60,6 +60,7 @@ class ChangelogTestcase(FbLoggingTestcase):
         LOG.info(self.get_method_doc())
 
         import fb_logging.changelog
+
         ver = fb_logging.changelog.__version__
         LOG.debug(f"Version of fb_logging.changelog: {ver!r}.")
 
@@ -93,25 +94,25 @@ class ChangelogTestcase(FbLoggingTestcase):
                 changes = changelog.load(fp)
                 print(pp(changes))
         e = cm.exception
-        LOG.debug('Got a {c}: {e}.'.format(c=e.__class__.__name__, e=e))
+        LOG.debug("Got a {c}: {e}.".format(c=e.__class__.__name__, e=e))
 
 
 # =============================================================================
-if __name__ == '__main__':
+if __name__ == "__main__":
 
     verbose = get_arg_verbose()
     if verbose is None:
         verbose = 0
     init_root_logger(verbose, __app__)
 
-    LOG.info('Starting tests ...')
+    LOG.info("Starting tests ...")
 
     loader = unittest.TestLoader()
     suite = unittest.TestSuite()
 
-    suite.addTest(ChangelogTestcase('test_import_module', verbose))
-    suite.addTest(ChangelogTestcase('test_load', verbose))
-    suite.addTest(ChangelogTestcase('test_load_broken', verbose))
+    suite.addTest(ChangelogTestcase("test_import_module", verbose))
+    suite.addTest(ChangelogTestcase("test_load", verbose))
+    suite.addTest(ChangelogTestcase("test_load_broken", verbose))
 
     runner = unittest.TextTestRunner(verbosity=verbose)
 
