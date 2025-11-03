@@ -7,6 +7,11 @@ All notable changes to this project will be documented in this file.
 ### Added
 
 * Adding CHANGELOG.md.
+* Adding `test/test_50_changelog.py` for testing `fb_logging.changelog`.
+
+### Fixed
+
+* Fixing `src/fb_logging/changelog.py` for incompatible versions of *semver*.
 
 ## [1.3.5] - 2025-10-30
 
