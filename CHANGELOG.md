@@ -285,7 +285,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Initial release
 
 
-[Unreleased]: https://github.com/fbrehm/fb-logging/compare/1.3.5...develop
+[1.3.6]: https://github.com/fbrehm/fb-logging/compare/1.3.5...1.3.6
 [1.3.5]: https://github.com/fbrehm/fb-logging/compare/1.3.4...1.3.5
 [1.3.4]: https://github.com/fbrehm/fb-logging/compare/1.3.3...1.3.4
 [1.3.3]: https://github.com/fbrehm/fb-logging/compare/1.3.1...1.3.3
