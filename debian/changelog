@@ -1,4 +1,4 @@
-fb-logging (1.3.7) UNRELEASED; urgency=medium
+fb-logging (1.3.7) all; urgency=medium
 
   * Adding CHANGELOG.md to package documents
 
