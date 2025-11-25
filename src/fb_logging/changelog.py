@@ -12,7 +12,7 @@ In Python, the data is managed as a list of
 dictionaries (see README.md for the dictionaries' structure)
 """
 
-__version__ = "0.0.8"
+__version__ = "0.1.0"
 
 import re
 import textwrap
@@ -20,7 +20,10 @@ from datetime import date
 from io import IOBase, StringIO, TextIOBase
 from typing import Any, Optional
 
-from semver import Version
+try:
+    from semver import Version
+except ImportError:
+    from semver import VersionInfo as Version
 
 
 # =============================================================================

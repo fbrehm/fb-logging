@@ -41,8 +41,8 @@ name = "fb_logging"
 directory = "data"
 
 [project.scripts]
-# dch2speclog = "fb_logging.dch2speclog:main"
 dch2speclog = "fb_logging.dch2spl:main"
+check-changelog = "fb_logging.check_changelog:main"
 
 [project.optional-dependencies]
 development = [
