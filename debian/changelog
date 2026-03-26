@@ -1,3 +1,10 @@
+fb-logging (1.4.1) all; urgency=medium
+
+  * Moving installation of script manpages into Debian package fb-
+    logging.
+
+ -- Frank Brehm <frank.brehm@pixelpark.com>  Thu, 26 Mar 2026 16:21:00 +0100
+
 fb-logging (1.4.0) all; urgency=medium
 
   * Changing build environment to create two Debian packages.

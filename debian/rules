@@ -3,6 +3,7 @@
 
 export PYBUILD_NAME=fb-logging
 export PYBUILD_DESTDIR_python3=debian/python3-fb-logging/
+export PYBUILD_DESTDIR_bin=debian/fb-logging/
 export PYBUILD_DISABLE=test
 
 %:
@@ -10,7 +11,8 @@ export PYBUILD_DISABLE=test
 
 override_dh_auto_install:
 	dh_auto_install
-	mkdir -pv debian/fb-logging/usr
-	mv -v ${PYBUILD_DESTDIR_python3}usr/bin debian/fb-logging/usr
+	mkdir -pv ${PYBUILD_DESTDIR_bin}usr
+	mv -v ${PYBUILD_DESTDIR_python3}usr/bin ${PYBUILD_DESTDIR_bin}usr
+	if test -d ${PYBUILD_DESTDIR_python3}usr/share/man ; then mkdir -pv ${PYBUILD_DESTDIR_bin}usr/share; mv -v ${PYBUILD_DESTDIR_python3}usr/share/man ${PYBUILD_DESTDIR_bin}usr/share; fi
 
 # vim: ts=8 list
