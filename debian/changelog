@@ -1,3 +1,9 @@
+fb-logging (1.4.0) all; urgency=medium
+
+  * Changing build environment to create two Debian packages.
+
+ -- Frank Brehm <frank.brehm@pixelpark.com>  Thu, 26 Mar 2026 11:02:49 +0100
+
 fb-logging (1.3.10) all; urgency=medium
 
   * Renaming directory test => tests.
