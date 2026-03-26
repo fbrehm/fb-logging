@@ -8,5 +8,9 @@ export PYBUILD_DISABLE=test
 %:
 	dh $@ --with python3 --buildsystem=pybuild
 
+override_dh_auto_install:
+	dh_auto_install
+	mkdir -pv debian/fb-logging/usr
+	mv -v ${PYBUILD_DESTDIR_python3}usr/bin debian/fb-logging/usr
 
 # vim: ts=8 list
