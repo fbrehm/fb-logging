@@ -63,8 +63,12 @@ jobs:
       libdir: src/fb_logging
       # debian_versions: 'Debian-Bookworm Debian-Trixie Debian-Forky Ubuntu-Noble Ubuntu-Resolute'
       el_versions: 'el-9 el-10'
-      additional_debian_build_packages: 'python3-click python3-semver pybuild-plugin-pyproject flit'
-      additional_rpm_build_packages: ''
+      additional_debian_build_packages: >-
+        python3-click
+        python3-semver
+        pybuild-plugin-pyproject
+        flit
+      additional_rpm_build_packages: 'python3-semver'
       password_file: ${{ needs.prepare-image.outputs.password_file }}
       key_id: ${{ needs.prepare-image.outputs.key_id }}
       repo_dir: ${{ needs.prepare-image.outputs.repo_dir }}
@@ -72,7 +76,7 @@ jobs:
       smtp_server_port: ${{ needs.prepare-image.outputs.smtp_server_port }}
       smtp_sender_address: ${{ needs.prepare-image.outputs.smtp_sender_address }}
       smtp_recipient_addresses: ${{ needs.prepare-image.outputs.smtp_recipient_addresses }}
-      revision: 1
+      revision: 2
     secrets:
       pypi_token: ${{ secrets.PYPI_TOKEN }}
       public_key: ${{ secrets.GPG_PUBLIC_KEY }}
