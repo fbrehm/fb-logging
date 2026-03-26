@@ -14,9 +14,11 @@ Source0:        fb-logging.%{version}.tar.gz
 
 BuildRequires:  python%{python3_pkgversion}
 BuildRequires:  python%{python3_pkgversion}-devel
+BuildRequires:  python%{python3_pkgversion}-semver
 BuildRequires:  pyproject-rpm-macros
 Requires:       python%{python3_pkgversion}
 Requires:       python%{python3_pkgversion}-libs
+Requires:       python%{python3_pkgversion}-semver
 BuildArch:      noarch
 
 %description
@@ -24,6 +26,7 @@ Python modules to extend the logging mechanism in Python.
 
 This package provides the following script:
  * dch2speclog - converting a Debian changelog into log entries of a RPM spec file.
+ * check-changelog - checking a CHANGELOG.md for syntax errors and prints some information about.
 
 This is the Python@@@py_version_nodot@@@ version.
 
@@ -49,17 +52,10 @@ ls -lA '%{builddir}'
 echo "Whats in '%{buildroot}':"
 ls -lA '%{buildroot}'
 
-# cd ../%{builddir}
-# echo "Pwd: $( pwd )"
-# echo "Buildroot: %{buildroot}"
-# pip3 install --user -v . --no-deps --root %{buildroot} --use-pep517
-# # python@@@py_version_dot@@@ setup.py install --prefix=%{_prefix} --root=%{buildroot}
-# ls -l %{buildroot}
-
 %files -f %{pyproject_files}
 %defattr(-,root,root,-)
 %license LICENSE
-%doc CHANGELOG.md LICENSE README.md requirements.txt debian/changelog
+%doc CHANGELOG.md LICENSE README.md pyproject.toml debian/changelog
 %{_bindir}/*
 %{_mandir}/*
 
