@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-@summary: A script for converting a Debian changelog into log entries of a RPM spec file.
+@summary: A script for converting a CHANGELOG.md file into log entries of a RPM spec file.
 
 @author: Frank Brehm
 @contact: frank@brehm.online.com
-@copyright: © 2025 by Frank Brehm, Berlin
+@copyright: © 2026 by Frank Brehm, Berlin
 """
 from __future__ import print_function
 
@@ -14,41 +14,34 @@ import datetime
 import logging
 import os
 import platform
-import pprint
 import re
 import sys
 import textwrap
 import warnings
 from pathlib import Path
+from pprint import pp
 
 # 3rd party modules
 import click
 
 # Own modules
-from fb_logging import __version__ as __pkg_version__
-from fb_logging import pp
-from fb_logging.colored import ColoredFormatter
-from fb_logging.deb_changelog import Changelog
+from . import __version__ as __pkg_version__
+from . import pp
+from .colored import ColoredFormatter
+from .changelog import load as load_changelog
 
-__version__ = "0.2.0"
+__version__ = "0.1.0"
 
 LOG = logging.getLogger(__name__)
 
 
 # =============================================================================
-class Dch2SpecLogEnv(object):
+class Changelog2SpecLogEnv(object):
     """
-    Click context environment class for the dch2speclog application.
+    Click context environment class for the changelog2speclog application.
 
-    Converts a Debian changelog into log entries of a RPM spec file.
+    Converts a CHANGELOG.md into log entries of a RPM spec file.
     """
-
-    re_emptyline = re.compile(r"^\s*$")
-    re_start_line = re.compile(r"^  \* (.*)")
-    re_next_line = re.compile(r"^    (.*)")
-    re_day_str = re.compile(r"\s+\d\d:\d\d:\d\d\s+[+-]?\d{4}$")
-
-    output_line_width = 70
 
     # -------------------------------------------------------------------------
     @classmethod
@@ -244,109 +237,12 @@ class Dch2SpecLogEnv(object):
             self.convert(sys.stdin, "STDIN")
 
     # -------------------------------------------------------------------------
-    def mangle_changes(self, changes):
-        """Transform the changes into the RPM chngelog format."""
-        clist = []
-        change = None
-
-        for line in changes:
-
-            if self.re_emptyline.match(line):
-                continue
-
-            m = self.re_start_line.match(line)
-            if m:
-                if change:
-                    clist.append(change)
-                change = m.group(1)
-                continue
-
-            m = self.re_next_line.match(line)
-            if m:
-                if change:
-                    change += " " + m.group(1)
-                else:
-                    change = m.group(1)
-                continue
-
-            warnings.warn(
-                "Could not evaluate Changelog entry {!r}.".format(line),
-                SyntaxWarning,
-                stacklevel=1,
-            )
-
-        if change:
-            clist.append(change)
-
-        return clist
-
-    # -------------------------------------------------------------------------
     def convert(self, fh, filename):
         """Transform the complete contenet of the given changelog file into RPM changelog files."""
-        ch = None
+        LOG.debug(f"Loading Changelog file {filename!r} ...")
+        ch = load_changelog(fh)
 
-        with warnings.catch_warnings(record=True) as w:
-            warnings.simplefilter("always")
-            ch = Changelog(fh)
-
-            if len(w):
-                msg = "There were {nr} warnings on reading {f!r}.".format(nr=len(w), f=filename)
-                LOG.warning(msg)
-                for msg in w:
-                    category = msg.category.__name__
-                    s = f"{category}: {msg.message}\n"
-                    LOG.warning(s)
-                sys.exit(5)
-
-        LOG.debug("Changelog {f!r} has {nr} entries.".format(f=filename, nr=len(ch)))
-
-        days = {}
-
-        for block in ch:
-
-            lines = []
-            day_str = self.re_day_str.sub("", block.date)
-            date = datetime.datetime.strptime(day_str, "%a, %d %b %Y")
-
-            day = date.strftime("%Y-%m-%d")
-            author = block.author
-            version = str(block.version)
-            if not block.version.debian_revision:
-                version += "-1"
-            lines.append(
-                "*   {date} {author} {version}".format(date=date, author=author, version=version)
-            )
-
-            changes = self.mangle_changes(block._changes)
-
-            if day not in days:
-                days[day] = {
-                    "date": date.strftime("%a %b %d %Y"),
-                    "author": author,
-                    "version": version,
-                    "changes": changes,
-                }
-            else:
-                for change in changes:
-                    days[day]["changes"].append(change)
-
-        for day in sorted(days.keys(), reverse=True):
-            lines = []
-            block = days[day]
-            lines.append(
-                "*   {date} {author} {version}".format(
-                    date=block["date"], author=block["author"], version=block["version"]
-                )
-            )
-
-            for change in block["changes"]:
-                for line in textwrap.wrap(
-                    change, width=self.output_line_width, initial_indent="-   ",
-                    subsequent_indent="    "
-                ):
-                    lines.append(line)
-
-            click.echo("\n".join(lines))
+        LOG.debug(f"Loaded content of {filename!r}:\n" + pp(ch))
 
 
 # =============================================================================
@@ -370,11 +266,11 @@ CONTEXT_SETTINGS = {"help_option_names": ["-h", "--help"]}
 @click.pass_context
 def main(ctx, changelog_file, has_color, verbose):
     """
-    Convert a Debian CHANGELOG_FILE into log entries of a RPM spec file.
+    Convert a CHANGELOG_FILE markdown file into log entries of a RPM spec file.
 
     If CHANGELOG_FILE is omitted, then the input will be read from STDIN.
     """
-    ctx.obj = Dch2SpecLogEnv(changelog_file, verbose=verbose, has_colors=has_color)
+    ctx.obj = Changelog2SpecLogEnv(changelog_file, verbose=verbose, has_colors=has_color)
 
     if verbose > 2:
         click.echo(
