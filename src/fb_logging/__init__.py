@@ -11,7 +11,7 @@
 __author__ = "Frank Brehm <frank@brehm-online.com>"
 __copyright__ = "(C) 2026 by Frank Brehm, Berlin"
 __contact__ = "frank@brehm-online.com"
-__version__ = "1.4.1"
+__version__ = "1.5.0"
 __license__ = "LGPL-3"
 
 # Standard modules
@@ -19,6 +19,9 @@ import copy
 import logging
 import logging.handlers
 import os
+import pprint
+import shutil
+import sys
 import syslog
 from numbers import Number
 
@@ -29,6 +32,48 @@ NOTICE = 25
 WARNING = logging.WARNING
 ERROR = logging.ERROR
 CRITICAL = logging.CRITICAL
+
+DEFAULT_TERMINAL_WIDTH = 150
+DEFAULT_TERMINAL_HEIGHT = 40
+
+
+# =============================================================================
+def pp(
+    value,
+    indent=4,
+    width=None,
+    depth=None,
+    compact=False,
+    sort_dicts=True,
+    underscore_numbers=False,
+):
+    """
+    Return a pretty print string of the given value.
+
+    @return: pretty print string
+    @rtype: str
+    """
+    if width is None:
+        term_size = shutil.get_terminal_size((DEFAULT_TERMINAL_WIDTH, DEFAULT_TERMINAL_HEIGHT))
+        width = term_size.columns
+
+    kwargs = {
+        "indent": indent,
+        "width": width,
+        "depth": depth,
+        "compact": compact,
+    }
+
+    if sys.version_info.major > 3 or (sys.version_info.major == 3 and sys.version_info.minor >= 8):
+        kwargs["sort_dicts"] = sort_dicts
+
+    if sys.version_info.major > 3 or (
+        sys.version_info.major == 3 and sys.version_info.minor >= 10
+    ):
+        kwargs["underscore_numbers"] = underscore_numbers
+
+    pretty_printer = pprint.PrettyPrinter(**kwargs)
+    return pretty_printer.pformat(value)
 
 
 # =============================================================================

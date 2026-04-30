@@ -1,51 +1,57 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-@summary: A script for converting a Debian changelog into log entries of a RPM spec file.
+@summary: A script for converting a CHANGELOG.md file into log entries of a RPM spec file.
 
 @author: Frank Brehm
 @contact: frank@brehm.online.com
-@copyright: © 2025 by Frank Brehm, Berlin
+@copyright: © 2026 by Frank Brehm, Berlin
 """
 from __future__ import print_function
 
 # Standard modules
-import datetime
 import logging
 import os
 import platform
 import re
+import shutil
 import sys
 import textwrap
-import warnings
 from pathlib import Path
 
 # 3rd party modules
 import click
 
+try:
+    from semver import Version
+except ImportError:
+    from semver import VersionInfo as Version
+
 # Own modules
 from . import __version__ as __pkg_version__
 from . import pp
+from .changelog import ChangelogParsingError
+from .changelog import load as load_changelog
 from .colored import ColoredFormatter
-from .deb_changelog import Changelog
 
-__version__ = "0.3.0"
+__version__ = "0.2.0"
 
 LOG = logging.getLogger(__name__)
 
+DEFAULT_MAINT_NAME = "Frank Brehm"
+DEFAULT_MAINT_EMAIL = "frank@brehm-online.com"
+DEFAULT_REVISION = 1
+DEFAULT_TERMINAL_WIDTH = 99
+DEFAULT_TERMINAL_HEIGHT = 40
+
 
 # =============================================================================
-class Dch2SpecLogEnv(object):
+class Changelog2SpecLogEnv(object):
     """
-    Click context environment class for the dch2speclog application.
+    Click context environment class for the changelog2speclog application.
 
-    Converts a Debian changelog into log entries of a RPM spec file.
+    Converts a CHANGELOG.md into log entries of a RPM spec file.
     """
-
-    re_emptyline = re.compile(r"^\s*$")
-    re_start_line = re.compile(r"^  \* (.*)")
-    re_next_line = re.compile(r"^    (.*)")
-    re_day_str = re.compile(r"\s+\d\d:\d\d:\d\d\s+[+-]?\d{4}$")
 
     output_line_width = 70
 
@@ -127,7 +133,9 @@ class Dch2SpecLogEnv(object):
 
     # -------------------------------------------------------------------------
     def __init__(
-        self, changelog_file, appname=None, verbose=0, version=__pkg_version__, has_colors=None
+        self, changelog_file, default_revision=DEFAULT_REVISION, error_if_unreleased=True,
+        maintainer_name=DEFAULT_MAINT_NAME, maintainer_email=DEFAULT_MAINT_EMAIL,
+        appname=None, verbose=0, version=__pkg_version__, has_colors=None
     ):
         """Initialise the application object."""
         if changelog_file is None:
@@ -144,6 +152,22 @@ class Dch2SpecLogEnv(object):
             self.has_colors = bool(has_colors)
         else:
             self.has_colors = self.terminal_can_color()
+
+        self.default_revision = default_revision
+
+        self.maintainer_name = maintainer_name.strip()
+        self.maintainer_email = maintainer_email.strip().lower()
+
+        if not self.maintainer_name:
+            LOG.error("Empty name of the maintainer given.")
+            sys.exit(1)
+
+        if not self.maintainer_email:
+            LOG.error("Empty E-Mail address of the maintainer given.")
+            sys.exit(1)
+
+        self.has_unreleased = False
+        self.error_if_unreleased = error_if_unreleased
 
         self.init_logging()
 
@@ -243,114 +267,93 @@ class Dch2SpecLogEnv(object):
             self.convert(sys.stdin, "STDIN")
 
     # -------------------------------------------------------------------------
-    def mangle_changes(self, changes):
-        """Transform the changes into the RPM chngelog format."""
-        clist = []
-        change = None
+    def mangle_change(self, action, change):
+        """Transform the change nto the RPM chngelog format witht the prepended action."""
+        lines = []
 
-        for line in changes:
+        change = change.strip()
+        if not change:
+            return []
 
-            if self.re_emptyline.match(line):
-                continue
+        # Substituting newlines by spaces
+        change = action.lower().capitalize() + ": " + change.replace("\n", " ").replace("`", "")
 
-            m = self.re_start_line.match(line)
-            if m:
-                if change:
-                    clist.append(change)
-                change = m.group(1)
-                continue
+        for line in textwrap.wrap(
+            change, width=self.output_line_width, initial_indent="-   ", subsequent_indent="    ",
+        ):
+            lines.append(line)
 
-            m = self.re_next_line.match(line)
-            if m:
-                if change:
-                    change += " " + m.group(1)
-                else:
-                    change = m.group(1)
-                continue
-
-            warnings.warn(
-                "Could not evaluate Changelog entry {!r}.".format(line),
-                SyntaxWarning,
-                stacklevel=1,
-            )
-
-        if change:
-            clist.append(change)
-
-        return clist
+        return lines
 
     # -------------------------------------------------------------------------
     def convert(self, fh, filename):
         """Transform the complete contenet of the given changelog file into RPM changelog files."""
-        ch = None
+        LOG.debug(f"Loading Changelog file {filename!r} ...")
+        try:
+            ch = load_changelog(fh)
+        except ChangelogParsingError as e:
+            LOG.error(f"Error on parsing {filename!r}: " + str(e))
+            sys.exit(5)
 
-        with warnings.catch_warnings(record=True) as w:
-            warnings.simplefilter("always")
-            ch = Changelog(fh)
+        for entry in ch:
+            cur_version = entry["version"]
+            if isinstance(cur_version, Version):
+                if cur_version.prerelease is None:
+                    new_version = Version(
+                        major=cur_version.major, minor=cur_version.minor, patch=cur_version.patch,
+                        prerelease=self.default_revision, build=cur_version.build)
+                    entry["version"] = new_version
+            else:
+                if cur_version.lower() == "unreleased":
+                    self.has_unreleased = True
+                else:
+                    LOG.error(f"Found invalid version {cur_version!r} in {filename!r}.")
+                    sys.exit(6)
 
-            if len(w):
-                msg = "There were {nr} warnings on reading {f!r}.".format(nr=len(w), f=filename)
-                LOG.warning(msg)
-                for msg in w:
-                    category = msg.category.__name__
-                    s = f"{category}: {msg.message}\n"
-                    LOG.warning(s)
-                sys.exit(5)
+        LOG.debug(f"Loaded content of {filename!r}:\n" + pp(ch))
 
-        LOG.debug("Changelog {f!r} has {nr} entries.".format(f=filename, nr=len(ch)))
+        if self.has_unreleased:
+            LOG.warn(f"Found an UNRELEASED version in {filename!r}.")
+            if self.error_if_unreleased:
+                sys.exit(2)
 
         days = {}
-
-        for block in ch:
-
+        for entry in ch:
             lines = []
-            day_str = self.re_day_str.sub("", block.date)
-            date = datetime.datetime.strptime(day_str, "%a, %d %b %Y")
-
-            day = date.strftime("%Y-%m-%d")
-            author = block.author
-            version = str(block.version)
-            if not block.version.debian_revision:
-                version += "-1"
-            lines.append(
-                "*   {date} {author} {version}".format(date=date, author=author, version=version)
-            )
-
-            changes = self.mangle_changes(block._changes)
+            day = entry["date"].strftime("%Y-%m-%d")
+            date = entry["date"].strftime("%a %b %d %Y")
+            version = str(entry["version"])
+            author = self.maintainer_name
+            email = self.maintainer_email
 
             if day not in days:
-                days[day] = {
-                    "date": date.strftime("%a %b %d %Y"),
-                    "author": author,
-                    "version": version,
-                    "changes": changes,
-                }
-            else:
-                for change in changes:
-                    days[day]["changes"].append(change)
+                days[day] = [f"*   {date} {author} <{email}> {version}"]
+
+            for action in ("Added", "Changed", "Deprecated", "Removed", "Fixed", "Security"):
+                action_lc = action.lower()
+                if action_lc not in entry:
+                    continue
+
+                for change in entry[action_lc]:
+                    for line in self.mangle_change(action_lc, change):
+                        lines += [line]
+            days[day] += lines
 
         for day in sorted(days.keys(), reverse=True):
-            lines = []
-            block = days[day]
-            lines.append(
-                "*   {date} {author} {version}".format(
-                    date=block["date"], author=block["author"], version=block["version"]
-                )
-            )
+            click.echo("\n".join(days[day]))
 
-            for change in block["changes"]:
-                for line in textwrap.wrap(
-                    change, width=self.output_line_width, initial_indent="-   ",
-                    subsequent_indent="    "
-                ):
-                    lines.append(line)
-
-            click.echo("\n".join(lines))
+        sys.exit(0)
 
 
 # =============================================================================
 
-CONTEXT_SETTINGS = {"help_option_names": ["-h", "--help"]}
+TERM_SIZE = shutil.get_terminal_size((DEFAULT_TERMINAL_WIDTH, DEFAULT_TERMINAL_HEIGHT))
+
+CONTEXT_SETTINGS = {
+    "help_option_names": ["-h", "--help"],
+    "show_default": True,
+    "terminal_width": TERM_SIZE.columns,
+}
 
 
 @click.command(context_settings=CONTEXT_SETTINGS)
@@ -360,6 +363,28 @@ CONTEXT_SETTINGS = {"help_option_names": ["-h", "--help"]}
     required=False,
 )
 @click.option(
+    "-R", "--default-revision", type=click.IntRange(min=1), default=DEFAULT_REVISION,
+    metavar="REVISION",
+    help=("The default revision, if there is no revision included "
+          "in the current version from Changelog.")
+)
+@click.option(
+    "--error-if-unreleased/--no-error-if-unreleased", " /-N", default=True,
+    help="Return with code 2, if an UNRELEASED version was found."
+)
+@click.option(
+    "--maintainer-name", "-M", default=DEFAULT_MAINT_NAME,
+    metavar="NAME",
+    help="The name of the package maintainer used for speclog."
+)
+@click.option(
+    "--maintainer-email", "-E", default=DEFAULT_MAINT_EMAIL,
+    metavar="EMAIL",
+    help=(
+        "The E-Mail address of the package maintainer used for speclog."
+    )
+)
+@click.option(
     "--color/--no-color", "has_color", default=None, help="Set colored output for messages."
 )
 @click.option(
@@ -367,13 +392,20 @@ CONTEXT_SETTINGS = {"help_option_names": ["-h", "--help"]}
 )
 @click.version_option()
 @click.pass_context
-def main(ctx, changelog_file, has_color, verbose):
+def main(
+    ctx, changelog_file, default_revision, error_if_unreleased, maintainer_name, maintainer_email,
+    has_color, verbose,
+):
     """
-    Convert a Debian CHANGELOG_FILE into log entries of a RPM spec file.
+    Convert a CHANGELOG_FILE markdown file into log entries of a RPM spec file.
 
     If CHANGELOG_FILE is omitted, then the input will be read from STDIN.
     """
-    ctx.obj = Dch2SpecLogEnv(changelog_file, verbose=verbose, has_colors=has_color)
+    ctx.obj = Changelog2SpecLogEnv(
+        changelog_file, default_revision=default_revision, error_if_unreleased=error_if_unreleased,
+        maintainer_name=maintainer_name, maintainer_email=maintainer_email,
+        verbose=verbose, has_colors=has_color,
+    )
 
     if verbose > 2:
         click.echo(
