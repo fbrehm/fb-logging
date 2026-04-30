@@ -1,3 +1,10 @@
+fb-logging (1.5.0) all; urgency=medium
+
+  * Adding module fb_logging.cl2spl with entrypoint changelog2speclog.
+  * Changing the way of import local modules in fb_logging.dch2spl.py.
+
+ -- Frank Brehm <frank.brehm@pixelpark.com>  Thu, 30 Apr 2026 14:14:53 +0200
+
 fb-logging (1.4.1) all; urgency=medium
 
   * Moving installation of script manpages into Debian package fb-

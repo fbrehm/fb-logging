@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased] - 2026-04-30
+## [1.5.0] - 2026-04-30
 
 ### Added
 
@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Changed
 
-* Chaging the way of import local modules in `fb_logging.dch2spl.py`.
+* Changing the way of import local modules in `fb_logging.dch2spl.py`.
 
 ## [1.4.1] - 2026-03-26
 
@@ -333,6 +333,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Initial release
 
 
+[1.5.0]: https://github.com/fbrehm/fb-logging/compare/1.4.1...1.5.0
+[1.4.1]: https://github.com/fbrehm/fb-logging/compare/1.4.0...1.4.1
 [1.4.0]: https://github.com/fbrehm/fb-logging/compare/1.3.10...1.4.0
 [1.3.10]: https://github.com/fbrehm/fb-logging/compare/1.3.9...1.3.10
 [1.3.9]: https://github.com/fbrehm/fb-logging/compare/1.3.8...1.3.9
