@@ -14,7 +14,6 @@ import datetime
 import logging
 import os
 import platform
-import pprint
 import re
 import sys
 import textwrap
@@ -25,12 +24,12 @@ from pathlib import Path
 import click
 
 # Own modules
-from fb_logging import __version__ as __pkg_version__
-from fb_logging import pp
-from fb_logging.colored import ColoredFormatter
-from fb_logging.deb_changelog import Changelog
+from . import __version__ as __pkg_version__
+from . import pp
+from .colored import ColoredFormatter
+from .deb_changelog import Changelog
 
-__version__ = "0.2.0"
+__version__ = "0.3.0"
 
 LOG = logging.getLogger(__name__)
 
