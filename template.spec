@@ -24,11 +24,7 @@ BuildArch:      noarch
 %description
 Python modules to extend the logging mechanism in Python.
 
-This package provides the following script:
- * dch2speclog - converting a Debian changelog into log entries of a RPM spec file.
- * check-changelog - checking a CHANGELOG.md for syntax errors and prints some information about.
-
-This is the Python@@@py_version_nodot@@@ version.
+This is the Python%{python3_pkgversion} version.
 
 %prep
 echo "Preparing '${builddir}' ..."
@@ -44,18 +40,38 @@ echo "Pwd: $( pwd )"
 
 %install
 %pyproject_install
-%pyproject_save_files fb_logging
+# %pyproject_save_files fb_logging
 
-echo "Whats in '%{builddir}':"
 ls -lA '%{builddir}'
 
-echo "Whats in '%{buildroot}':"
 ls -lA '%{buildroot}'
 
-%files -f %{pyproject_files}
+%files
 %defattr(-,root,root,-)
 %license LICENSE
-%doc CHANGELOG.md LICENSE README.md pyproject.toml debian/changelog
+%doc CHANGELOG.md README.md pyproject.toml debian/changelog
+%{python3_sitelib}/*
+
+%package fb-logging
+
+Summary:        Scripts to extend the logging mechanism in Python.
+Group:          Applications/System
+
+Requires:	python%{python3_pkgversion}-fb-logging = %{version}
+
+%description
+Python modules to extend the logging mechanism in Python.
+
+This package provides the following script:
+ * dch2speclog - converting a Debian changelog into log entries of a RPM spec file.
+ * check-changelog - checking a CHANGELOG.md for syntax errors and prints some information about.
+
+This is the Python%{python3_pkgversion} version.
+
+%files -n fb-logging
+%defattr(-,root,root,-)
+%license LICENSE
+%doc CHANGELOG.md README.md pyproject.toml debian/changelog
 %{_bindir}/*
 %{_mandir}/*
 
