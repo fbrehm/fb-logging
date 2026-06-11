@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.1] - 2026-06-11
+
+### Changed
+
+* Splitting RPM specfile into two different binary packages.
+
 ## [1.5.0] - 2026-04-30
 
 ### Added
@@ -333,6 +339,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Initial release
 
 
+[1.5.1]: https://github.com/fbrehm/fb-logging/compare/1.5.0...1.5.1
 [1.5.0]: https://github.com/fbrehm/fb-logging/compare/1.4.1...1.5.0
 [1.4.1]: https://github.com/fbrehm/fb-logging/compare/1.4.0...1.4.1
 [1.4.0]: https://github.com/fbrehm/fb-logging/compare/1.3.10...1.4.0
