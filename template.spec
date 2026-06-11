@@ -52,12 +52,12 @@ ls -lA '%{buildroot}'
 %doc CHANGELOG.md README.md pyproject.toml debian/changelog
 %{python3_sitelib}/*
 
-%package fb-logging
+%package -n fb-logging
 
-Summary:        Scripts to extend the logging mechanism in Python.
-Group:          Applications/System
+Summary:  Scripts to extend the logging mechanism in Python.
+Group:    Applications/System
 
-Requires:	python%{python3_pkgversion}-fb-logging = %{version}
+Requires: python%{python3_pkgversion}-fb-logging = %{version}
 
 %description
 Python modules to extend the logging mechanism in Python.
