@@ -40,11 +40,6 @@ echo "Pwd: $( pwd )"
 
 %install
 %pyproject_install
-# %pyproject_save_files fb_logging
-
-ls -lA '%{builddir}'
-
-ls -lA '%{buildroot}'
 
 %files
 %defattr(-,root,root,-)
