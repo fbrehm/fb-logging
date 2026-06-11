@@ -17,7 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Adding module `fb_logging.cl2spl` with entrypoint `changelog2speclog`.
 
-## Changed
+### Changed
 
 * Changing the way of import local modules in `fb_logging.dch2spl.py`.
 
