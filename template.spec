@@ -59,7 +59,7 @@ Group:    Applications/System
 
 Requires: python%{python3_pkgversion}-fb-logging = %{version}
 
-%description
+%description -n fb-logging
 Python modules to extend the logging mechanism in Python.
 
 This package provides the following script:
